@@ -1,0 +1,1032 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Migration guide for the new string data type (pandas 3.0) &#8212; pandas 3.0.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=956a7be408686d7d6a7b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=956a7be408686d7d6a7b" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/getting_started.css?v=8d8a0ed4" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pandas.css?v=b7db95b1" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=956a7be408686d7d6a7b"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=956a7be408686d7d6a7b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=956a7be408686d7d6a7b" />
+
+    <script src="../_static/documentation_options.js?v=9b3fc59f"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-domain="pandas.pydata.org" defer="defer" src="https://views.scientific-python.org/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/migration-3-strings';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pandas.pydata.org/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Frequently Asked Questions (FAQ)" href="gotchas.html" />
+    <link rel="prev" title="Sparse data structures" href="sparse.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.0.3" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+  <aside class="bd-header-announcement d-print-none d-none" aria-label="Announcement" data-pst-announcement-url="https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/_templates/docs-announcement-banner.html"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pandas.svg" class="logo__image only-light" alt="pandas 3.0.3 documentation - Home"/>
+    <img src="https://pandas.pydata.org/static/img/pandas_white.svg" class="logo__image only-dark pst-js-only" alt="pandas 3.0.3 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew/index.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pandas-dev/pandas" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://x.com/pandas_dev" title="X" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-x-twitter fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">X</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://fosstodon.org/@pandas_dev" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Mastodon</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../whatsnew/index.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pandas-dev/pandas" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://x.com/pandas_dev" title="X" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-x-twitter fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">X</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://fosstodon.org/@pandas_dev" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Mastodon</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item navbar-nav">
+    
+    <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="10min.html">10 minutes to pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dsintro.html">Intro to data structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Essential basic functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO tools (text, CSV, HDF5, …)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyarrow.html">PyArrow Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indexing.html">Indexing and selecting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">MultiIndex / advanced indexing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copy_on_write.html">Copy-on-Write (CoW)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="merging.html">Merge, join, concatenate and compare</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reshaping.html">Reshaping and pivot tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="text.html">Working with text data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="missing_data.html">Working with missing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="duplicates.html">Duplicate Labels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="categorical.html">Categorical data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integer_na.html">Nullable integer data type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boolean.html">Nullable Boolean data type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Chart visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style.html">Table Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_defined_functions.html">User-Defined Functions (UDFs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="groupby.html">Group by: split-apply-combine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="window.html">Windowing operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time series / date functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timedeltas.html">Time deltas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="options.html">Options and settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enhancingperf.html">Enhancing performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scale.html">Scaling to large datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">Sparse data structures</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Migration guide for the new string data type (pandas 3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Frequently Asked Questions (FAQ)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cookbook.html">Cookbook</a></li>
+</ul>
+
+    
+  </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Migration guide for the new string data type (pandas 3.0)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="migration-guide-for-the-new-string-data-type-pandas-3-0">
+<span id="string-migration-guide"></span><h1>Migration guide for the new string data type (pandas 3.0)<a class="headerlink" href="#migration-guide-for-the-new-string-data-type-pandas-3-0" title="Link to this heading">#</a></h1>
+<p>The upcoming pandas 3.0 release introduces a new, default string data type. This
+will most likely cause some work when upgrading to pandas 3.0, and this page
+provides an overview of the issues you might run into and gives guidance on how
+to address them.</p>
+<p>This new dtype is already available in the pandas 2.3 release, and you can
+enable it with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">future</span><span class="o">.</span><span class="n">infer_string</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>This allows you to test your code before the final 3.0 release.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This migration guide focuses on the changes and migration steps needed when
+you are currently using <code class="docutils literal notranslate"><span class="pre">object</span></code> dtype for string data, which is used by
+default in pandas &lt; 3.0. If you are already using one of the opt-in string
+dtypes, you can continue to do so without change.
+See <a class="reference internal" href="#string-migration-guide-for-existing-users"><span class="std std-ref">For existing users of the nullable StringDtype</span></a> for more details.</p>
+</div>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>Historically, pandas has always used the NumPy <code class="docutils literal notranslate"><span class="pre">object</span></code> dtype as the default
+to store text data. This has two primary drawbacks. First, <code class="docutils literal notranslate"><span class="pre">object</span></code> dtype is
+not specific to strings: any Python object can be stored in an <code class="docutils literal notranslate"><span class="pre">object</span></code>-dtype
+array, not just strings, and seeing <code class="docutils literal notranslate"><span class="pre">object</span></code> as the dtype for a column with
+strings is confusing for users. Second, this is not always very efficient (both
+performance wise and for memory usage).</p>
+<p>Since pandas 1.0, an opt-in string data type has been available, but this has
+not yet been made the default, and uses the <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code> scalar to represent
+missing values.</p>
+<p>Pandas 3.0 changes the default dtype for strings to a new string data type,
+a variant of the existing optional string data type but using <code class="docutils literal notranslate"><span class="pre">NaN</span></code> as the
+missing value indicator, to be consistent with the other default data types.</p>
+<p>To improve performance, the new string data type will use the <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code>
+package by default, if installed (and otherwise it uses object dtype under the
+hood as a fallback).</p>
+<p>See <a class="reference external" href="https://pandas.pydata.org/pdeps/0014-string-dtype.html">PDEP-14: Dedicated string data type for pandas 3.0</a>
+for more background and details.</p>
+</section>
+<section id="brief-introduction-to-the-new-default-string-dtype">
+<h2>Brief introduction to the new default string dtype<a class="headerlink" href="#brief-introduction-to-the-new-default-string-dtype" title="Link to this heading">#</a></h2>
+<p>By default, pandas will infer this new string dtype instead of object dtype for
+string data (when creating pandas objects, such as in constructors or IO
+functions).</p>
+<p>Being a default dtype means that the string dtype will be used in IO methods or
+constructors when the dtype is being inferred and the input is inferred to be
+string data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="go">0      a</span>
+<span class="go">1      b</span>
+<span class="go">2    NaN</span>
+<span class="go">dtype: str</span>
+</pre></div>
+</div>
+<p>It can also be specified explicitly using the <code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code> alias:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="go">0      a</span>
+<span class="go">1      b</span>
+<span class="go">2    NaN</span>
+<span class="go">dtype: str</span>
+</pre></div>
+</div>
+<p>Similarly, functions like <a class="reference internal" href="../reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_csv()</span></code></a>, <a class="reference internal" href="../reference/api/pandas.read_parquet.html#pandas.read_parquet" title="pandas.read_parquet"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_parquet()</span></code></a>, and others
+will now use the new string dtype when reading string data.</p>
+<p>In contrast to the current object dtype, the new string dtype will only store
+strings. This also means that it will raise an error if you try to store a
+non-string value in it (see below for more details).</p>
+<p>Missing values with the new string dtype are always represented as <code class="docutils literal notranslate"><span class="pre">NaN</span></code> (<code class="docutils literal notranslate"><span class="pre">np.nan</span></code>),
+and the missing value behavior is similar to other default dtypes.</p>
+<p>This new string dtype should otherwise behave the same as the existing
+<code class="docutils literal notranslate"><span class="pre">object</span></code> dtype users are used to. For example, all string-specific methods
+through the <code class="docutils literal notranslate"><span class="pre">str</span></code> accessor will work the same:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="go">0    A</span>
+<span class="go">1    B</span>
+<span class="go">2  NaN</span>
+<span class="go">dtype: str</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The new default string dtype is an instance of the <a class="reference internal" href="../reference/api/pandas.StringDtype.html#pandas.StringDtype" title="pandas.StringDtype"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.StringDtype</span></code></a>
+class. The dtype can be constructed as <code class="docutils literal notranslate"><span class="pre">pd.StringDtype(na_value=np.nan)</span></code>,
+but for general usage we recommend to use the shorter <code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code> alias.</p>
+</div>
+</section>
+<section id="overview-of-behavior-differences-and-how-to-address-them">
+<span id="string-migration-guide-differences"></span><h2>Overview of behavior differences and how to address them<a class="headerlink" href="#overview-of-behavior-differences-and-how-to-address-them" title="Link to this heading">#</a></h2>
+<section id="the-dtype-is-no-longer-a-numpy-object-dtype">
+<h3>The dtype is no longer a numpy “object” dtype<a class="headerlink" href="#the-dtype-is-no-longer-a-numpy-object-dtype" title="Link to this heading">#</a></h3>
+<p>When inferring or reading string data, the data type of the resulting DataFrame
+column or Series will silently start being the new <code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code> dtype instead of
+the numpy <code class="docutils literal notranslate"><span class="pre">&quot;object&quot;</span></code> dtype, and this can have some impact on your code.</p>
+<p>The new string dtype is a pandas data type (“extension dtype”), and no longer a
+numpy <code class="docutils literal notranslate"><span class="pre">np.dtype</span></code> instance. Therefore, passing the dtype of a string column to
+numpy functions will no longer work (e.g. passing it to a <code class="docutils literal notranslate"><span class="pre">dtype=</span></code> argument
+of a numpy function, or using <code class="docutils literal notranslate"><span class="pre">np.issubdtype</span></code> to check the dtype).</p>
+<section id="checking-the-dtype">
+<h4>Checking the dtype<a class="headerlink" href="#checking-the-dtype" title="Link to this heading">#</a></h4>
+<p>When checking the dtype, code might currently do something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span>
+</pre></div>
+</div>
+<p>to check for columns with string data (by checking for the dtype being
+<code class="docutils literal notranslate"><span class="pre">&quot;object&quot;</span></code>). This will no longer work in pandas 3+, since <code class="docutils literal notranslate"><span class="pre">ser.dtype</span></code> will
+now be <code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code> with the new default string dtype, and the above check will
+return <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>To check for columns with string data, you should instead use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span>
+</pre></div>
+</div>
+<p><strong>How to write compatible code</strong></p>
+<p>For code that should work on both pandas 2.x and 3.x, you can use the
+<a class="reference internal" href="../reference/api/pandas.api.types.is_string_dtype.html#pandas.api.types.is_string_dtype" title="pandas.api.types.is_string_dtype"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.api.types.is_string_dtype()</span></code></a> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_string_dtype</span><span class="p">(</span><span class="n">ser</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>This will return <code class="docutils literal notranslate"><span class="pre">True</span></code> for both the object dtype and the string dtypes.</p>
+</section>
+<section id="hardcoded-use-of-object-dtype">
+<h4>Hardcoded use of object dtype<a class="headerlink" href="#hardcoded-use-of-object-dtype" title="Link to this heading">#</a></h4>
+<p>If you have code where the dtype is hardcoded in constructors, like</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this will keep using the object dtype. You will want to update this code to
+ensure you get the benefits of the new string dtype.</p>
+<p><strong>How to write compatible code?</strong></p>
+<p>First, in many cases it can be sufficient to remove the specific data type, and
+let pandas do the inference. But if you want to be specific, you can specify the
+<code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code> dtype:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is actually compatible with pandas 2.x as well, since in pandas &lt; 3,
+<code class="docutils literal notranslate"><span class="pre">dtype=&quot;str&quot;</span></code> was essentially treated as an alias for object dtype.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>While using <code class="docutils literal notranslate"><span class="pre">dtype=&quot;str&quot;</span></code> in constructors is compatible with pandas 2.x,
+specifying it as the dtype in <a class="reference internal" href="../reference/api/pandas.Series.astype.html#pandas.Series.astype" title="pandas.Series.astype"><code class="xref py py-meth docutils literal notranslate"><span class="pre">astype()</span></code></a> runs into the issue
+of also stringifying missing values in pandas 2.x. See the section
+<a class="reference internal" href="#string-migration-guide-astype-str"><span class="std std-ref">astype(str) preserving missing values</span></a> for more details.</p>
+</div>
+<p id="string-migration-select-dtypes">For selecting string columns with <a class="reference internal" href="../reference/api/pandas.DataFrame.select_dtypes.html#pandas.DataFrame.select_dtypes" title="pandas.DataFrame.select_dtypes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">select_dtypes()</span></code></a> in a pandas
+2.x and 3.x compatible way, it is not possible to use <code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code>. While this
+works for pandas 3.x, it raises an error in pandas 2.x.
+As an alternative, you can select both <code class="docutils literal notranslate"><span class="pre">object</span></code> (for pandas 2.x) and
+<code class="docutils literal notranslate"><span class="pre">&quot;string&quot;</span></code> (for pandas 3.x; which will also select the default <code class="docutils literal notranslate"><span class="pre">str</span></code> dtype
+and does not error on pandas 2.x):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># can use ``include=[&quot;str&quot;]`` for pandas &gt;= 3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-missing-value-sentinel-is-now-always-nan">
+<h3>The missing value sentinel is now always NaN<a class="headerlink" href="#the-missing-value-sentinel-is-now-always-nan" title="Link to this heading">#</a></h3>
+<p>When using object dtype, multiple possible missing value sentinels are
+supported, including <code class="docutils literal notranslate"><span class="pre">None</span></code> and <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>. With the new default string dtype,
+the missing value sentinel is always NaN (<code class="docutils literal notranslate"><span class="pre">np.nan</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># with object dtype, None is preserved as None and seen as missing</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span>
+<span class="mi">0</span>       <span class="n">a</span>
+<span class="mi">1</span>       <span class="n">b</span>
+<span class="mi">2</span>    <span class="kc">None</span>
+<span class="n">dtype</span><span class="p">:</span> <span class="nb">object</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">ser</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="kc">None</span>
+
+<span class="c1"># with the new string dtype, any missing value like None is coerced to NaN</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span>
+<span class="mi">0</span>      <span class="n">a</span>
+<span class="mi">1</span>      <span class="n">b</span>
+<span class="mi">2</span>    <span class="n">NaN</span>
+<span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">ser</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">nan</span>
+</pre></div>
+</div>
+<p>Generally this should be no problem when relying on missing value behavior in
+pandas methods (for example, <code class="docutils literal notranslate"><span class="pre">ser.isna()</span></code> will give the same result as before).
+But when you relied on the exact value of <code class="docutils literal notranslate"><span class="pre">None</span></code> being present, that can
+impact your code.</p>
+<p><strong>How to write compatible code?</strong></p>
+<p>When checking for a missing value, instead of checking for the exact value of
+<code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>, you should use the <a class="reference internal" href="../reference/api/pandas.isna.html#pandas.isna" title="pandas.isna"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.isna()</span></code></a> function. This is
+the most robust way to check for missing values, as it will work regardless of
+the dtype and the exact missing value sentinel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">ser</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>One caveat: this function works both on scalars and on array-likes, and in the
+latter case it will return an array of bools. When using it in a Boolean context
+(for example, <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">pd.isna(..):</span> <span class="pre">..</span></code>) be sure to only pass a scalar to it.</p>
+</section>
+<section id="setitem-operations-will-now-raise-an-error-for-non-string-data">
+<h3>“setitem” operations will now raise an error for non-string data<a class="headerlink" href="#setitem-operations-will-now-raise-an-error-for-non-string-data" title="Link to this heading">#</a></h3>
+<p>With the new string dtype, any attempt to set a non-string value in a Series or
+DataFrame will raise an error:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="go">---------------------------------------------------------------------------</span>
+<span class="go">TypeError                                 Traceback (most recent call last)</span>
+<span class="go">...</span>
+<span class="go">TypeError: Invalid value &#39;2.5&#39; for dtype &#39;str&#39;. Value should be a string or missing value, got &#39;float&#39; instead.</span>
+</pre></div>
+</div>
+<p>If you relied on the flexible nature of object dtype being able to hold any
+Python object, but your initial data was inferred as strings, your code might be
+impacted by this change.</p>
+<p><strong>How to write compatible code?</strong></p>
+<p>You can update your code to ensure you only set string values in such columns,
+or otherwise you can explicitly ensure the column has object dtype first. This
+can be done by specifying the dtype explicitly in the constructor, or by using
+the <a class="reference internal" href="../reference/api/pandas.Series.astype.html#pandas.Series.astype" title="pandas.Series.astype"><code class="xref py py-meth docutils literal notranslate"><span class="pre">astype()</span></code></a> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
+</pre></div>
+</div>
+<p>This <code class="docutils literal notranslate"><span class="pre">astype(&quot;object&quot;)</span></code> call will be redundant when using pandas 2.x, but
+this code will work for all versions.</p>
+</section>
+<section id="invalid-unicode-input">
+<h3>Invalid unicode input<a class="headerlink" href="#invalid-unicode-input" title="Link to this heading">#</a></h3>
+<p>Python allows to have a built-in <code class="docutils literal notranslate"><span class="pre">str</span></code> object that represents invalid unicode
+data. And since the <code class="docutils literal notranslate"><span class="pre">object</span></code> dtype can hold any Python object, you can have a
+pandas Series with such invalid unicode data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\u2600</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\ud83d</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span>
+<span class="go">0    ☀</span>
+<span class="go">1    \ud83d</span>
+<span class="go">dtype: object</span>
+</pre></div>
+</div>
+<p>However, when using the string dtype using <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> under the hood, this can
+only store valid unicode data, and otherwise it will raise an error:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\u2600</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\ud83d</span><span class="s2">&quot;</span><span class="p">])</span>
+<span class="go">---------------------------------------------------------------------------</span>
+<span class="go">UnicodeEncodeError                        Traceback (most recent call last)</span>
+<span class="go">...</span>
+<span class="go">UnicodeEncodeError: &#39;utf-8&#39; codec can&#39;t encode character &#39;\ud83d&#39; in position 0: surrogates not allowed</span>
+</pre></div>
+</div>
+<p>If you want to keep the previous behaviour, you can explicitly specify
+<code class="docutils literal notranslate"><span class="pre">dtype=object</span></code> to keep working with object dtype.</p>
+<p>When you have byte data that you want to convert to strings using <code class="docutils literal notranslate"><span class="pre">decode()</span></code>,
+the <a class="reference internal" href="../reference/api/pandas.Series.str.decode.html#pandas.Series.str.decode" title="pandas.Series.str.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decode()</span></code></a> method now has a <code class="docutils literal notranslate"><span class="pre">dtype</span></code> parameter to be
+able to specify object dtype instead of the default of string dtype for this use
+case.</p>
+</section>
+<section id="series-values-now-returns-an-extensionarray">
+<h3><a class="reference internal" href="../reference/api/pandas.Series.values.html#pandas.Series.values" title="pandas.Series.values"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Series.values()</span></code></a> now returns an <a class="reference internal" href="../reference/api/pandas.api.extensions.ExtensionArray.html#pandas.api.extensions.ExtensionArray" title="pandas.api.extensions.ExtensionArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtensionArray</span></code></a><a class="headerlink" href="#series-values-now-returns-an-extensionarray" title="Link to this heading">#</a></h3>
+<p>With object dtype, using <code class="docutils literal notranslate"><span class="pre">.values</span></code> on a Series will return the underlying NumPy array.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">ser</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="go">&lt;class &#39;numpy.ndarray&#39;&gt;</span>
+</pre></div>
+</div>
+<p>However with the new string dtype, the underlying ExtensionArray is returned instead.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">values</span>
+<span class="go">&lt;ArrowStringArray&gt;</span>
+<span class="go">[&#39;a&#39;, &#39;b&#39;, nan]</span>
+<span class="go">Length: 3, dtype: str</span>
+</pre></div>
+</div>
+<p>If your code requires a NumPy array, you should use <a class="reference internal" href="../reference/api/pandas.Series.to_numpy.html#pandas.Series.to_numpy" title="pandas.Series.to_numpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Series.to_numpy()</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">[&#39;a&#39; &#39;b&#39; nan]</span>
+</pre></div>
+</div>
+<p>In general, you should always prefer <a class="reference internal" href="../reference/api/pandas.Series.to_numpy.html#pandas.Series.to_numpy" title="pandas.Series.to_numpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Series.to_numpy()</span></code></a> to get a NumPy array or <a class="reference internal" href="../reference/api/pandas.Series.array.html#pandas.Series.array" title="pandas.Series.array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Series.array()</span></code></a> to get an ExtensionArray over using <a class="reference internal" href="../reference/api/pandas.Series.values.html#pandas.Series.values" title="pandas.Series.values"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Series.values()</span></code></a>.</p>
+</section>
+<section id="notable-bug-fixes">
+<h3>Notable bug fixes<a class="headerlink" href="#notable-bug-fixes" title="Link to this heading">#</a></h3>
+<section id="astype-str-preserving-missing-values">
+<span id="string-migration-guide-astype-str"></span><h4><code class="docutils literal notranslate"><span class="pre">astype(str)</span></code> preserving missing values<a class="headerlink" href="#astype-str-preserving-missing-values" title="Link to this heading">#</a></h4>
+<p>The stringifying of missing values is a long standing “bug” or misfeature, as
+discussed in <a class="github reference external" href="https://github.com/pandas-dev/pandas/issues/25353">pandas-dev/pandas#25353</a>, but fixing it
+introduces a significant behaviour change.</p>
+<p>With pandas &lt; 3, when using <code class="docutils literal notranslate"><span class="pre">astype(str)</span></code> or <code class="docutils literal notranslate"><span class="pre">astype(&quot;str&quot;)</span></code>, the operation
+would convert every element to a string, including the missing values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># OLD behavior in pandas &lt; 3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span>
+<span class="mi">0</span>    <span class="mf">1.5</span>
+<span class="mi">1</span>    <span class="n">NaN</span>
+<span class="n">dtype</span><span class="p">:</span> <span class="n">float64</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="mi">0</span>    <span class="mf">1.5</span>
+<span class="mi">1</span>    <span class="n">nan</span>
+<span class="n">dtype</span><span class="p">:</span> <span class="nb">object</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">array</span><span class="p">([</span><span class="s1">&#39;1.5&#39;</span><span class="p">,</span> <span class="s1">&#39;nan&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note how <code class="docutils literal notranslate"><span class="pre">NaN</span></code> (<code class="docutils literal notranslate"><span class="pre">np.nan</span></code>) was converted to the string <code class="docutils literal notranslate"><span class="pre">&quot;nan&quot;</span></code>. This was
+not the intended behavior, and it was inconsistent with how other dtypes handled
+missing values.</p>
+<p>With pandas 3, this behavior has been fixed, and now <code class="docutils literal notranslate"><span class="pre">astype(&quot;str&quot;)</span></code> will cast
+to the new string dtype, which preserves the missing values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># NEW behavior in pandas 3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">future</span><span class="o">.</span><span class="n">infer_string</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="mi">0</span>    <span class="mf">1.5</span>
+<span class="mi">1</span>    <span class="n">NaN</span>
+<span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">ser</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">array</span><span class="p">([</span><span class="s1">&#39;1.5&#39;</span><span class="p">,</span> <span class="n">nan</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you want to preserve the old behaviour of converting every object to a
+string, you can use <code class="docutils literal notranslate"><span class="pre">ser.map(str)</span></code> instead. If you want do such conversion
+while preserving the missing values in a way that works with both pandas 2.x and
+3.x, you can use <code class="docutils literal notranslate"><span class="pre">ser.map(str,</span> <span class="pre">na_action=&quot;ignore&quot;)</span></code> (for pandas 3.x only, you
+can do <code class="docutils literal notranslate"><span class="pre">ser.astype(&quot;str&quot;)</span></code>).</p>
+<p>If you want to convert to object or string dtype for pandas 2.x and 3.x,
+respectively, without needing to stringify each individual element, you will
+have to use a conditional check on the pandas version.
+For example, to convert a categorical Series with string categories to its
+dense non-categorical version with object or string dtype:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s2">&quot;3&quot;</span> <span class="k">else</span> <span class="s2">&quot;str&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="prod-raising-for-string-data">
+<h4><code class="docutils literal notranslate"><span class="pre">prod()</span></code> raising for string data<a class="headerlink" href="#prod-raising-for-string-data" title="Link to this heading">#</a></h4>
+<p>In pandas &lt; 3, calling the <a class="reference internal" href="../reference/api/pandas.Series.prod.html#pandas.Series.prod" title="pandas.Series.prod"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prod()</span></code></a> method on a Series with
+string data would generally raise an error, except when the Series was empty or
+contained only a single string (potentially with missing values):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+<span class="go">&#39;a&#39;</span>
+</pre></div>
+</div>
+<p>When the Series contains multiple strings, it will raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>. This
+behaviour stays the same in pandas 3 when using the flexible <code class="docutils literal notranslate"><span class="pre">object</span></code> dtype.
+But by virtue of using the new string dtype, this will generally consistently
+raise an error regardless of the number of strings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ser</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+<span class="go">---------------------------------------------------------------------------</span>
+<span class="go">TypeError                                 Traceback (most recent call last)</span>
+<span class="go">...</span>
+<span class="go">TypeError: Cannot perform reduction &#39;prod&#39; with string dtype</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="for-existing-users-of-the-nullable-stringdtype">
+<span id="string-migration-guide-for-existing-users"></span><h2>For existing users of the nullable <code class="docutils literal notranslate"><span class="pre">StringDtype</span></code><a class="headerlink" href="#for-existing-users-of-the-nullable-stringdtype" title="Link to this heading">#</a></h2>
+<p>While pandas 3.0 introduces a new _default_ string data type, pandas had an
+opt-in nullable string data type since pandas 1.0, which can be specified using
+<code class="docutils literal notranslate"><span class="pre">dtype=&quot;string&quot;</span></code>. This nullable string dtype uses <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code> as the missing
+value indicator. In addition, also through <a class="reference internal" href="../reference/api/pandas.ArrowDtype.html#pandas.ArrowDtype" title="pandas.ArrowDtype"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrowDtype</span></code></a> (by using
+<code class="docutils literal notranslate"><span class="pre">dtypes_backend=&quot;pyarrow&quot;</span></code>) since pandas 1.5, one could already make use of
+a dedicated string dtype.</p>
+<p>If you are already using one of the nullable string dtypes, for example by
+specifying <code class="docutils literal notranslate"><span class="pre">dtype=&quot;string&quot;</span></code>, by using <a class="reference internal" href="../reference/api/pandas.DataFrame.convert_dtypes.html#pandas.DataFrame.convert_dtypes" title="pandas.DataFrame.convert_dtypes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">convert_dtypes()</span></code></a>, or
+by specifying the <code class="docutils literal notranslate"><span class="pre">dtype_backend</span></code> argument in IO functions, you can continue
+to do so without change.</p>
+<p>The migration guide above applies to code that is currently (&lt; 3.0) using object
+dtype for string data.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sparse.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Sparse data structures</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gotchas.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Frequently Asked Questions (FAQ)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#brief-introduction-to-the-new-default-string-dtype">Brief introduction to the new default string dtype</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-behavior-differences-and-how-to-address-them">Overview of behavior differences and how to address them</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-dtype-is-no-longer-a-numpy-object-dtype">The dtype is no longer a numpy “object” dtype</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-the-dtype">Checking the dtype</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hardcoded-use-of-object-dtype">Hardcoded use of object dtype</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-missing-value-sentinel-is-now-always-nan">The missing value sentinel is now always NaN</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setitem-operations-will-now-raise-an-error-for-non-string-data">“setitem” operations will now raise an error for non-string data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-unicode-input">Invalid unicode input</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#series-values-now-returns-an-extensionarray"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Series.values()</span></code> now returns an <code class="xref py py-class docutils literal notranslate"><span class="pre">ExtensionArray</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notable-bug-fixes">Notable bug fixes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#astype-str-preserving-missing-values"><code class="docutils literal notranslate"><span class="pre">astype(str)</span></code> preserving missing values</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#prod-raising-for-string-data"><code class="docutils literal notranslate"><span class="pre">prod()</span></code> raising for string data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#for-existing-users-of-the-nullable-stringdtype">For existing users of the nullable <code class="docutils literal notranslate"><span class="pre">StringDtype</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=956a7be408686d7d6a7b"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=956a7be408686d7d6a7b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    &copy 2026, pandas via <a href="https://numfocus.org">NumFOCUS, Inc.</a> Hosted by <a href="https://www.ovhcloud.com">OVHcloud</a>.
+</p></div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
