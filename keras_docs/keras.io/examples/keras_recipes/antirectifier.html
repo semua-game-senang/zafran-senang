@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Simple custom layer example: Antirectifier">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="antirectifier.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Simple custom layer example: Antirectifier">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Simple custom layer example: Antirectifier">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Simple custom layer example: Antirectifier</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2 active" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2 active" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Quick Keras Recipes</a> /
+         Simple custom layer example: Antirectifier
+    </div>
+    <h1 id="simple-custom-layer-example-antirectifier">Simple custom layer example: Antirectifier</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/fchollet">fchollet</a><br>
+<strong>Date created:</strong> 2016/01/06<br>
+<strong>Last modified:</strong> 2023/11/20<br>
+<strong>Description:</strong> Demonstration of custom layer creation.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/keras_recipes/ipynb/antirectifier.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/keras_recipes/antirectifier.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This example shows how to create custom layers, using the Antirectifier layer
+ (originally proposed as a Keras example script in January 2016), an alternative
+to ReLU. Instead of zeroing-out the negative part of the input, it splits the negative
+ and positive parts and returns the concatenation of the absolute value
+of both. This avoids loss of information, at the cost of an increase in dimensionality.
+ To fix the dimensionality increase, we linearly combine the
+features back to a space of the original size.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+</code></pre></div>
+
+<hr />
+<h2 id="the-antirectifier-layer">The Antirectifier layer</h2>
+<p>To implement a custom layer:</p>
+<ul>
+<li>Create the state variables via <code>add_weight()</code> in <code>__init__</code> or <code>build()</code>.
+Similarly, you can also create sublayers.</li>
+<li>Implement the <code>call()</code> method, taking the layer's input tensor(s) and
+return the output tensor(s).</li>
+<li>Optionally, you can also enable serialization by implementing <code>get_config()</code>,
+which returns a configuration dictionary.</li>
+</ul>
+<p>See also the guide
+<a href="https://keras.io/guides/making_new_layers_and_models_via_subclassing/">Making new layers and models via subclassing</a>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Antirectifier</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="s2">&quot;he_normal&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initializer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">initializer</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="n">output_dim</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">output_dim</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initializer</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;kernel&quot;</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">-=</span> <span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">neg</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="o">-</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">concatenated</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">pos</span><span class="p">,</span> <span class="n">neg</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">mixed</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">concatenated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mixed</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Implement get_config to enable serialization. This is optional.</span>
+        <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;initializer&quot;</span><span class="p">:</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initializer</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+</code></pre></div>
+
+<hr />
+<h2 id="lets-testdrive-it-on-mnist">Let's test-drive it on MNIST</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Training parameters</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># The data, split between train and test sets</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+<span class="n">x_train</span> <span class="o">/=</span> <span class="mi">255</span>
+<span class="n">x_test</span> <span class="o">/=</span> <span class="mi">255</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;train samples&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;test samples&quot;</span><span class="p">)</span>
+
+<span class="c1"># Build the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">784</span><span class="p">,)),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+        <span class="n">Antirectifier</span><span class="p">(),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+        <span class="n">Antirectifier</span><span class="p">(),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Compile the model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">RMSprop</span><span class="p">(),</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+<span class="p">)</span>
+
+<span class="c1"># Train the model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+
+<span class="c1"># Test the model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>60000 train samples
+10000 test samples
+Epoch 1/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 2s 5ms/step - loss: 0.6226 - sparse_categorical_accuracy: 0.8146 - val_loss: 0.4256 - val_sparse_categorical_accuracy: 0.8808
+Epoch 2/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.1887 - sparse_categorical_accuracy: 0.9455 - val_loss: 0.1556 - val_sparse_categorical_accuracy: 0.9588
+Epoch 3/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.1406 - sparse_categorical_accuracy: 0.9608 - val_loss: 0.1531 - val_sparse_categorical_accuracy: 0.9611
+Epoch 4/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.1084 - sparse_categorical_accuracy: 0.9691 - val_loss: 0.1178 - val_sparse_categorical_accuracy: 0.9731
+Epoch 5/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0995 - sparse_categorical_accuracy: 0.9738 - val_loss: 0.2207 - val_sparse_categorical_accuracy: 0.9526
+Epoch 6/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0831 - sparse_categorical_accuracy: 0.9769 - val_loss: 0.2092 - val_sparse_categorical_accuracy: 0.9533
+Epoch 7/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0736 - sparse_categorical_accuracy: 0.9807 - val_loss: 0.1129 - val_sparse_categorical_accuracy: 0.9749
+Epoch 8/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0653 - sparse_categorical_accuracy: 0.9827 - val_loss: 0.1000 - val_sparse_categorical_accuracy: 0.9791
+Epoch 9/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0590 - sparse_categorical_accuracy: 0.9833 - val_loss: 0.1320 - val_sparse_categorical_accuracy: 0.9750
+Epoch 10/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0587 - sparse_categorical_accuracy: 0.9854 - val_loss: 0.1439 - val_sparse_categorical_accuracy: 0.9747
+Epoch 11/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0622 - sparse_categorical_accuracy: 0.9853 - val_loss: 0.1473 - val_sparse_categorical_accuracy: 0.9753
+Epoch 12/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0554 - sparse_categorical_accuracy: 0.9869 - val_loss: 0.1529 - val_sparse_categorical_accuracy: 0.9757
+Epoch 13/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0507 - sparse_categorical_accuracy: 0.9884 - val_loss: 0.1452 - val_sparse_categorical_accuracy: 0.9783
+Epoch 14/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0468 - sparse_categorical_accuracy: 0.9889 - val_loss: 0.1435 - val_sparse_categorical_accuracy: 0.9796
+Epoch 15/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0478 - sparse_categorical_accuracy: 0.9892 - val_loss: 0.1580 - val_sparse_categorical_accuracy: 0.9770
+Epoch 16/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0492 - sparse_categorical_accuracy: 0.9888 - val_loss: 0.1957 - val_sparse_categorical_accuracy: 0.9753
+Epoch 17/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0478 - sparse_categorical_accuracy: 0.9896 - val_loss: 0.1865 - val_sparse_categorical_accuracy: 0.9779
+Epoch 18/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0478 - sparse_categorical_accuracy: 0.9893 - val_loss: 0.2107 - val_sparse_categorical_accuracy: 0.9747
+Epoch 19/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0494 - sparse_categorical_accuracy: 0.9894 - val_loss: 0.2306 - val_sparse_categorical_accuracy: 0.9734
+Epoch 20/20
+ 399/399 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.0473 - sparse_categorical_accuracy: 0.9910 - val_loss: 0.2201 - val_sparse_categorical_accuracy: 0.9731
+ 313/313 ━━━━━━━━━━━━━━━━━━━━ 0s 802us/step - loss: 0.2086 - sparse_categorical_accuracy: 0.9710
+
+[0.19070196151733398, 0.9740999937057495]
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter07_deep-dive-keras">Chapter 7: A deep dive on Keras</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='antirectifier.html#simple-custom-layer-example-antirectifier'>Simple custom layer example: Antirectifier</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='antirectifier.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='antirectifier.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='antirectifier.html#the-antirectifier-layer'>The Antirectifier layer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='antirectifier.html#lets-testdrive-it-on-mnist'>Let's test-drive it on MNIST</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='antirectifier.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

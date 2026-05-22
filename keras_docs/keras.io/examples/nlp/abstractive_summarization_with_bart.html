@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Abstractive Text Summarization with BART">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="abstractive_summarization_with_bart.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Abstractive Text Summarization with BART">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Abstractive Text Summarization with BART">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Abstractive Text Summarization with BART</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2 active" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2 active" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Natural Language Processing</a> /
+         Abstractive Text Summarization with BART
+    </div>
+    <h1 id="abstractive-text-summarization-with-bart">Abstractive Text Summarization with BART</h1>
+<p><strong>Author:</strong> <a href="https://github.com/abheesht17/">Abheesht Sharma</a><br>
+<strong>Date created:</strong> 2023/07/08<br>
+<strong>Last modified:</strong> 2024/03/20<br>
+<strong>Description:</strong> Use KerasHub to fine-tune BART on the abstractive summarization task.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/nlp/ipynb/abstractive_summarization_with_bart.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/nlp/abstractive_summarization_with_bart.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>In the era of information overload, it has become crucial to extract the crux
+of a long document or a conversation and express it in a few sentences. Owing
+to the fact that summarization has widespread applications in different domains,
+it has become a key, well-studied NLP task in recent years.</p>
+<p><a href="https://arxiv.org/abs/1910.13461">Bidirectional Autoregressive Transformer (BART)</a>
+is a Transformer-based encoder-decoder model, often used for
+sequence-to-sequence tasks like summarization and neural machine translation.
+BART is pre-trained in a self-supervised fashion on a large text corpus. During
+pre-training, the text is corrupted and BART is trained to reconstruct the
+original text (hence called a "denoising autoencoder"). Some pre-training tasks
+include token masking, token deletion, sentence permutation (shuffle sentences
+and train BART to fix the order), etc.</p>
+<p>In this example, we will demonstrate how to fine-tune BART on the abstractive
+summarization task (on conversations!) using KerasHub, and generate summaries
+using the fine-tuned model.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<p>Before we start implementing the pipeline, let's install and import all the
+libraries we need. We'll be using the KerasHub library. We will also need a
+couple of utility libraries.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">keras</span><span class="o">-</span><span class="n">team</span><span class="o">/</span><span class="n">keras</span><span class="o">-</span><span class="n">hub</span><span class="o">.</span><span class="n">git</span> <span class="n">py7zr</span> <span class="o">-</span><span class="n">q</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>  Installing build dependencies ... [?25l[?25hdone
+  Getting requirements to build wheel ... [?25l[?25hdone
+  Preparing metadata (pyproject.toml) ... [?25l[?25hdone
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.4/66.4 kB [31m1.4 MB/s eta [36m0:00:00
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB [31m34.8 MB/s eta [36m0:00:00
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 412.3/412.3 kB [31m30.4 MB/s eta [36m0:00:00
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 138.8/138.8 kB [31m15.1 MB/s eta [36m0:00:00
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 49.8/49.8 kB [31m5.8 MB/s eta [36m0:00:00
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.7/2.7 MB [31m61.4 MB/s eta [36m0:00:00
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 93.1/93.1 kB [31m10.1 MB/s eta [36m0:00:00
+[?25h  Building wheel for keras-hub (pyproject.toml) ... [?25l[?25hdone
+</code></pre></div>
+
+
+</div>
+<p>This examples uses <a href="https://keras.io/keras_3">Keras 3</a> to work in any of
+<code>"tensorflow"</code>, <code>"jax"</code> or <code>"torch"</code>. Support for Keras 3 is baked into
+KerasHub, simply change the <code>"KERAS_BACKEND"</code> environment variable to select
+the backend of your choice. We select the JAX backend below.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;jax&quot;</span>
+</code></pre></div>
+
+<p>Import all necessary libraries.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">py7zr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Using JAX backend.
+</code></pre></div>
+
+
+</div>
+<p>Let's also define our hyperparameters.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">NUM_BATCHES</span> <span class="o">=</span> <span class="mi">600</span>
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Can be set to a higher value for better results</span>
+<span class="n">MAX_ENCODER_SEQUENCE_LENGTH</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">MAX_DECODER_SEQUENCE_LENGTH</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">MAX_GENERATION_LENGTH</span> <span class="o">=</span> <span class="mi">40</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dataset">Dataset</h2>
+<p>Let's load the <a href="https://arxiv.org/abs/1911.12237">SAMSum dataset</a>. This dataset
+contains around 15,000 pairs of conversations/dialogues and summaries.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Download the dataset.</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="s2">&quot;corpus.7z&quot;</span><span class="p">,</span>
+    <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://huggingface.co/datasets/samsum/resolve/main/data/corpus.7z&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Extract the `.7z` file.</span>
+<span class="k">with</span> <span class="n">py7zr</span><span class="o">.</span><span class="n">SevenZipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">z</span><span class="p">:</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;/root/tensorflow_datasets/downloads/manual&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load data using TFDS.</span>
+<span class="n">samsum_ds</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;samsum&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://huggingface.co/datasets/samsum/resolve/main/data/corpus.7z
+ 2944100/2944100 ━━━━━━━━━━━━━━━━━━━━ 1s 0us/step
+Downloading and preparing dataset Unknown size (download: Unknown size, generated: 10.71 MiB, total: 10.71 MiB) to /root/tensorflow_datasets/samsum/1.0.0...
+
+Generating splits...:   0%|          | 0/3 [00:00&lt;?, ? splits/s]
+
+Generating train examples...:   0%|          | 0/14732 [00:00&lt;?, ? examples/s]
+
+Shuffling /root/tensorflow_datasets/samsum/1.0.0.incompleteYA9MAV/samsum-train.tfrecord*...:   0%|          | …
+
+Generating validation examples...:   0%|          | 0/818 [00:00&lt;?, ? examples/s]
+
+Shuffling /root/tensorflow_datasets/samsum/1.0.0.incompleteYA9MAV/samsum-validation.tfrecord*...:   0%|       …
+
+Generating test examples...:   0%|          | 0/819 [00:00&lt;?, ? examples/s]
+
+Shuffling /root/tensorflow_datasets/samsum/1.0.0.incompleteYA9MAV/samsum-test.tfrecord*...:   0%|          | 0…
+
+Dataset samsum downloaded and prepared to /root/tensorflow_datasets/samsum/1.0.0. Subsequent calls will reuse this data.
+</code></pre></div>
+
+
+</div>
+<p>The dataset has two fields: <code>dialogue</code> and <code>summary</code>. Let's see a sample.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">dialogue</span><span class="p">,</span> <span class="n">summary</span> <span class="ow">in</span> <span class="n">samsum_ds</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">dialogue</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="k">break</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>b&quot;Carter: Hey Alexis, I just wanted to let you know that I had a really nice time with you tonight. \r\nAlexis: Thanks Carter. Yeah, I really enjoyed myself as well. \r\nCarter: If you are up for it, I would really like to see you again soon.\r\nAlexis: Thanks Carter, I&#39;m flattered. But I have a really busy week coming up.\r\nCarter: Yeah, no worries. I totally understand. But if you ever want to go grab dinner again, just let me know. \r\nAlexis: Yeah of course. Thanks again for tonight. \r\nCarter: Sure. Have a great night. &quot;
+b&#39;Alexis and Carter met tonight. Carter would like to meet again, but Alexis is busy.&#39;
+</code></pre></div>
+
+
+</div>
+<p>We'll now batch the dataset and retain only a subset of the dataset for the
+purpose of this example. The dialogue is fed to the encoder, and the
+corresponding summary serves as input to the decoder. We will, therefore, change
+the format of the dataset to a dictionary having two keys: <code>"encoder_text"</code> and
+<code>"decoder_text"</code>.This is how <a href="https://keras.io/keras_hub/api/models/bart/bart_seq_2_seq_lm_preprocessor#bartseq2seqlmpreprocessor-class"><code>keras_hub.models.BartSeq2SeqLMPreprocessor</code></a>
+expects the input format to be.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">samsum_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">dialogue</span><span class="p">,</span> <span class="n">summary</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;encoder_text&quot;</span><span class="p">:</span> <span class="n">dialogue</span><span class="p">,</span> <span class="s2">&quot;decoder_text&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">NUM_BATCHES</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="finetune-bart">Fine-tune BART</h2>
+<p>Let's load the model and preprocessor first. We use sequence lengths of 512
+and 128 for the encoder and decoder, respectively, instead of 1024 (which is the
+default sequence length). This will allow us to run this example quickly
+on Colab.</p>
+<p>If you observe carefully, the preprocessor is attached to the model. What this
+means is that we don't have to worry about preprocessing the text inputs;
+everything will be done internally. The preprocessor tokenizes the encoder text
+and the decoder text, adds special tokens and pads them. To generate labels
+for auto-regressive training, the preprocessor shifts the decoder text one
+position to the right. This is done because at every timestep, the model is
+trained to predict the next token.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">BartSeq2SeqLMPreprocessor</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;bart_base_en&quot;</span><span class="p">,</span>
+    <span class="n">encoder_sequence_length</span><span class="o">=</span><span class="n">MAX_ENCODER_SEQUENCE_LENGTH</span><span class="p">,</span>
+    <span class="n">decoder_sequence_length</span><span class="o">=</span><span class="n">MAX_DECODER_SEQUENCE_LENGTH</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">bart_lm</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">BartSeq2SeqLM</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;bart_base_en&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span>
+<span class="p">)</span>
+
+<span class="n">bart_lm</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://storage.googleapis.com/keras-hub/models/bart_base_en/v1/vocab.json
+ 898823/898823 ━━━━━━━━━━━━━━━━━━━━ 1s 1us/step
+Downloading data from https://storage.googleapis.com/keras-hub/models/bart_base_en/v1/merges.txt
+ 456318/456318 ━━━━━━━━━━━━━━━━━━━━ 1s 1us/step
+Downloading data from https://storage.googleapis.com/keras-hub/models/bart_base_en/v1/model.h5
+ 557969120/557969120 ━━━━━━━━━━━━━━━━━━━━ 29s 0us/step
+</code></pre></div>
+
+
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Preprocessor: "bart_seq2_seq_lm_preprocessor"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Tokenizer (type)                                   </span>┃<span style="font-weight: bold">                                             Vocab # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ bart_tokenizer (<span style="color: #0087ff; text-decoration-color: #0087ff">BartTokenizer</span>)                     │                                              <span style="color: #00af00; text-decoration-color: #00af00">50,265</span> │
+└────────────────────────────────────────────────────┴─────────────────────────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "bart_seq2_seq_lm"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                  </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">     Param # </span>┃<span style="font-weight: bold"> Connected to                   </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ decoder_padding_mask          │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)                  │                           │             │                                │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ decoder_token_ids             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)                  │                           │             │                                │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ encoder_padding_mask          │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)                  │                           │             │                                │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ encoder_token_ids             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)                  │                           │             │                                │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ bart_backbone (<span style="color: #0087ff; text-decoration-color: #0087ff">BartBackbone</span>)  │ [(<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">768</span>),       │ <span style="color: #00af00; text-decoration-color: #00af00">139,417,344</span> │ decoder_padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],    │
+│                               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">768</span>)]        │             │ decoder_token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],       │
+│                               │                           │             │ encoder_padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],    │
+│                               │                           │             │ encoder_token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]        │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ reverse_embedding             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">50265</span>)             │  <span style="color: #00af00; text-decoration-color: #00af00">38,603,520</span> │ bart_backbone[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]            │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">ReverseEmbedding</span>)            │                           │             │                                │
+└───────────────────────────────┴───────────────────────────┴─────────────┴────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">139,417,344</span> (4.15 GB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">139,417,344</span> (4.15 GB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<p>Define the optimizer and loss. We use the Adam optimizer with a linearly
+decaying learning rate. Compile the model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">5e-5</span><span class="p">,</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">global_clipnorm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Gradient clipping.</span>
+<span class="p">)</span>
+<span class="c1"># Exclude layernorm and bias terms from weight decay.</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">exclude_from_weight_decay</span><span class="p">(</span><span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">])</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">exclude_from_weight_decay</span><span class="p">(</span><span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">])</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">exclude_from_weight_decay</span><span class="p">(</span><span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">])</span>
+
+<span class="n">loss</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">bart_lm</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+    <span class="n">weighted_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Let's train the model!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">bart_lm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 600/600 ━━━━━━━━━━━━━━━━━━━━ 398s 586ms/step - loss: 0.4330
+
+&lt;keras_core.src.callbacks.history.History at 0x7ae2faf3e110&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="generate-summaries-and-evaluate-them">Generate summaries and evaluate them!</h2>
+<p>Now that the model has been trained, let's get to the fun part - actually
+generating summaries! Let's pick the first 100 samples from the validation set
+and generate summaries for them. We will use the default decoding strategy, i.e.,
+greedy search.</p>
+<p>Generation in KerasHub is highly optimized. It is backed by the power of XLA.
+Secondly, key/value tensors in the self-attention layer and cross-attention layer
+in the decoder are cached to avoid recomputation at every timestep.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_text</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_text</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">print_time_taken</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">input_text</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total Time Elapsed: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+
+<span class="c1"># Load the dataset.</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;samsum&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;validation&quot;</span><span class="p">,</span> <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">dialogues</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ground_truth_summaries</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">dialogue</span><span class="p">,</span> <span class="n">summary</span> <span class="ow">in</span> <span class="n">val_ds</span><span class="p">:</span>
+    <span class="n">dialogues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dialogue</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="n">ground_truth_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
+<span class="c1"># Let&#39;s make a dummy call - the first call to XLA generally takes a bit longer.</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">generate_text</span><span class="p">(</span><span class="n">bart_lm</span><span class="p">,</span> <span class="s2">&quot;sample text&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_GENERATION_LENGTH</span><span class="p">)</span>
+
+<span class="c1"># Generate summaries.</span>
+<span class="n">generated_summaries</span> <span class="o">=</span> <span class="n">generate_text</span><span class="p">(</span>
+    <span class="n">bart_lm</span><span class="p">,</span>
+    <span class="n">val_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">dialogue</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">dialogue</span><span class="p">)</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_GENERATION_LENGTH</span><span class="p">,</span>
+    <span class="n">print_time_taken</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Total Time Elapsed: 21.22s
+Total Time Elapsed: 49.00s
+</code></pre></div>
+
+
+</div>
+<p>Let's see some of the summaries.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">dialogue</span><span class="p">,</span> <span class="n">generated_summary</span><span class="p">,</span> <span class="n">ground_truth_summary</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="n">dialogues</span><span class="p">[:</span><span class="mi">5</span><span class="p">],</span> <span class="n">generated_summaries</span><span class="p">[:</span><span class="mi">5</span><span class="p">],</span> <span class="n">ground_truth_summaries</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dialogue:&quot;</span><span class="p">,</span> <span class="n">dialogue</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generated Summary:&quot;</span><span class="p">,</span> <span class="n">generated_summary</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ground Truth Summary:&quot;</span><span class="p">,</span> <span class="n">ground_truth_summary</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=============================&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Dialogue: b&#39;Tony: Is the boss in?\r\nClaire: Not yet.\r\nTony: Could let me know when he comes, please? \r\nClaire: Of course.\r\nTony: Thank you.&#39;
+Generated Summary: Tony will let Claire know when her boss comes.
+Ground Truth Summary: b&quot;The boss isn&#39;t in yet. Claire will let Tony know when he comes.&quot;
+=============================
+Dialogue: b&quot;James: What shouldl I get her?\r\nTim: who?\r\nJames: gees Mary my girlfirend\r\nTim: Am I really the person you should be asking?\r\nJames: oh come on it&#39;s her birthday on Sat\r\nTim: ask Sandy\r\nTim: I honestly am not the right person to ask this\r\nJames: ugh fine!&quot;
+Generated Summary: Mary&#39;s girlfriend is birthday. James and Tim are going to ask Sandy to buy her.
+Ground Truth Summary: b&quot;Mary&#39;s birthday is on Saturday. Her boyfriend, James, is looking for gift ideas. Tim suggests that he ask Sandy.&quot;
+=============================
+Dialogue: b&quot;Mary: So, how&#39;s Israel? Have you been on the beach?\r\nKate: It&#39;s so expensive! But they say, it&#39;s Tel Aviv... Tomorrow we are going to Jerusalem.\r\nMary: I&#39;ve heard Israel is expensive, Monica was there on vacation last year, she complained about how pricey it is. Are you going to the Dead Sea before it dies? ahahahha\r\nKate: ahahhaha yup, in few days.&quot;
+Generated Summary: Kate is on vacation in Tel Aviv. Mary will visit the Dead Sea in a few days.
+Ground Truth Summary: b&#39;Mary and Kate discuss how expensive Israel is. Kate is in Tel Aviv now, planning to travel to Jerusalem tomorrow, and to the Dead Sea few days later.&#39;
+=============================
+Dialogue: b&quot;Giny: do we have rice?\r\nRiley: nope, it&#39;s finished\r\nGiny: fuck!\r\nGiny: ok, I&#39;ll buy&quot;
+Generated Summary: Giny wants to buy rice from Riley.
+Ground Truth Summary: b&quot;Giny and Riley don&#39;t have any rice left. Giny will buy some.&quot;
+=============================
+Dialogue: b&quot;Jude: i&#39;ll be in warsaw at the beginning of december so we could meet again\r\nLeon: !!!\r\nLeon: at the beginning means...?\r\nLeon: cuz I won&#39;t be here during the first weekend\r\nJude: 10\r\nJude: but i think it&#39;s a monday, so never mind i guess :D\r\nLeon: yeah monday doesn&#39;t really work for me :D\r\nLeon: :&lt;\r\nJude: oh well next time :d\r\nLeon: yeah...!&quot;
+Generated Summary: Jude and Leon will meet again this weekend at 10 am.
+Ground Truth Summary: b&#39;Jude is coming to Warsaw on the 10th of December and wants to see Leon. Leon has no time.&#39;
+=============================
+</code></pre></div>
+
+
+</div>
+<p>The generated summaries look awesome! Not bad for a model trained only for 1
+epoch and on 5000 examples :)
+```</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter15_language-models-and-the-transformer">Chapter 15: Language models and the Transformer</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter16_text-generation">Chapter 16: Text generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='abstractive_summarization_with_bart.html#abstractive-text-summarization-with-bart'>Abstractive Text Summarization with BART</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='abstractive_summarization_with_bart.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='abstractive_summarization_with_bart.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='abstractive_summarization_with_bart.html#dataset'>Dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='abstractive_summarization_with_bart.html#finetune-bart'>Fine-tune BART</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='abstractive_summarization_with_bart.html#generate-summaries-and-evaluate-them'>Generate summaries and evaluate them!</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

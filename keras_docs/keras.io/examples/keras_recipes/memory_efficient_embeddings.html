@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Memory-efficient embeddings for recommendation systems">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="memory_efficient_embeddings.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Memory-efficient embeddings for recommendation systems">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Memory-efficient embeddings for recommendation systems">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Memory-efficient embeddings for recommendation systems</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2 active" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2 active" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Quick Keras Recipes</a> /
+         Memory-efficient embeddings for recommendation systems
+    </div>
+    <h1 id="memoryefficient-embeddings-for-recommendation-systems">Memory-efficient embeddings for recommendation systems</h1>
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/khalid-salama-24403144/">Khalid Salama</a><br>
+<strong>Date created:</strong> 2021/02/15<br>
+<strong>Last modified:</strong> 2023/11/15<br>
+<strong>Description:</strong> Using compositional &amp; mixed-dimension embeddings for memory-efficient recommendation models.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/keras_recipes/ipynb/memory_efficient_embeddings.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/keras_recipes/memory_efficient_embeddings.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This example demonstrates two techniques for building memory-efficient recommendation models
+by reducing the size of the embedding tables, without sacrificing model effectiveness:</p>
+<ol>
+<li><a href="https://arxiv.org/abs/1909.02107">Quotient-remainder trick</a>, by Hao-Jun Michael Shi et al.,
+which reduces the number of embedding vectors to store, yet produces unique embedding
+vector for each item without explicit definition.</li>
+<li><a href="https://arxiv.org/abs/1909.11810">Mixed Dimension embeddings</a>, by Antonio Ginart et al.,
+which stores embedding vectors with mixed dimensions, where less popular items have
+reduced dimension embeddings.</li>
+</ol>
+<p>We use the <a href="https://grouplens.org/datasets/movielens/1m/">1M version of the Movielens dataset</a>.
+The dataset includes around 1 million ratings from 6,000 users on 4,000 movies.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">zipfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZipFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlretrieve</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringLookup</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</code></pre></div>
+
+<hr />
+<h2 id="prepare-the-data">Prepare the data</h2>
+<hr />
+<h2 id="download-and-process-data">Download and process data</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">urlretrieve</span><span class="p">(</span><span class="s2">&quot;http://files.grouplens.org/datasets/movielens/ml-1m.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;movielens.zip&quot;</span><span class="p">)</span>
+<span class="n">ZipFile</span><span class="p">(</span><span class="s2">&quot;movielens.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">()</span>
+
+<span class="n">ratings_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;ml-1m/ratings.dat&quot;</span><span class="p">,</span>
+    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;::&quot;</span><span class="p">,</span>
+    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="s2">&quot;movie_id&quot;</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="s2">&quot;unix_timestamp&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;movie_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;movie_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;movie_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;user_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="k">del</span> <span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;unix_timestamp&quot;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of users: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">user_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of movies: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">movie_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of ratings: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>/var/folders/8n/8w8cqnvj01xd4ghznl11nyn000_93_/T/ipykernel_33554/2288473197.py:4: ParserWarning: Falling back to the &#39;python&#39; engine because the &#39;c&#39; engine does not support regex separators (separators &gt; 1 char and different from &#39;\s+&#39; are interpreted as regex); you can avoid this warning by specifying engine=&#39;python&#39;.
+  ratings_data = pd.read_csv(
+
+Number of users: 6040
+Number of movies: 3706
+Number of ratings: 1000209
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="create-train-and-eval-data-splits">Create train and eval data splits</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">random_selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">index</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mf">0.85</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">ratings_data</span><span class="p">[</span><span class="n">random_selection</span><span class="p">]</span>
+<span class="n">eval_data</span> <span class="o">=</span> <span class="n">ratings_data</span><span class="p">[</span><span class="o">~</span><span class="n">random_selection</span><span class="p">]</span>
+
+<span class="n">train_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;train_data.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">eval_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;eval_data.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Train data split: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Eval data split: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">eval_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Train and eval data files are saved.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Train data split: 850573
+Eval data split: 149636
+Train and eval data files are saved.
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="define-dataset-metadata-and-hyperparameters">Define dataset metadata and hyperparameters</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">csv_header</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="n">user_vocabulary</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">user_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="n">movie_vocabulary</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ratings_data</span><span class="o">.</span><span class="n">movie_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="n">target_feature_name</span> <span class="o">=</span> <span class="s2">&quot;rating&quot;</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">base_embedding_dim</span> <span class="o">=</span> <span class="mi">64</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-and-evaluate-the-model">Train and evaluate the model</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">make_csv_dataset</span><span class="p">(</span>
+        <span class="n">csv_file_path</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">column_names</span><span class="o">=</span><span class="n">csv_header</span><span class="p">,</span>
+        <span class="n">label_name</span><span class="o">=</span><span class="n">target_feature_name</span><span class="p">,</span>
+        <span class="n">num_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">field_delim</span><span class="o">=</span><span class="s2">&quot;|&quot;</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_experiment</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="c1"># Compile the model.</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">),</span>
+        <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">(),</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">MeanAbsoluteError</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mae&quot;</span><span class="p">)],</span>
+    <span class="p">)</span>
+    <span class="c1"># Read the training data.</span>
+    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">get_dataset_from_csv</span><span class="p">(</span><span class="s2">&quot;train_data.csv&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="c1"># Read the test data.</span>
+    <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">get_dataset_from_csv</span><span class="p">(</span><span class="s2">&quot;eval_data.csv&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Fit the model with the training data.</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">train_dataset</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="o">=</span><span class="n">eval_dataset</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">history</span>
+</code></pre></div>
+
+<hr />
+<h2 id="experiment-1-baseline-collaborative-filtering-model">Experiment 1: baseline collaborative filtering model</h2>
+<h3 id="implement-embedding-encoder">Implement embedding encoder</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">embedding_encoder</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span> <span class="n">num_oov_indices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">StringLookup</span><span class="p">(</span>
+                <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span> <span class="n">mask_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_oov_indices</span><span class="o">=</span><span class="n">num_oov_indices</span>
+            <span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+                <span class="n">input_dim</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">)</span> <span class="o">+</span> <span class="n">num_oov_indices</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="n">embedding_dim</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_embedding&quot;</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<h3 id="implement-the-baseline-model">Implement the baseline model</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_baseline_model</span><span class="p">():</span>
+    <span class="c1"># Receive the user as an input.</span>
+    <span class="n">user_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+    <span class="c1"># Get user embedding.</span>
+    <span class="n">user_embedding</span> <span class="o">=</span> <span class="n">embedding_encoder</span><span class="p">(</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="n">user_vocabulary</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="n">base_embedding_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user&quot;</span>
+    <span class="p">)(</span><span class="n">user_input</span><span class="p">)</span>
+
+    <span class="c1"># Receive the movie as an input.</span>
+    <span class="n">movie_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;movie_id&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+    <span class="c1"># Get embedding.</span>
+    <span class="n">movie_embedding</span> <span class="o">=</span> <span class="n">embedding_encoder</span><span class="p">(</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="n">movie_vocabulary</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="n">base_embedding_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;movie&quot;</span>
+    <span class="p">)(</span><span class="n">movie_input</span><span class="p">)</span>
+
+    <span class="c1"># Compute dot product similarity between user and movie embeddings.</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dot</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dot_similarity&quot;</span><span class="p">)(</span>
+        <span class="p">[</span><span class="n">user_embedding</span><span class="p">,</span> <span class="n">movie_embedding</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># Convert to rating scale.</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span>
+    <span class="c1"># Create the model.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">user_input</span><span class="p">,</span> <span class="n">movie_input</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">prediction</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;baseline_model&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="n">baseline_model</span> <span class="o">=</span> <span class="n">create_baseline_model</span><span class="p">()</span>
+<span class="n">baseline_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>/Users/fchollet/Library/Python/3.10/lib/python/site-packages/numpy/core/numeric.py:2468: FutureWarning: elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison
+  return bool(asarray(a1 == a2).all())
+</code></pre></div>
+
+
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "baseline_model"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)        </span>┃<span style="font-weight: bold"> Output Shape      </span>┃<span style="font-weight: bold"> Param # </span>┃<span style="font-weight: bold"> Connected to         </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━┩
+│ user_id             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)            │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                    │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ movie_id            │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)            │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                    │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ user_embedding      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)        │ <span style="color: #00af00; text-decoration-color: #00af00">386,560</span> │ user_id[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]        │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Sequential</span>)        │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ movie_embedding     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)        │ <span style="color: #00af00; text-decoration-color: #00af00">237,184</span> │ movie_id[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Sequential</span>)        │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ dot_similarity      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ user_embedding[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>… │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Dot</span>)               │                   │         │ movie_embedding[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">…</span> │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ sigmoid (<span style="color: #0087ff; text-decoration-color: #0087ff">Sigmoid</span>)   │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ dot_similarity[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>] │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ multiply (<span style="color: #0087ff; text-decoration-color: #0087ff">Multiply</span>) │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ sigmoid[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]        │
+└─────────────────────┴───────────────────┴─────────┴──────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">623,744</span> (2.38 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">623,744</span> (2.38 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<p>Notice that the number of trainable parameters is 623,744</p>
+<div class="codehilite"><pre><span></span><code><span class="n">history</span> <span class="o">=</span> <span class="n">run_experiment</span><span class="p">(</span><span class="n">baseline_model</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;val_loss&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;model loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/3
+   6629/Unknown  17s 3ms/step - loss: 1.4095 - mae: 0.9668
+
+/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/contextlib.py:153: UserWarning: Your input ran out of data; interrupting training. Make sure that your dataset or generator can generate at least `steps_per_epoch * epochs` batches. You may need to use the `.repeat()` function when building your dataset.
+  self.gen.throw(typ, value, traceback)
+
+ 6646/6646 ━━━━━━━━━━━━━━━━━━━━ 18s 3ms/step - loss: 1.4087 - mae: 0.9665 - val_loss: 0.9032 - val_mae: 0.7438
+Epoch 2/3
+ 6646/6646 ━━━━━━━━━━━━━━━━━━━━ 17s 3ms/step - loss: 0.8296 - mae: 0.7193 - val_loss: 0.7807 - val_mae: 0.6976
+Epoch 3/3
+ 6646/6646 ━━━━━━━━━━━━━━━━━━━━ 17s 3ms/step - loss: 0.7305 - mae: 0.6744 - val_loss: 0.7446 - val_mae: 0.6808
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/keras_recipes/memory_efficient_embeddings/memory_efficient_embeddings_17_3.png" /></p>
+<hr />
+<h2 id="experiment-2-memoryefficient-model">Experiment 2: memory-efficient model</h2>
+<h3 id="implement-quotientremainder-embedding-as-a-layer">Implement Quotient-Remainder embedding as a layer</h3>
+<p>The Quotient-Remainder technique works as follows. For a set of vocabulary and  embedding size
+<code>embedding_dim</code>, instead of creating a <code>vocabulary_size X embedding_dim</code> embedding table,
+we create <em>two</em> <code>num_buckets X embedding_dim</code> embedding tables, where <code>num_buckets</code>
+is much smaller than <code>vocabulary_size</code>.
+An embedding for a given item <code>index</code> is generated via the following steps:</p>
+<ol>
+<li>Compute the <code>quotient_index</code> as <code>index // num_buckets</code>.</li>
+<li>Compute the <code>remainder_index</code> as <code>index % num_buckets</code>.</li>
+<li>Lookup <code>quotient_embedding</code> from the first embedding table using <code>quotient_index</code>.</li>
+<li>Lookup <code>remainder_embedding</code> from the second embedding table using <code>remainder_index</code>.</li>
+<li>Return <code>quotient_embedding</code> * <code>remainder_embedding</code>.</li>
+</ol>
+<p>This technique not only reduces the number of embedding vectors needs to be stored and trained,
+but also generates a <em>unique</em> embedding vector for each item of size <code>embedding_dim</code>.
+Note that <code>q_embedding</code> and <code>r_embedding</code> can be combined using other operations,
+like <code>Add</code> and <code>Concatenate</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">QREmbedding</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span> <span class="o">=</span> <span class="n">num_buckets</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_lookup</span> <span class="o">=</span> <span class="n">StringLookup</span><span class="p">(</span>
+            <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span> <span class="n">mask_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_oov_indices</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_embeddings</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">num_buckets</span><span class="p">,</span>
+            <span class="n">embedding_dim</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_embeddings</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">num_buckets</span><span class="p">,</span>
+            <span class="n">embedding_dim</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="c1"># Get the item index.</span>
+        <span class="n">embedding_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_lookup</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="c1"># Get the quotient index.</span>
+        <span class="n">quotient_index</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">floordiv</span><span class="p">(</span><span class="n">embedding_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span><span class="p">)</span>
+        <span class="c1"># Get the reminder index.</span>
+        <span class="n">remainder_index</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">floormod</span><span class="p">(</span><span class="n">embedding_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span><span class="p">)</span>
+        <span class="c1"># Lookup the quotient_embedding using the quotient_index.</span>
+        <span class="n">quotient_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_embeddings</span><span class="p">(</span><span class="n">quotient_index</span><span class="p">)</span>
+        <span class="c1"># Lookup the remainder_embedding using the remainder_index.</span>
+        <span class="n">remainder_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_embeddings</span><span class="p">(</span><span class="n">remainder_index</span><span class="p">)</span>
+        <span class="c1"># Use multiplication as a combiner operation</span>
+        <span class="k">return</span> <span class="n">quotient_embedding</span> <span class="o">*</span> <span class="n">remainder_embedding</span>
+</code></pre></div>
+
+<h3 id="implement-mixed-dimension-embedding-as-a-layer">Implement Mixed Dimension embedding as a layer</h3>
+<p>In the mixed dimension embedding technique, we train embedding vectors with full dimensions
+for the frequently queried items, while train embedding vectors with <em>reduced dimensions</em>
+for less frequent items, plus a <em>projection weights matrix</em> to bring low dimension embeddings
+to the full dimensions.</p>
+<p>More precisely, we define <em>blocks</em> of items of similar frequencies. For each block,
+a <code>block_vocab_size X block_embedding_dim</code> embedding table and <code>block_embedding_dim X full_embedding_dim</code>
+projection weights matrix are created. Note that, if <code>block_embedding_dim</code> equals <code>full_embedding_dim</code>,
+the projection weights matrix becomes an <em>identity</em> matrix. Embeddings for a given batch of item
+<code>indices</code> are generated via the following steps:</p>
+<ol>
+<li>For each block, lookup the <code>block_embedding_dim</code> embedding vectors using <code>indices</code>, and
+project them to the <code>full_embedding_dim</code>.</li>
+<li>If an item index does not belong to a given block, an out-of-vocabulary embedding is returned.
+Each block will return a <code>batch_size X full_embedding_dim</code> tensor.</li>
+<li>A mask is applied to the embeddings returned from each block in order to convert the
+out-of-vocabulary embeddings to vector of zeros. That is, for each item in the batch,
+a single non-zero embedding vector is returned from the all block embeddings.</li>
+<li>Embeddings retrieved from the blocks are combined using <em>sum</em> to produce the final
+<code>batch_size X full_embedding_dim</code> tensor.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MDEmbedding</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">blocks_vocabulary</span><span class="p">,</span> <span class="n">blocks_embedding_dims</span><span class="p">,</span> <span class="n">base_embedding_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks_vocabulary</span><span class="p">)</span>
+
+        <span class="c1"># Create vocab to block lookup.</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">block_idx</span><span class="p">,</span> <span class="n">block_vocab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">blocks_vocabulary</span><span class="p">):</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">block_vocab</span><span class="p">)</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">block_idx</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_vocab</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab_to_block</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">default_value</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_encoders</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_projectors</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Create block embedding encoders and projectors.</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_blocks</span><span class="p">):</span>
+            <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">blocks_vocabulary</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">blocks_embedding_dims</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">block_embedding_encoder</span> <span class="o">=</span> <span class="n">embedding_encoder</span><span class="p">(</span>
+                <span class="n">vocabulary</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span> <span class="n">num_oov_indices</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_encoders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block_embedding_encoder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">embedding_dim</span> <span class="o">==</span> <span class="n">base_embedding_dim</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_projectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_projectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">base_embedding_dim</span><span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="c1"># Get block index for each input item.</span>
+        <span class="n">block_indicies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab_to_block</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="c1"># Initialize output embeddings to zeros.</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">base_embedding_dim</span><span class="p">))</span>
+        <span class="c1"># Generate embeddings from blocks.</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_blocks</span><span class="p">):</span>
+            <span class="c1"># Lookup embeddings from the current block.</span>
+            <span class="n">block_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_encoders</span><span class="p">[</span><span class="n">idx</span><span class="p">](</span><span class="n">inputs</span><span class="p">)</span>
+            <span class="c1"># Project embeddings to base_embedding_dim.</span>
+            <span class="n">block_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_embedding_projectors</span><span class="p">[</span><span class="n">idx</span><span class="p">](</span><span class="n">block_embeddings</span><span class="p">)</span>
+            <span class="c1"># Create a mask to filter out embeddings of items that do not belong to the current block.</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">block_indicies</span> <span class="o">==</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Set the embeddings for the items not belonging to the current block to zeros.</span>
+            <span class="n">block_embeddings</span> <span class="o">=</span> <span class="n">block_embeddings</span> <span class="o">*</span> <span class="n">mask</span>
+            <span class="c1"># Add the block embeddings to the final embeddings.</span>
+            <span class="n">embeddings</span> <span class="o">+=</span> <span class="n">block_embeddings</span>
+
+        <span class="k">return</span> <span class="n">embeddings</span>
+</code></pre></div>
+
+<h3 id="implement-the-memoryefficient-model">Implement the memory-efficient model</h3>
+<p>In this experiment, we are going to use the <strong>Quotient-Remainder</strong> technique to reduce the
+size of the user embeddings, and the <strong>Mixed Dimension</strong> technique to reduce the size of the
+movie embeddings.</p>
+<p>While in the <a href="https://arxiv.org/abs/1909.11810">paper</a>, an alpha-power rule is used to determined
+the dimensions of the embedding of each block, we simply set the number of blocks and the
+dimensions of embeddings of each block based on the histogram visualization of movies popularity.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">movie_frequencies</span> <span class="o">=</span> <span class="n">ratings_data</span><span class="p">[</span><span class="s2">&quot;movie_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<span class="n">movie_frequencies</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>&lt;Axes: &gt;
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/keras_recipes/memory_efficient_embeddings/memory_efficient_embeddings_24_1.png" /></p>
+<p>You can see that we can group the movies into three blocks, and assign them 64, 32, and 16
+embedding dimensions, respectively. Feel free to experiment with different number of blocks
+and dimensions.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sorted_movie_vocabulary</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">movie_frequencies</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="n">movie_blocks_vocabulary</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">sorted_movie_vocabulary</span><span class="p">[:</span><span class="mi">400</span><span class="p">],</span>  <span class="c1"># high popularity movies block</span>
+    <span class="n">sorted_movie_vocabulary</span><span class="p">[</span><span class="mi">400</span><span class="p">:</span><span class="mi">1700</span><span class="p">],</span>  <span class="c1"># normal popularity movies block</span>
+    <span class="n">sorted_movie_vocabulary</span><span class="p">[</span><span class="mi">1700</span><span class="p">:],</span>  <span class="c1"># low popularity movies block</span>
+<span class="p">]</span>
+
+<span class="n">movie_blocks_embedding_dims</span> <span class="o">=</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
+
+<span class="n">user_embedding_num_buckets</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">user_vocabulary</span><span class="p">)</span> <span class="o">//</span> <span class="mi">50</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_memory_efficient_model</span><span class="p">():</span>
+    <span class="c1"># Take the user as an input.</span>
+    <span class="n">user_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+    <span class="c1"># Get user embedding.</span>
+    <span class="n">user_embedding</span> <span class="o">=</span> <span class="n">QREmbedding</span><span class="p">(</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="n">user_vocabulary</span><span class="p">,</span>
+        <span class="n">embedding_dim</span><span class="o">=</span><span class="n">base_embedding_dim</span><span class="p">,</span>
+        <span class="n">num_buckets</span><span class="o">=</span><span class="n">user_embedding_num_buckets</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_embedding&quot;</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">user_input</span><span class="p">)</span>
+
+    <span class="c1"># Take the movie as an input.</span>
+    <span class="n">movie_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;movie_id&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+    <span class="c1"># Get embedding.</span>
+    <span class="n">movie_embedding</span> <span class="o">=</span> <span class="n">MDEmbedding</span><span class="p">(</span>
+        <span class="n">blocks_vocabulary</span><span class="o">=</span><span class="n">movie_blocks_vocabulary</span><span class="p">,</span>
+        <span class="n">blocks_embedding_dims</span><span class="o">=</span><span class="n">movie_blocks_embedding_dims</span><span class="p">,</span>
+        <span class="n">base_embedding_dim</span><span class="o">=</span><span class="n">base_embedding_dim</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;movie_embedding&quot;</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">movie_input</span><span class="p">)</span>
+
+    <span class="c1"># Compute dot product similarity between user and movie embeddings.</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dot</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dot_similarity&quot;</span><span class="p">)(</span>
+        <span class="p">[</span><span class="n">user_embedding</span><span class="p">,</span> <span class="n">movie_embedding</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># Convert to rating scale.</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span>
+    <span class="c1"># Create the model.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">user_input</span><span class="p">,</span> <span class="n">movie_input</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">prediction</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;baseline_model&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="n">memory_efficient_model</span> <span class="o">=</span> <span class="n">create_memory_efficient_model</span><span class="p">()</span>
+<span class="n">memory_efficient_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>/Users/fchollet/Library/Python/3.10/lib/python/site-packages/numpy/core/numeric.py:2468: FutureWarning: elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison
+  return bool(asarray(a1 == a2).all())
+</code></pre></div>
+
+
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "baseline_model"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)        </span>┃<span style="font-weight: bold"> Output Shape      </span>┃<span style="font-weight: bold"> Param # </span>┃<span style="font-weight: bold"> Connected to         </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━┩
+│ user_id             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)            │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                    │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ movie_id            │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)            │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                    │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ user_embedding      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)        │  <span style="color: #00af00; text-decoration-color: #00af00">15,360</span> │ user_id[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]        │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">QREmbedding</span>)       │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ movie_embedding     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)        │ <span style="color: #00af00; text-decoration-color: #00af00">102,608</span> │ movie_id[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">MDEmbedding</span>)       │                   │         │                      │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ dot_similarity      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ user_embedding[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>… │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Dot</span>)               │                   │         │ movie_embedding[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">…</span> │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ sigmoid_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Sigmoid</span>) │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ dot_similarity[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>] │
+├─────────────────────┼───────────────────┼─────────┼──────────────────────┤
+│ multiply_1          │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │       <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ sigmoid_1[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]      │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Multiply</span>)          │                   │         │                      │
+└─────────────────────┴───────────────────┴─────────┴──────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">117,968</span> (460.81 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">117,968</span> (460.81 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<p>Notice that the number of trainable parameters is 117,968, which is more than 5x less than
+the number of parameters in the baseline model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">history</span> <span class="o">=</span> <span class="n">run_experiment</span><span class="p">(</span><span class="n">memory_efficient_model</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;val_loss&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;model loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/3
+   6622/Unknown  6s 891us/step - loss: 1.1938 - mae: 0.8780
+
+/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/contextlib.py:153: UserWarning: Your input ran out of data; interrupting training. Make sure that your dataset or generator can generate at least `steps_per_epoch * epochs` batches. You may need to use the `.repeat()` function when building your dataset.
+  self.gen.throw(typ, value, traceback)
+
+ 6646/6646 ━━━━━━━━━━━━━━━━━━━━ 7s 992us/step - loss: 1.1931 - mae: 0.8777 - val_loss: 1.1027 - val_mae: 0.8179
+Epoch 2/3
+ 6646/6646 ━━━━━━━━━━━━━━━━━━━━ 7s 1ms/step - loss: 0.8908 - mae: 0.7488 - val_loss: 0.9144 - val_mae: 0.7549
+Epoch 3/3
+ 6646/6646 ━━━━━━━━━━━━━━━━━━━━ 7s 980us/step - loss: 0.8419 - mae: 0.7278 - val_loss: 0.8806 - val_mae: 0.7419
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/keras_recipes/memory_efficient_embeddings/memory_efficient_embeddings_28_3.png" /></p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter14_text-classification">Chapter 14: Text classification</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='memory_efficient_embeddings.html#memoryefficient-embeddings-for-recommendation-systems'>Memory-efficient embeddings for recommendation systems</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#prepare-the-data'>Prepare the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#download-and-process-data'>Download and process data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#create-train-and-eval-data-splits'>Create train and eval data splits</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#define-dataset-metadata-and-hyperparameters'>Define dataset metadata and hyperparameters</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#train-and-evaluate-the-model'>Train and evaluate the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#experiment-1-baseline-collaborative-filtering-model'>Experiment 1: baseline collaborative filtering model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='memory_efficient_embeddings.html#implement-embedding-encoder'>Implement embedding encoder</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='memory_efficient_embeddings.html#implement-the-baseline-model'>Implement the baseline model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#experiment-2-memoryefficient-model'>Experiment 2: memory-efficient model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='memory_efficient_embeddings.html#implement-quotientremainder-embedding-as-a-layer'>Implement Quotient-Remainder embedding as a layer</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='memory_efficient_embeddings.html#implement-mixed-dimension-embedding-as-a-layer'>Implement Mixed Dimension embedding as a layer</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='memory_efficient_embeddings.html#implement-the-memoryefficient-model'>Implement the memory-efficient model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='memory_efficient_embeddings.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Learning to tokenize in Vision Transformers">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="token_learner.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Learning to tokenize in Vision Transformers">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Learning to tokenize in Vision Transformers">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Learning to tokenize in Vision Transformers</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2 active" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2 active" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='../vision.html'>Computer Vision</a> /
+         Learning to tokenize in Vision Transformers
+    </div>
+    <h1 id="learning-to-tokenize-in-vision-transformers">Learning to tokenize in Vision Transformers</h1>
+<p><strong>Authors:</strong> <a href="https://twitter.com/ariG23498">Aritra Roy Gosthipaty</a>, <a href="https://twitter.com/RisingSayak">Sayak Paul</a> (equal contribution), converted to Keras 3 by <a href="https://anasrz.com">Muhammad Anas Raza</a><br>
+<strong>Date created:</strong> 2021/12/10<br>
+<strong>Last modified:</strong> 2023/08/14<br>
+<strong>Description:</strong> Adaptively generating a smaller number of tokens for Vision Transformers.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/token_learner.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/vision/token_learner.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Vision Transformers (<a href="https://arxiv.org/abs/2010.11929">Dosovitskiy et al.</a>) and many
+other Transformer-based architectures (<a href="https://arxiv.org/abs/2103.14030">Liu et al.</a>,
+<a href="https://arxiv.org/abs/2101.11986">Yuan et al.</a>, etc.) have shown strong results in
+image recognition. The following provides a brief overview of the components involved in the
+Vision Transformer architecture for image classification:</p>
+<ul>
+<li>Extract small patches from input images.</li>
+<li>Linearly project those patches.</li>
+<li>Add positional embeddings to these linear projections.</li>
+<li>Run these projections through a series of Transformer (<a href="https://arxiv.org/abs/1706.03762">Vaswani et al.</a>)
+blocks.</li>
+<li>Finally, take the representation from the final Transformer block and add a
+classification head.</li>
+</ul>
+<p>If we take 224x224 images and extract 16x16 patches, we get a total of 196 patches (also
+called tokens) for each image. The number of patches increases as we increase the
+resolution, leading to higher memory footprint. Could we use a reduced
+number of patches without having to compromise performance?
+Ryoo et al. investigate this question in
+<a href="https://openreview.net/forum?id=z-l1kpDXs88">TokenLearner: Adaptive Space-Time Tokenization for Videos</a>.
+They introduce a novel module called <strong>TokenLearner</strong> that can help reduce the number
+of patches used by a Vision Transformer (ViT) in an adaptive manner. With TokenLearner
+incorporated in the standard ViT architecture, they are able to reduce the amount of
+compute (measured in FLOPS) used by the model.</p>
+<p>In this example, we implement the TokenLearner module and demonstrate its
+performance with a mini ViT and the CIFAR-10 dataset. We make use of the following
+references:</p>
+<ul>
+<li><a href="https://github.com/google-research/scenic/blob/main/scenic/projects/token_learner/model.py">Official TokenLearner code</a></li>
+<li><a href="image_classification_with_vision_transformer.html">Image Classification with ViTs on keras.io</a></li>
+<li><a href="https://nips.cc/media/neurips-2021/Slides/26578.pdf">TokenLearner slides from NeurIPS 2021</a></li>
+</ul>
+<hr />
+<h2 id="imports">Imports</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">data</span> <span class="k">as</span> <span class="n">tf_data</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+</code></pre></div>
+
+<hr />
+<h2 id="hyperparameters">Hyperparameters</h2>
+<p>Please feel free to change the hyperparameters and check your results. The best way to
+develop intuition about the architecture is to experiment with it.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># DATA</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">AUTO</span> <span class="o">=</span> <span class="n">tf_data</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+<span class="n">INPUT_SHAPE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">NUM_CLASSES</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># OPTIMIZER</span>
+<span class="n">LEARNING_RATE</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">WEIGHT_DECAY</span> <span class="o">=</span> <span class="mf">1e-4</span>
+
+<span class="c1"># TRAINING</span>
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># AUGMENTATION</span>
+<span class="n">IMAGE_SIZE</span> <span class="o">=</span> <span class="mi">48</span>  <span class="c1"># We will resize input images to this size.</span>
+<span class="n">PATCH_SIZE</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># Size of the patches to be extracted from the input images.</span>
+<span class="n">NUM_PATCHES</span> <span class="o">=</span> <span class="p">(</span><span class="n">IMAGE_SIZE</span> <span class="o">//</span> <span class="n">PATCH_SIZE</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+<span class="c1"># ViT ARCHITECTURE</span>
+<span class="n">LAYER_NORM_EPS</span> <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="n">PROJECTION_DIM</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">NUM_HEADS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NUM_LAYERS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">MLP_UNITS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">PROJECTION_DIM</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">PROJECTION_DIM</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># TOKENLEARNER</span>
+<span class="n">NUM_TOKENS</span> <span class="o">=</span> <span class="mi">4</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-and-prepare-the-cifar10-dataset">Load and prepare the CIFAR-10 dataset</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Load the CIFAR-10 dataset.</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">cifar10</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">x_train</span><span class="p">[:</span><span class="mi">40000</span><span class="p">],</span> <span class="n">y_train</span><span class="p">[:</span><span class="mi">40000</span><span class="p">]),</span>
+    <span class="p">(</span><span class="n">x_train</span><span class="p">[</span><span class="mi">40000</span><span class="p">:],</span> <span class="n">y_train</span><span class="p">[</span><span class="mi">40000</span><span class="p">:]),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x_val</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Testing samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Convert to tf.data.Dataset objects.</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">tf_data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">BATCH_SIZE</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTO</span><span class="p">)</span>
+
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">tf_data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">))</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTO</span><span class="p">)</span>
+
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">tf_data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">test_ds</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTO</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Training samples: 40000
+Validation samples: 10000
+Testing samples: 10000
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="data-augmentation">Data augmentation</h2>
+<p>The augmentation pipeline consists of:</p>
+<ul>
+<li>Rescaling</li>
+<li>Resizing</li>
+<li>Random cropping (fixed-sized or random sized)</li>
+<li>Random horizontal flipping</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">data_augmentation</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Rescaling</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Resizing</span><span class="p">(</span><span class="n">INPUT_SHAPE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">20</span><span class="p">,</span> <span class="n">INPUT_SHAPE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">20</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="n">IMAGE_SIZE</span><span class="p">,</span> <span class="n">IMAGE_SIZE</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="s2">&quot;horizontal&quot;</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;data_augmentation&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Note that image data augmentation layers do not apply data transformations at inference time.
+This means that when these layers are called with <code>training=False</code> they behave differently. Refer
+<a href="https://keras.io/api/layers/preprocessing_layers/image_augmentation/">to the documentation</a> for more
+details.</p>
+<hr />
+<h2 id="positional-embedding-module">Positional embedding module</h2>
+<p>A <a href="https://arxiv.org/abs/1706.03762">Transformer</a> architecture consists of <strong>multi-head
+self attention</strong> layers and <strong>fully-connected feed forward</strong> networks (MLP) as the main
+components. Both these components are <em>permutation invariant</em>: they're not aware of
+feature order.</p>
+<p>To overcome this problem we inject tokens with positional information. The
+<code>position_embedding</code> function adds this positional information to the linearly projected
+tokens.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PatchEncoder</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_patches</span><span class="p">,</span> <span class="n">projection_dim</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_patches</span> <span class="o">=</span> <span class="n">num_patches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_embedding</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">input_dim</span><span class="o">=</span><span class="n">num_patches</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="n">projection_dim</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patch</span><span class="p">):</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_patches</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">patch</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_embedding</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">encoded</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;num_patches&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_patches</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">config</span>
+</code></pre></div>
+
+<hr />
+<h2 id="mlp-block-for-transformer">MLP block for Transformer</h2>
+<p>This serves as the Fully Connected Feed Forward block for our Transformer.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mlp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">hidden_units</span><span class="p">):</span>
+    <span class="c1"># Iterate over the hidden units and</span>
+    <span class="c1"># add Dense =&gt; Dropout.</span>
+    <span class="k">for</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">hidden_units</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">gelu</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+</code></pre></div>
+
+<hr />
+<h2 id="tokenlearner-module">TokenLearner module</h2>
+<p>The following figure presents a pictorial overview of the module
+(<a href="https://ai.googleblog.com/2021/12/improving-vision-transformer-efficiency.html">source</a>).</p>
+<p><img alt="TokenLearner module GIF" src="https://blogger.googleusercontent.com/img/a/AVvXsEiylT3_nmd9-tzTnz3g3Vb4eTn-L5sOwtGJOad6t2we7FsjXSpbLDpuPrlInAhtE5hGCA_PfYTJtrIOKfLYLYGcYXVh1Ksfh_C1ZC-C8gw6GKtvrQesKoMrEA_LU_Gd5srl5-3iZDgJc1iyCELoXtfuIXKJ2ADDHOBaUjhU8lXTVdr2E7bCVaFgVHHkmA=w640-h208" /></p>
+<p>The TokenLearner module takes as input an image-shaped tensor. It then passes it through
+multiple single-channel convolutional layers extracting different spatial attention maps
+focusing on different parts of the input. These attention maps are then element-wise
+multiplied to the input and result is aggregated with pooling. This pooled output can be
+trated as a summary of the input and has much lesser number of patches (8, for example)
+than the original one (196, for example).</p>
+<p>Using multiple convolution layers helps with expressivity. Imposing a form of spatial
+attention helps retain relevant information from the inputs. Both of these components are
+crucial to make TokenLearner work, especially when we are significantly reducing the number of patches.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">token_learner</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">number_of_tokens</span><span class="o">=</span><span class="n">NUM_TOKENS</span><span class="p">):</span>
+    <span class="c1"># Layer normalize the inputs.</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>  <span class="c1"># (B, H, W, C)</span>
+
+    <span class="c1"># Applying Conv2D =&gt; Reshape =&gt; Permute</span>
+    <span class="c1"># The reshape and permute is done to help with the next steps of</span>
+    <span class="c1"># multiplication and Global Average Pooling.</span>
+    <span class="n">attention_maps</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="c1"># 3 layers of conv with gelu activation as suggested</span>
+            <span class="c1"># in the paper.</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">number_of_tokens</span><span class="p">,</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">activation</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">gelu</span><span class="p">,</span>
+                <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+                <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">number_of_tokens</span><span class="p">,</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">activation</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">gelu</span><span class="p">,</span>
+                <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+                <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">number_of_tokens</span><span class="p">,</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">activation</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">gelu</span><span class="p">,</span>
+                <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+                <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="c1"># This conv layer will generate the attention maps</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">number_of_tokens</span><span class="p">,</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">,</span>  <span class="c1"># Note sigmoid for [0, 1] output</span>
+                <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+                <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="c1"># Reshape and Permute</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">number_of_tokens</span><span class="p">)),</span>  <span class="c1"># (B, H*W, num_of_tokens)</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Permute</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="p">]</span>
+    <span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>  <span class="c1"># (B, num_of_tokens, H*W)</span>
+
+    <span class="c1"># Reshape the input to align it with the output of the conv block.</span>
+    <span class="n">num_filters</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_filters</span><span class="p">))(</span><span class="n">inputs</span><span class="p">)</span>  <span class="c1"># inputs == (B, 1, H*W, C)</span>
+
+    <span class="c1"># Element-Wise multiplication of the attention maps and the inputs</span>
+    <span class="n">attended_inputs</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">attention_maps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">inputs</span>
+    <span class="p">)</span>  <span class="c1"># (B, num_tokens, H*W, C)</span>
+
+    <span class="c1"># Global average pooling the element wise multiplication result.</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">attended_inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># (B, num_tokens, C)</span>
+    <span class="k">return</span> <span class="n">outputs</span>
+</code></pre></div>
+
+<hr />
+<h2 id="transformer-block">Transformer block</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">transformer</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">):</span>
+    <span class="c1"># Layer normalization 1.</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)(</span><span class="n">encoded_patches</span><span class="p">)</span>
+
+    <span class="c1"># Multi Head Self Attention layer 1.</span>
+    <span class="n">attention_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="n">NUM_HEADS</span><span class="p">,</span> <span class="n">key_dim</span><span class="o">=</span><span class="n">PROJECTION_DIM</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span>
+    <span class="p">)(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+
+    <span class="c1"># Skip connection 1.</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">attention_output</span><span class="p">,</span> <span class="n">encoded_patches</span><span class="p">])</span>
+
+    <span class="c1"># Layer normalization 2.</span>
+    <span class="n">x3</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)(</span><span class="n">x2</span><span class="p">)</span>
+
+    <span class="c1"># MLP layer 1.</span>
+    <span class="n">x4</span> <span class="o">=</span> <span class="n">mlp</span><span class="p">(</span><span class="n">x3</span><span class="p">,</span> <span class="n">hidden_units</span><span class="o">=</span><span class="n">MLP_UNITS</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="c1"># Skip connection 2.</span>
+    <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">x4</span><span class="p">,</span> <span class="n">x2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">encoded_patches</span>
+</code></pre></div>
+
+<hr />
+<h2 id="vit-model-with-the-tokenlearner-module">ViT model with the TokenLearner module</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_vit_classifier</span><span class="p">(</span><span class="n">use_token_learner</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">token_learner_units</span><span class="o">=</span><span class="n">NUM_TOKENS</span><span class="p">):</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">INPUT_SHAPE</span><span class="p">)</span>  <span class="c1"># (B, H, W, C)</span>
+
+    <span class="c1"># Augment data.</span>
+    <span class="n">augmented</span> <span class="o">=</span> <span class="n">data_augmentation</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+    <span class="c1"># Create patches and project the pathces.</span>
+    <span class="n">projected_patches</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">filters</span><span class="o">=</span><span class="n">PROJECTION_DIM</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">PATCH_SIZE</span><span class="p">,</span> <span class="n">PATCH_SIZE</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">PATCH_SIZE</span><span class="p">,</span> <span class="n">PATCH_SIZE</span><span class="p">),</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;VALID&quot;</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">augmented</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">projected_patches</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">projected_patches</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="n">h</span> <span class="o">*</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span><span class="p">))(</span>
+        <span class="n">projected_patches</span>
+    <span class="p">)</span>  <span class="c1"># (B, number_patches, projection_dim)</span>
+
+    <span class="c1"># Add positional embeddings to the projected patches.</span>
+    <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">PatchEncoder</span><span class="p">(</span>
+        <span class="n">num_patches</span><span class="o">=</span><span class="n">NUM_PATCHES</span><span class="p">,</span> <span class="n">projection_dim</span><span class="o">=</span><span class="n">PROJECTION_DIM</span>
+    <span class="p">)(</span>
+        <span class="n">projected_patches</span>
+    <span class="p">)</span>  <span class="c1"># (B, number_patches, projection_dim)</span>
+    <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)(</span><span class="n">encoded_patches</span><span class="p">)</span>
+
+    <span class="c1"># Iterate over the number of layers and stack up blocks of</span>
+    <span class="c1"># Transformer.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_LAYERS</span><span class="p">):</span>
+        <span class="c1"># Add a Transformer block.</span>
+        <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">transformer</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+
+        <span class="c1"># Add TokenLearner layer in the middle of the</span>
+        <span class="c1"># architecture. The paper suggests that anywhere</span>
+        <span class="c1"># between 1/2 or 3/4 will work well.</span>
+        <span class="k">if</span> <span class="n">use_token_learner</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="n">NUM_LAYERS</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">encoded_patches</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hh</span><span class="p">))</span>
+            <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">c</span><span class="p">))(</span>
+                <span class="n">encoded_patches</span>
+            <span class="p">)</span>  <span class="c1"># (B, h, h, projection_dim)</span>
+            <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">token_learner</span><span class="p">(</span>
+                <span class="n">encoded_patches</span><span class="p">,</span> <span class="n">token_learner_units</span>
+            <span class="p">)</span>  <span class="c1"># (B, num_tokens, c)</span>
+
+    <span class="c1"># Layer normalization and Global average pooling.</span>
+    <span class="n">representation</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)(</span><span class="n">encoded_patches</span><span class="p">)</span>
+    <span class="n">representation</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">GlobalAvgPool1D</span><span class="p">()(</span><span class="n">representation</span><span class="p">)</span>
+
+    <span class="c1"># Classify outputs.</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">NUM_CLASSES</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;softmax&quot;</span><span class="p">)(</span><span class="n">representation</span><span class="p">)</span>
+
+    <span class="c1"># Create the Keras model.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</code></pre></div>
+
+<p>As shown in the <a href="https://openreview.net/forum?id=z-l1kpDXs88">TokenLearner paper</a>, it is
+almost always advantageous to include the TokenLearner module in the middle of the
+network.</p>
+<hr />
+<h2 id="training-utility">Training utility</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_experiment</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="c1"># Initialize the AdamW optimizer.</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">LEARNING_RATE</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">WEIGHT_DECAY</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compile the model with the optimizer, loss function</span>
+    <span class="c1"># and the metrics.</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;sparse_categorical_crossentropy&quot;</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseTopKCategoricalAccuracy</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;top-5-accuracy&quot;</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Define callbacks</span>
+    <span class="n">checkpoint_filepath</span> <span class="o">=</span> <span class="s2">&quot;/tmp/checkpoint.weights.h5&quot;</span>
+    <span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+        <span class="n">checkpoint_filepath</span><span class="p">,</span>
+        <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_accuracy&quot;</span><span class="p">,</span>
+        <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Train the model.</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">train_ds</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="o">=</span><span class="n">val_ds</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">checkpoint_callback</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">checkpoint_filepath</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">top_5_accuracy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test accuracy: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">accuracy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test top 5 accuracy: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">top_5_accuracy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-and-evaluate-a-vit-with-tokenlearner">Train and evaluate a ViT with TokenLearner</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">vit_token_learner</span> <span class="o">=</span> <span class="n">create_vit_classifier</span><span class="p">()</span>
+<span class="n">run_experiment</span><span class="p">(</span><span class="n">vit_token_learner</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 157/157 ━━━━━━━━━━━━━━━━━━━━ 303s 2s/step - accuracy: 0.1158 - loss: 2.4798 - top-5-accuracy: 0.5352 - val_accuracy: 0.2206 - val_loss: 2.0292 - val_top-5-accuracy: 0.7688
+ 40/40 ━━━━━━━━━━━━━━━━━━━━ 5s 133ms/step - accuracy: 0.2298 - loss: 2.0179 - top-5-accuracy: 0.7723
+Test accuracy: 22.9%
+Test top 5 accuracy: 77.22%
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="results">Results</h2>
+<p>We experimented with and without the TokenLearner inside the mini ViT we implemented
+(with the same hyperparameters presented in this example). Here are our results:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>TokenLearner</strong></th>
+<th style="text-align: center;"><strong># tokens in<br> TokenLearner</strong></th>
+<th style="text-align: center;"><strong>Top-1 Acc<br>(Averaged across 5 runs)</strong></th>
+<th style="text-align: center;"><strong>GFLOPs</strong></th>
+<th style="text-align: center;"><strong>TensorBoard</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">56.112%</td>
+<td style="text-align: center;">0.0184</td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/vkCwM49dQZ2RiK0ZT4mj7w/">Link</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;"><strong>56.55%</strong></td>
+<td style="text-align: center;"><strong>0.0153</strong></td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/vkCwM49dQZ2RiK0ZT4mj7w/">Link</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">56.37%</td>
+<td style="text-align: center;">0.0184</td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/hdyJ4wznQROwqZTgbtmztQ/">Link</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;"><strong>56.4980%</strong></td>
+<td style="text-align: center;"><strong>0.0147</strong></td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/hdyJ4wznQROwqZTgbtmztQ/">Link</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">- (# Transformer layers: 8)</td>
+<td style="text-align: center;">55.36%</td>
+<td style="text-align: center;">0.0359</td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/sepBK5zNSaOtdCeEG6SV9w/">Link</a></td>
+</tr>
+</tbody>
+</table>
+<p>TokenLearner is able to consistently outperform our mini ViT without the module. It is
+also interesting to notice that it was also able to outperform a deeper version of our
+mini ViT (with 8 layers). The authors also report similar observations in the paper and
+they attribute this to the adaptiveness of TokenLearner.</p>
+<p>One should also note that the FLOPs count <strong>decreases</strong> considerably with the addition of
+the TokenLearner module. With less FLOPs count the TokenLearner module is able to
+deliver better results. This aligns very well with the authors' findings.</p>
+<p>Additionally, the authors <a href="https://github.com/google-research/scenic/blob/main/scenic/projects/token_learner/model.py#L104">introduced</a>
+a newer version of the TokenLearner for smaller training data regimes. Quoting the authors:</p>
+<blockquote>
+<p>Instead of using 4 conv. layers with small channels to implement spatial attention,
+  this version uses 2 grouped conv. layers with more channels. It also uses softmax
+  instead of sigmoid. We confirmed that this version works better when having limited
+  training data, such as training with ImageNet1K from scratch.</p>
+</blockquote>
+<p>We experimented with this module and in the following table we summarize the results:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong># Groups</strong></th>
+<th style="text-align: center;"><strong># Tokens</strong></th>
+<th style="text-align: center;"><strong>Top-1 Acc</strong></th>
+<th style="text-align: center;"><strong>GFLOPs</strong></th>
+<th style="text-align: center;"><strong>TensorBoard</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">54.638%</td>
+<td style="text-align: center;">0.0149</td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/KmfkGqAGQjikEw85phySmw/">Link</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">54.898%</td>
+<td style="text-align: center;">0.0146</td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/0PpgYOq9RFWV9njX6NJQ2w/">Link</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">55.196%</td>
+<td style="text-align: center;">0.0149</td>
+<td style="text-align: center;"><a href="https://tensorboard.dev/experiment/WUkrHbZASdu3zrfmY4ETZg/">Link</a></td>
+</tr>
+</tbody>
+</table>
+<p>Please note that we used the same hyperparameters presented in this example. Our
+implementation is available
+<a href="https://github.com/ariG23498/TokenLearner/blob/master/TokenLearner-V1.1.ipynb">in this notebook</a>.
+We acknowledge that the results with this new TokenLearner module are slightly off
+than expected and this might mitigate with hyperparameter tuning.</p>
+<p><em>Note</em>: To compute the FLOPs of our models we used
+<a href="https://github.com/AdityaKane2001/regnety/blob/main/regnety/utils/model_utils.py#L27">this utility</a>
+from <a href="https://github.com/AdityaKane2001/regnety">this repository</a>.</p>
+<hr />
+<h2 id="number-of-parameters">Number of parameters</h2>
+<p>You may have noticed that adding the TokenLearner module increases the number of
+parameters of the base network. But that does not mean it is less efficient as shown by
+<a href="https://arxiv.org/abs/2110.12894">Dehghani et al.</a>. Similar findings were reported
+by <a href="https://arxiv.org/abs/2103.07579">Bello et al.</a> as well. The TokenLearner module
+helps reducing the FLOPS in the overall network thereby helping to reduce the memory
+footprint.</p>
+<hr />
+<h2 id="final-notes">Final notes</h2>
+<ul>
+<li>TokenFuser: The authors of the paper also propose another module named TokenFuser. This
+module helps in remapping the representation of the TokenLearner output back to its
+original spatial resolution. To reuse the TokenLearner in the ViT architecture, the
+TokenFuser is a must. We first learn the tokens from the TokenLearner, build a
+representation of the tokens from a Transformer layer and then remap the representation
+into the original spatial resolution, so that it can again be consumed by a TokenLearner.
+Note here that you can only use the TokenLearner module once in entire ViT model if not
+paired with the TokenFuser.</li>
+<li>Use of these modules for video: The authors also suggest that TokenFuser goes really
+well with Vision Transformers for Videos (<a href="https://arxiv.org/abs/2103.15691">Arnab et al.</a>).</li>
+</ul>
+<p>We are grateful to <a href="https://jarvislabs.ai/">JarvisLabs</a> and
+<a href="https://developers.google.com/programs/experts/">Google Developers Experts</a>
+program for helping with GPU credits. Also, we are thankful to Michael Ryoo (first
+author of TokenLearner) for fruitful discussions.</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter08_image-classification">Chapter 8: Image classification</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='token_learner.html#learning-to-tokenize-in-vision-transformers'>Learning to tokenize in Vision Transformers</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#imports'>Imports</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#hyperparameters'>Hyperparameters</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#load-and-prepare-the-cifar10-dataset'>Load and prepare the CIFAR-10 dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#data-augmentation'>Data augmentation</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#positional-embedding-module'>Positional embedding module</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#mlp-block-for-transformer'>MLP block for Transformer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#tokenlearner-module'>TokenLearner module</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#transformer-block'>Transformer block</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#vit-model-with-the-tokenlearner-module'>ViT model with the TokenLearner module</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#training-utility'>Training utility</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#train-and-evaluate-a-vit-with-tokenlearner'>Train and evaluate a ViT with TokenLearner</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#results'>Results</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#number-of-parameters'>Number of parameters</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#final-notes'>Final notes</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='token_learner.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Float8 training and inference with a simple Transformer model">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="float8_training_and_inference_with_transformer.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Float8 training and inference with a simple Transformer model">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Float8 training and inference with a simple Transformer model">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Float8 training and inference with a simple Transformer model</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2 active" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2 active" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Quick Keras Recipes</a> /
+         Float8 training and inference with a simple Transformer model
+    </div>
+    <h1 id="float8-training-and-inference-with-a-simple-transformer-model">Float8 training and inference with a simple Transformer model</h1>
+<p><strong>Author:</strong> <a href="https://github.com/james77777778">Hongyu Chiu</a><br>
+<strong>Date created:</strong> 2024/05/14<br>
+<strong>Last modified:</strong> 2024/05/14<br>
+<strong>Description:</strong> Train a simple Transformer model with the float8 quantization.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/keras_recipes/ipynb/float8_training_and_inference_with_transformer.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/keras_recipes/float8_training_and_inference_with_transformer.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>As the number of parameters in Transformer models continues to grow, training
+and inference become highly memory and compute-intensive. Therefore, 8-bit
+floating point (FP8) was introduced, offering improved performance over 16-bit
+floating point with nearly no degradation in accuracy.</p>
+<p>In detail, there are two distinct types of FP8: E4M3 and E5M2, useful in
+different parts of training.</p>
+<ul>
+<li>E4M3: It consists of 1 sign bit, 4 exponent bits and 3 bits of mantissa. It
+can store values up to +/-448 and nan.</li>
+<li>E5M2: It consists of 1 sign bit, 5 exponent bits and 2 bits of mantissa. It
+can store values up to +/-57344, +/-inf and nan. The tradeoff of theincreased
+dynamic range is lower precision of the stored values.</li>
+</ul>
+<p>Typically, E4M3 is best used during the forward pass because activations and
+weights require more precision. In the backward pass, however, E5M2 is utilized
+because gradients are less susceptible to the loss of precision but require
+higher dynamic range.</p>
+<p>It is worth noting that FP8 inference deployment is greatly simplified, as
+inference and training use the same datatype. This is in contrast to INT8
+inference with networks trained in 32- or 16-bit floating point, which require
+post-training quantization (PTQ) calibration and even quantization-aware
+training (QAT) in order to maintain model accuracy.</p>
+<p>In this example, we will build a simple Transformer model and train it with
+both FP16 and FP8 precision. You will observe that the accuracy doesn't decrease
+with lower precision.</p>
+<p>Note: You will need a decent GPU with FP8 Tensor Cores support for the expected
+performance improvement.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<p>We will use KerasHub library to simplify the model implementation. Additionally,
+use mixed precision training to reduce the training time.</p>
+<p>Note: The dependency on TensorFlow is only required for data processing.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span><span class="o">-</span><span class="n">hub</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span>  <span class="c1"># Upgrade to Keras 3.</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;jax&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="n">keras</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set_dtype_policy</span><span class="p">(</span><span class="s2">&quot;mixed_bfloat16&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Define some hyperparameters.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">VOCABULARY_SIZE</span> <span class="o">=</span> <span class="mi">20000</span>
+<span class="n">MAX_SEQUENCE_LENGTH</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">MODEL_KWARGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">vocabulary_size</span><span class="o">=</span><span class="n">VOCABULARY_SIZE</span><span class="p">,</span>
+    <span class="n">max_sequence_length</span><span class="o">=</span><span class="n">MAX_SEQUENCE_LENGTH</span><span class="p">,</span>
+    <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>  <span class="c1"># Hidden size for each token</span>
+    <span class="n">num_heads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Number of attention heads</span>
+    <span class="n">intermediate_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>  <span class="c1"># Intermediate size in feedforward network</span>
+    <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># Dropout rate</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dataset">Dataset</h2>
+<p>First, let's download the IMDB dataset and extract it.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">datasets</span>
+<span class="err">!</span><span class="n">wget</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">ai</span><span class="o">.</span><span class="n">stanford</span><span class="o">.</span><span class="n">edu</span><span class="o">/~</span><span class="n">amaas</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">sentiment</span><span class="o">/</span><span class="n">aclImdb_v1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span><span class="n">q</span> <span class="o">-</span><span class="n">O</span> <span class="n">datasets</span><span class="o">/</span><span class="n">aclImdb_v1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="err">!</span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">datasets</span><span class="o">/</span><span class="n">aclImdb</span>
+<span class="err">!</span><span class="n">tar</span> <span class="o">-</span><span class="n">xzf</span> <span class="n">datasets</span><span class="o">/</span><span class="n">aclImdb_v1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span><span class="n">C</span> <span class="n">datasets</span>
+<span class="err">!</span><span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="n">datasets</span><span class="o">/</span><span class="n">aclImdb</span><span class="o">/</span><span class="n">train</span><span class="o">/</span><span class="n">unsup</span>
+</code></pre></div>
+
+<p>We'll use the <a href="https://keras.io/api/data_loading/text#textdatasetfromdirectory-function"><code>keras.utils.text_dataset_from_directory</code></a> utility to generate our
+labelled <a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset"><code>tf.data.Dataset</code></a> dataset from text files.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">text_dataset_from_directory</span><span class="p">(</span>
+    <span class="s2">&quot;datasets/aclImdb/train&quot;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">text_dataset_from_directory</span><span class="p">(</span>
+    <span class="s2">&quot;datasets/aclImdb/train&quot;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;validation&quot;</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">text_dataset_from_directory</span><span class="p">(</span>
+    <span class="s2">&quot;datasets/aclImdb/test&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Found 25000 files belonging to 2 classes.
+
+Using 20000 files for training.
+
+Found 25000 files belonging to 2 classes.
+
+Using 5000 files for validation.
+
+Found 25000 files belonging to 2 classes.
+</code></pre></div>
+
+
+</div>
+<p>We will now convert the text to lowercase.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">test_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">))</span>
+</code></pre></div>
+
+<p>Let's print a few samples.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">text_batch</span><span class="p">,</span> <span class="n">label_batch</span> <span class="ow">in</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Text: </span><span class="si">{</span><span class="n">text_batch</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Label: </span><span class="si">{</span><span class="n">label_batch</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Text: b&#39;&quot;pandemonium&quot; is a horror movie spoof that comes off more stupid than funny. believe me when i tell you, i love comedies. especially comedy spoofs. &quot;airplane&quot;, &quot;the naked gun&quot; trilogy, &quot;blazing saddles&quot;, &quot;high anxiety&quot;, and &quot;spaceballs&quot; are some of my favorite comedies that spoof a particular genre. &quot;pandemonium&quot; is not up there with those films. most of the scenes in this movie had me sitting there in stunned silence because the movie wasn\&#39;t all that funny. there are a few laughs in the film, but when you watch a comedy, you expect to laugh a lot more than a few times and that\&#39;s all this film has going for it. geez, &quot;scream&quot; had more laughs than this film and that was more of a horror film. how bizarre is that?&lt;br /&gt;&lt;br /&gt;*1/2 (out of four)&#39;
+Label: 0
+Text: b&quot;david mamet is a very interesting and a very un-equal director. his first movie &#39;house of games&#39; was the one i liked best, and it set a series of films with characters whose perspective of life changes as they get into complicated situations, and so does the perspective of the viewer.&lt;br /&gt;&lt;br /&gt;so is &#39;homicide&#39; which from the title tries to set the mind of the viewer to the usual crime drama. the principal characters are two cops, one jewish and one irish who deal with a racially charged area. the murder of an old jewish shop owner who proves to be an ancient veteran of the israeli independence war triggers the jewish identity in the mind and heart of the jewish detective.&lt;br /&gt;&lt;br /&gt;this is were the flaws of the film are the more obvious. the process of awakening is theatrical and hard to believe, the group of jewish militants is operatic, and the way the detective eventually walks to the final violent confrontation is pathetic. the end of the film itself is mamet-like smart, but disappoints from a human emotional perspective.&lt;br /&gt;&lt;br /&gt;joe mantegna and william macy give strong performances, but the flaws of the story are too evident to be easily compensated.&quot;
+Label: 0
+Text: b&#39;great documentary about the lives of ny firefighters during the worst terrorist attack of all time.. that reason alone is why this should be a must see collectors item.. what shocked me was not only the attacks, but the&quot;high fat diet&quot; and physical appearance of some of these firefighters. i think a lot of doctors would agree with me that,in the physical shape they were in, some of these firefighters would not of made it to the 79th floor carrying over 60 lbs of gear. having said that i now have a greater respect for firefighters and i realize becoming a firefighter is a life altering job. the french have a history of making great documentary\&#39;s and that is what this is, a great documentary.....&#39;
+Label: 1
+</code></pre></div>
+
+
+</div>
+<h3 id="tokenizing-the-data">Tokenizing the data</h3>
+<p>We'll be using the <a href="https://keras.io/keras_hub/api/tokenizers/word_piece_tokenizer#wordpiecetokenizer-class"><code>keras_hub.tokenizers.WordPieceTokenizer</code></a> layer to tokenize
+the text. <a href="https://keras.io/keras_hub/api/tokenizers/word_piece_tokenizer#wordpiecetokenizer-class"><code>keras_hub.tokenizers.WordPieceTokenizer</code></a> takes a WordPiece vocabulary
+and has functions for tokenizing the text, and detokenizing sequences of tokens.</p>
+<p>Before we define the tokenizer, we first need to train it on the dataset
+we have. The WordPiece tokenization algorithm is a subword tokenization
+algorithm; training it on a corpus gives us a vocabulary of subwords. A subword
+tokenizer is a compromise between word tokenizers (word tokenizers need very
+large vocabularies for good coverage of input words), and character tokenizers
+(characters don't really encode meaning like words do). Luckily, KerasHub
+makes it very simple to train WordPiece on a corpus with the
+<a href="https://keras.io/keras_hub/api/tokenizers/compute_word_piece_vocabulary#computewordpiecevocabulary-function"><code>keras_hub.tokenizers.compute_word_piece_vocabulary</code></a> utility.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">train_word_piece</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">reserved_tokens</span><span class="p">):</span>
+    <span class="n">word_piece_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">unbatch</span><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">tokenizers</span><span class="o">.</span><span class="n">compute_word_piece_vocabulary</span><span class="p">(</span>
+        <span class="n">word_piece_ds</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+        <span class="n">vocabulary_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span>
+        <span class="n">reserved_tokens</span><span class="o">=</span><span class="n">reserved_tokens</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vocab</span>
+</code></pre></div>
+
+<p>Every vocabulary has a few special, reserved tokens. We have two such tokens:</p>
+<ul>
+<li><code>"[PAD]"</code> - Padding token. Padding tokens are appended to the input sequence
+length when the input sequence length is shorter than the maximum sequence
+length.</li>
+<li><code>"[UNK]"</code> - Unknown token.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">reserved_tokens</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[PAD]&quot;</span><span class="p">,</span> <span class="s2">&quot;[UNK]&quot;</span><span class="p">]</span>
+<span class="n">train_sentences</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">train_ds</span><span class="p">]</span>
+<span class="n">vocab</span> <span class="o">=</span> <span class="n">train_word_piece</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">VOCABULARY_SIZE</span><span class="p">,</span> <span class="n">reserved_tokens</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Let's see some tokens!</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tokens: &quot;</span><span class="p">,</span> <span class="n">vocab</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">110</span><span class="p">])</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Tokens:  [&#39;à&#39;, &#39;á&#39;, &#39;â&#39;, &#39;ã&#39;, &#39;ä&#39;, &#39;å&#39;, &#39;æ&#39;, &#39;ç&#39;, &#39;è&#39;, &#39;é&#39;]
+</code></pre></div>
+
+
+</div>
+<p>Now, let's define the tokenizer. We will configure the tokenizer with the
+the vocabularies trained above. We will define a maximum sequence length so that
+all sequences are padded to the same length, if the length of the sequence is
+less than the specified sequence length. Otherwise, the sequence is truncated.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">tokenizers</span><span class="o">.</span><span class="n">WordPieceTokenizer</span><span class="p">(</span>
+    <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span>
+    <span class="n">lowercase</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="n">MAX_SEQUENCE_LENGTH</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Let's try and tokenize a sample from our dataset! To verify whether the text has
+been tokenized correctly, we can also detokenize the list of tokens back to the
+original text.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">input_sentence_ex</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">get_single_element</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">input_tokens_ex</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">input_sentence_ex</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sentence: &quot;</span><span class="p">,</span> <span class="n">input_sentence_ex</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tokens: &quot;</span><span class="p">,</span> <span class="n">input_tokens_ex</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Recovered text after detokenizing: &quot;</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">input_tokens_ex</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Sentence:  tf.Tensor(b&#39;great movie - especially the music - etta james - &quot;at last&quot;. this speaks volumes when you have finally found that special someone.&#39;, shape=(), dtype=string)
+Tokens:  
+
+[  218   150    14   393   137   356    14  4917  2941   719    14     3
+   164   370     3    15   145  2705 11670   186   155   160   557   391
+   146   452   416    15     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0]
+Recovered text after detokenizing:  tf.Tensor(b&#39;great movie - especially the music - etta james - &quot; at last &quot; . this speaks volumes when you have finally found that special someone . [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD] [PAD]&#39;, shape=(), dtype=string)
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="formatting-the-dataset">Formatting the dataset</h2>
+<p>Next, we'll format our datasets in the form that will be fed to the models. We
+need to tokenize the text.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="n">sentence</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">({</span><span class="s2">&quot;input_ids&quot;</span><span class="p">:</span> <span class="n">sentence</span><span class="p">},</span> <span class="n">label</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">format_dataset</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">make_dataset</span><span class="p">(</span><span class="n">train_ds</span><span class="p">)</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">make_dataset</span><span class="p">(</span><span class="n">val_ds</span><span class="p">)</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">make_dataset</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="model">Model</h2>
+<p>Let's build a simple Transformer model. We will use <code>TokenAndPositionEmbedding</code>
+and <code>TransformerDecoder</code> from KerasHub library. <code>TokenAndPositionEmbedding</code>
+represents words and their order in a sentence, while <code>TransformerDecoder</code>
+outputs one vector for each time step of our input sequence. Here, we take the
+mean across all time steps and use a feedforward network on top of it to
+classify text.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
+    <span class="n">vocabulary_size</span><span class="o">=</span><span class="mi">20000</span><span class="p">,</span>
+    <span class="n">max_sequence_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">num_heads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">intermediate_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">token_id_input</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;input_ids&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">TokenAndPositionEmbedding</span><span class="p">(</span>
+        <span class="n">vocabulary_size</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">,</span>
+        <span class="n">sequence_length</span><span class="o">=</span><span class="n">max_sequence_length</span><span class="p">,</span>
+        <span class="n">embedding_dim</span><span class="o">=</span><span class="n">hidden_dim</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">token_id_input</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">dropout</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">TransformerDecoder</span><span class="p">(</span>
+        <span class="n">intermediate_dim</span><span class="o">=</span><span class="n">intermediate_dim</span><span class="p">,</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="n">num_heads</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GlobalAveragePooling1D</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">token_id_input</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="training-and-evaluating-our-model">Training and evaluating our model</h2>
+<p>First, we train and evaluate the model with mixed precision
+(<code>"mixed_bfloat16"</code>). Afterward, we compare the results with FP8
+training/inference.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="o">**</span><span class="n">MODEL_KWARGS</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_ds</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accuracy (mixed_bfloat16): </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "functional_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape           </span>┃<span style="font-weight: bold">       Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ input_ids (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)          │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)           │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ token_and_position_embedding    │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)       │       <span style="color: #00af00; text-decoration-color: #00af00">646,400</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">TokenAndPositionEmbedding</span>)     │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)       │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ transformer_decoder             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)       │         <span style="color: #00af00; text-decoration-color: #00af00">6,464</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">TransformerDecoder</span>)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ global_average_pooling1d        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)             │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">GlobalAveragePooling1D</span>)        │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)             │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                   │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)             │         <span style="color: #00af00; text-decoration-color: #00af00">1,056</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_3 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)             │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)              │            <span style="color: #00af00; text-decoration-color: #00af00">33</span> │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">653,953</span> (2.49 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">653,953</span> (2.49 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Accuracy (mixed_bfloat16): 75.56%
+</code></pre></div>
+
+
+</div>
+
+<p>We can enable FP8 training/inference with a one-line API:
+<code>model.quantize("float8")</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="o">**</span><span class="n">MODEL_KWARGS</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="s2">&quot;float8&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>To inspect that FP8 training takes place, we can print out some variables
+related to FP8 training:</p>
+<ul>
+<li><code>*_scale</code>: The scaling factor that shift the distribution of inputs, weights
+    and gradients into the representable range of FP8. Defaults to <code>1.0</code></li>
+<li><code>*_amax_history</code>: The amax history window used for scaling factor computation.
+    Defaults to <code>0.0</code> with the length of 1024.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(transformer).+(multi_head).+(query).+(scale|amax_history)&quot;</span>
+<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+</code></pre></div>
+
+<p>The dtype policies of FP8 layers have also been modified.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">_flatten_layers</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;float8&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">dtype_policy</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">dtype_policy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>feedforward_output_dense: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+feedforward_intermediate_dense: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+attention_output: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+value: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+key: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+query: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+dense_2: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+dense_3: &lt;QuantizedFloat8DTypePolicy &quot;float8_from_mixed_bfloat16&quot;&gt;
+</code></pre></div>
+
+
+</div>
+<p>Let's train the model and see the results. We can verify that the accuracy
+doesn't decrease with FP8 training that the variables containing FP8 information
+change after fitting.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_ds</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accuracy (float8): </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Accuracy (float8): 74.16%
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="recipes">Recipes</h2>
+<ul>
+<li>The improvements in training speed are relatively small if the model is not
+sufficiently large. The recommendation is to train with a model containing
+parameters &gt;5B.</li>
+<li>You will need hardware such as NVIDIA H100 that supports FP8 Tensor Cores to
+gain the speedups.</li>
+</ul>
+<hr />
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2209.05433">FP8 Formats for Deep Learning</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/examples/fp8_primer.html">FP8 Primer</a></li>
+<li><a href="https://github.com/google/flax/blob/main/flax/linen/fp8_ops.py">Flax - fp8_ops.py</a></li>
+</ul>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter15_language-models-and-the-transformer">Chapter 15: Language models and the Transformer</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter18_best-practices-for-the-real-world">Chapter 18: Best practices for the real world</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='float8_training_and_inference_with_transformer.html#float8-training-and-inference-with-a-simple-transformer-model'>Float8 training and inference with a simple Transformer model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#dataset'>Dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='float8_training_and_inference_with_transformer.html#tokenizing-the-data'>Tokenizing the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#formatting-the-dataset'>Formatting the dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#model'>Model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#training-and-evaluating-our-model'>Training and evaluating our model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#recipes'>Recipes</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#references'>References</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='float8_training_and_inference_with_transformer.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

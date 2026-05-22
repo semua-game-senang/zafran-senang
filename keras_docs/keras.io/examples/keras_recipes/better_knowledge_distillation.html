@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Knowledge distillation recipes">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="better_knowledge_distillation.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Knowledge distillation recipes">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Knowledge distillation recipes">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Knowledge distillation recipes</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2 active" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2 active" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Quick Keras Recipes</a> /
+         Knowledge distillation recipes
+    </div>
+    <h1 id="knowledge-distillation-recipes">Knowledge distillation recipes</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/RisingSayak">Sayak Paul</a><br>
+<strong>Date created:</strong> 2021/08/01<br>
+<strong>Last modified:</strong> 2021/08/01<br>
+<strong>Description:</strong> Training better student models via knowledge distillation with function matching.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/keras_recipes/ipynb/better_knowledge_distillation.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/keras_recipes/better_knowledge_distillation.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Knowledge distillation (<a href="https://arxiv.org/abs/1503.02531">Hinton et al.</a>) is a technique
+that enables us to compress larger models into smaller ones. This allows us to reap the
+benefits of high performing larger models, while reducing storage and memory costs and
+achieving higher inference speed:</p>
+<ul>
+<li>Smaller models -&gt; smaller memory footprint</li>
+<li>Reduced complexity -&gt; fewer floating-point operations (FLOPs)</li>
+</ul>
+<p>In <a href="https://arxiv.org/abs/2106.05237">Knowledge distillation: A good teacher is patient and consistent</a>,
+Beyer et al. investigate various existing setups for performing knowledge distillation
+and show that all of them lead to sub-optimal performance. Due to this,
+practitioners often settle for other alternatives (quantization, pruning, weight
+clustering, etc.) when developing production systems that are resource-constrained.</p>
+<p>Beyer et al. investigate how we can improve the student models that come out
+of the knowledge distillation process and always match the performance of
+their teacher models. In this example, we will study the recipes introduced by them, using
+the <a href="https://www.robots.ox.ac.uk/~vgg/data/flowers/102/">Flowers102 dataset</a>. As a
+reference, with these recipes, the authors were able to produce a ResNet50 model that
+achieves 82.8% accuracy on the ImageNet-1k dataset.</p>
+<p>In case you need a refresher on knowledge distillation and want to study how it is
+implemented in Keras, you can refer to
+<a href="../vision/knowledge_distillation.html">this example</a>.
+You can also follow
+<a href="../vision/consistency_training.html">this example</a>
+that shows an extension of knowledge distillation applied to consistency training.</p>
+<p>To follow this example, you will need TensorFlow 2.5 or higher as well as TensorFlow Addons,
+which can be installed using the command below:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">addons</span>
+</code></pre></div>
+
+<hr />
+<h2 id="imports">Imports</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_addons</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+
+<span class="n">tfds</span><span class="o">.</span><span class="n">disable_progress_bar</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="hyperparameters-and-constants">Hyperparameters and constants</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">AUTO</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span>  <span class="c1"># Used to dynamically adjust parallelism.</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">64</span>
+
+<span class="c1"># Comes from Table 4 and &quot;Training setup&quot; section.</span>
+<span class="n">TEMPERATURE</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Used to soften the logits before they go to softmax.</span>
+<span class="n">INIT_LR</span> <span class="o">=</span> <span class="mf">0.003</span>  <span class="c1"># Initial learning rate that will be decayed over the training period.</span>
+<span class="n">WEIGHT_DECAY</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Used for regularization.</span>
+<span class="n">CLIP_THRESHOLD</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Used for clipping the gradients by L2-norm.</span>
+
+<span class="c1"># We will first resize the training images to a bigger size and then we will take</span>
+<span class="c1"># random crops of a lower size.</span>
+<span class="n">BIGGER</span> <span class="o">=</span> <span class="mi">160</span>
+<span class="n">RESIZE</span> <span class="o">=</span> <span class="mi">128</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-the-flowers102-dataset">Load the Flowers102 dataset</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span><span class="p">,</span> <span class="n">validation_ds</span><span class="p">,</span> <span class="n">test_ds</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+    <span class="s2">&quot;oxford_flowers102&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">],</span> <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of training examples: </span><span class="si">{</span><span class="n">train_ds</span><span class="o">.</span><span class="n">cardinality</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Number of validation examples: </span><span class="si">{</span><span class="n">validation_ds</span><span class="o">.</span><span class="n">cardinality</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of test examples: </span><span class="si">{</span><span class="n">test_ds</span><span class="o">.</span><span class="n">cardinality</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Number of training examples: 1020.
+Number of validation examples: 1020.
+Number of test examples: 6149.
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="teacher-model">Teacher model</h2>
+<p>As is common with any distillation technique, it's important to first train a
+well-performing teacher model which is usually larger than the subsequent student model.
+The authors distill a BiT ResNet152x2 model (teacher) into a BiT ResNet50 model
+(student).</p>
+<p>BiT stands for Big Transfer and was introduced in
+<a href="https://arxiv.org/abs/1912.11370">Big Transfer (BiT): General Visual Representation Learning</a>.
+BiT variants of ResNets use Group Normalization (<a href="https://arxiv.org/abs/1803.08494">Wu et al.</a>)
+and Weight Standardization (<a href="https://arxiv.org/abs/1903.10520v2">Qiao et al.</a>)
+in place of Batch Normalization (<a href="https://arxiv.org/abs/1502.03167">Ioffe et al.</a>).
+In order to limit the time it takes to run this example, we will be using a BiT
+ResNet101x3 already trained on the Flowers102 dataset. You can refer to
+<a href="https://github.com/sayakpaul/FunMatch-Distillation/blob/main/train_bit.ipynb">this notebook</a>
+to learn more about the training process. This model reaches 98.18% accuracy on the
+test set of Flowers102.</p>
+<p>The model weights are hosted on Kaggle as a dataset.
+To download the weights, follow these steps:</p>
+<ol>
+<li>Create an account on Kaggle <a href="https://www.kaggle.com">here</a>.</li>
+<li>Go to the "Account" tab of your <a href="https://www.kaggle.com/account">user profile</a>.</li>
+<li>Select "Create API Token". This will trigger the download of <code>kaggle.json</code>, a file
+containing your API credentials.</li>
+<li>From that JSON file, copy your Kaggle username and API key.</li>
+</ol>
+<p>Now run the following:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KAGGLE_USERNAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># TODO: enter your Kaggle user name here</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KAGGLE_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># TODO: enter your Kaggle key here</span>
+</code></pre></div>
+
+<p>Once the environment variables are set, run:</p>
+<div class="codehilite"><pre><span></span><code>$ kaggle datasets download -d spsayakpaul/bitresnet101x3flowers102
+$ unzip -qq bitresnet101x3flowers102.zip
+</code></pre></div>
+
+<p>This should generate a folder named <code>T-r101x3-128</code> which is essentially a teacher
+<a href="https://www.tensorflow.org/guide/saved_model"><code>SavedModel</code></a>.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KAGGLE_USERNAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># TODO: enter your Kaggle user name here</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KAGGLE_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># TODO: enter your Kaggle API key here</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">kaggle</span> <span class="n">datasets</span> <span class="n">download</span> <span class="o">-</span><span class="n">d</span> <span class="n">spsayakpaul</span><span class="o">/</span><span class="n">bitresnet101x3flowers102</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">unzip</span> <span class="o">-</span><span class="n">qq</span> <span class="n">bitresnet101x3flowers102</span><span class="o">.</span><span class="n">zip</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1"># Since the teacher model is not going to be trained further we make</span>
+<span class="c1"># it non-trainable.</span>
+<span class="n">teacher_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+    <span class="s2">&quot;/home/jupyter/keras-io/examples/keras_recipes/T-r101x3-128&quot;</span>
+<span class="p">)</span>
+<span class="n">teacher_model</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">teacher_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Model: &quot;my_bi_t_model_1&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_1 (Dense)              multiple                  626790    
+_________________________________________________________________
+keras_layer_1 (KerasLayer)   multiple                  381789888 
+=================================================================
+Total params: 382,416,678
+Trainable params: 0
+Non-trainable params: 382,416,678
+_________________________________________________________________
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="the-function-matching-recipe">The "function matching" recipe</h2>
+<p>To train a high-quality student model, the authors propose the following changes to the
+student training workflow:</p>
+<ul>
+<li>Use an aggressive variant of MixUp (<a href="https://arxiv.org/abs/1710.09412">Zhang et al.</a>).
+This is done by sampling the <code>alpha</code> parameter from a uniform distribution instead of a
+beta distribution. MixUp is used here in order to help the student model capture the
+function underlying the teacher model. MixUp linearly interpolates between different
+samples across the data manifold. So the rationale here is if the student is trained to
+fit that it should be able to match the teacher model better. To incorporate more
+invariance MixUp is coupled with "Inception-style" cropping
+(<a href="https://arxiv.org/abs/1409.4842">Szegedy et al.</a>). This is where the
+"function matching" term makes its way in the
+<a href="https://arxiv.org/abs/2106.05237">original paper</a>.</li>
+<li>Unlike other works (<a href="https://arxiv.org/abs/1911.04252">Noisy Student Training</a> for
+example), both the teacher and student models receive the same copy of an image, which is
+mixed up and randomly cropped. By providing the same inputs to both the models, the
+authors make the teacher consistent with the student.</li>
+<li>With MixUp, we are essentially introducing a strong form of regularization when
+training the student. As such, it should be trained for a
+relatively long period of time (1000 epochs at least). Since the student is trained with
+strong regularization, the risk of overfitting due to a longer training
+schedule are also mitigated.</li>
+</ul>
+<p>In summary, one needs to be consistent and patient while training the student model.</p>
+<hr />
+<h2 id="data-input-pipeline">Data input pipeline</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mixup</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mixedup_images</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">images</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># The labels do not matter here since they are NOT used during</span>
+    <span class="c1"># training.</span>
+    <span class="k">return</span> <span class="n">mixedup_images</span><span class="p">,</span> <span class="n">labels</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+
+    <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">BIGGER</span><span class="p">,</span> <span class="n">BIGGER</span><span class="p">))</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">random_crop</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">RESIZE</span><span class="p">,</span> <span class="n">RESIZE</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">random_flip_left_right</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Central fraction amount is from here:</span>
+        <span class="c1"># https://git.io/J8Kda.</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">central_crop</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">central_fraction</span><span class="o">=</span><span class="mf">0.875</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">RESIZE</span><span class="p">,</span> <span class="n">RESIZE</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">label</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">BATCH_SIZE</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">preprocess_image</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">train</span><span class="p">)),</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span>
+        <span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mixup</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTO</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+</code></pre></div>
+
+<p>Note that for brevity, we used mild crops for the training set but in practice
+"Inception-style" preprocessing should be applied. You can refer to
+<a href="https://github.com/sayakpaul/FunMatch-Distillation/blob/main/crop_resize.py">this script</a>
+for a closer implementation. Also, <em><strong>the ground-truth labels are not used for
+training the student.</strong></em></p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">validation_ds</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="n">validation_ds</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="n">test_ds</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="visualization">Visualization</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">sample_images</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">train_ds</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">sample_images</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/keras_recipes/better_knowledge_distillation/better_knowledge_distillation_20_0.png" /></p>
+<hr />
+<h2 id="student-model">Student model</h2>
+<p>For the purpose of this example, we will use the standard ResNet50V2
+(<a href="https://arxiv.org/abs/1603.05027">He et al.</a>).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_resnetv2</span><span class="p">():</span>
+    <span class="n">resnet_v2</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">applications</span><span class="o">.</span><span class="n">ResNet50V2</span><span class="p">(</span>
+        <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">RESIZE</span><span class="p">,</span> <span class="n">RESIZE</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="n">classes</span><span class="o">=</span><span class="mi">102</span><span class="p">,</span>
+        <span class="n">classifier_activation</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">resnet_v2</span>
+
+
+<span class="n">get_resnetv2</span><span class="p">()</span><span class="o">.</span><span class="n">count_params</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>23773798
+</code></pre></div>
+
+
+</div>
+<p>Compared to the teacher model, this model has 358 Million fewer parameters.</p>
+<hr />
+<h2 id="distillation-utility">Distillation utility</h2>
+<p>We will reuse some code from
+<a href="../vision/knowledge_distillation.html">this example</a>
+on knowledge distillation.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Distiller</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">,</span> <span class="n">teacher</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">student</span> <span class="o">=</span> <span class="n">student</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">teacher</span> <span class="o">=</span> <span class="n">teacher</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;distillation_loss&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">metrics</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_tracker</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metrics</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">distillation_loss_fn</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">TEMPERATURE</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distillation_loss_fn</span> <span class="o">=</span> <span class="n">distillation_loss_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Unpack data</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="c1"># Forward pass of teacher</span>
+        <span class="n">teacher_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">teacher</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># Forward pass of student</span>
+            <span class="n">student_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Compute loss</span>
+            <span class="n">distillation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distillation_loss_fn</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">teacher_predictions</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">student_predictions</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Compute gradients</span>
+        <span class="n">trainable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student</span><span class="o">.</span><span class="n">trainable_variables</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">distillation_loss</span><span class="p">,</span> <span class="n">trainable_vars</span><span class="p">)</span>
+
+        <span class="c1"># Update weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">trainable_vars</span><span class="p">))</span>
+
+        <span class="c1"># Report progress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">distillation_loss</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;distillation_loss&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_tracker</span><span class="o">.</span><span class="n">result</span><span class="p">()}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Unpack data</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="c1"># Forward passes</span>
+        <span class="n">teacher_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">teacher</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">student_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the loss</span>
+        <span class="n">distillation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distillation_loss_fn</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">teacher_predictions</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">student_predictions</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Report progress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">distillation_loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compiled_metrics</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">student_predictions</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+
+<hr />
+<h2 id="learning-rate-schedule">Learning rate schedule</h2>
+<p>A warmup cosine learning rate schedule is used in the paper. This schedule is also
+typical for many pre-training methods especially for computer vision.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Some code is taken from:</span>
+<span class="c1"># https://www.kaggle.com/ashusma/training-rfcx-tensorflow-tpu-effnet-b2.</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WarmUpCosine</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">LearningRateSchedule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate_base</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">,</span> <span class="n">warmup_learning_rate</span><span class="p">,</span> <span class="n">warmup_steps</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate_base</span> <span class="o">=</span> <span class="n">learning_rate_base</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">=</span> <span class="n">total_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warmup_learning_rate</span> <span class="o">=</span> <span class="n">warmup_learning_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">warmup_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Total_steps must be larger or equal to warmup_steps.&quot;</span><span class="p">)</span>
+
+        <span class="n">cos_annealed_lr</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pi</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">)</span>
+            <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate_base</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">cos_annealed_lr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate_base</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_learning_rate</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Learning_rate_base must be larger or equal to &quot;</span>
+                    <span class="s2">&quot;warmup_learning_rate.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate_base</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_learning_rate</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span>
+            <span class="n">warmup_rate</span> <span class="o">=</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_learning_rate</span>
+            <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">step</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">,</span> <span class="n">warmup_rate</span><span class="p">,</span> <span class="n">learning_rate</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">step</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;learning_rate&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<p>We can now plot a a graph of learning rates generated using this schedule.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ARTIFICIAL_EPOCHS</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">ARTIFICIAL_BATCH_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">DATASET_NUM_TRAIN_EXAMPLES</span> <span class="o">=</span> <span class="mi">1020</span>
+<span class="n">TOTAL_STEPS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+    <span class="n">DATASET_NUM_TRAIN_EXAMPLES</span> <span class="o">/</span> <span class="n">ARTIFICIAL_BATCH_SIZE</span> <span class="o">*</span> <span class="n">ARTIFICIAL_EPOCHS</span>
+<span class="p">)</span>
+<span class="n">scheduled_lrs</span> <span class="o">=</span> <span class="n">WarmUpCosine</span><span class="p">(</span>
+    <span class="n">learning_rate_base</span><span class="o">=</span><span class="n">INIT_LR</span><span class="p">,</span>
+    <span class="n">total_steps</span><span class="o">=</span><span class="n">TOTAL_STEPS</span><span class="p">,</span>
+    <span class="n">warmup_learning_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">warmup_steps</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">lrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">scheduled_lrs</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">TOTAL_STEPS</span><span class="p">)]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lrs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Step&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/keras_recipes/better_knowledge_distillation/better_knowledge_distillation_29_0.png" /></p>
+<p>The original paper uses at least 1000 epochs and a batch size of 512 to perform
+"function matching". The objective of this example is to present a workflow to
+implement the recipe and not to demonstrate the results when they are applied at full scale.
+However, these recipes will transfer to the original settings from the paper. Please
+refer to <a href="https://github.com/sayakpaul/FunMatch-Distillation">this repository</a> if you are
+interested in finding out more.</p>
+<hr />
+<h2 id="training">Training</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">optimizer</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="n">WEIGHT_DECAY</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">scheduled_lrs</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="n">CLIP_THRESHOLD</span>
+<span class="p">)</span>
+
+<span class="n">student_model</span> <span class="o">=</span> <span class="n">get_resnetv2</span><span class="p">()</span>
+
+<span class="n">distiller</span> <span class="o">=</span> <span class="n">Distiller</span><span class="p">(</span><span class="n">student</span><span class="o">=</span><span class="n">student_model</span><span class="p">,</span> <span class="n">teacher</span><span class="o">=</span><span class="n">teacher_model</span><span class="p">)</span>
+<span class="n">distiller</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+    <span class="n">distillation_loss_fn</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">KLDivergence</span><span class="p">(),</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="n">TEMPERATURE</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">distiller</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_ds</span><span class="p">,</span>
+    <span class="n">steps_per_epoch</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">DATASET_NUM_TRAIN_EXAMPLES</span> <span class="o">/</span> <span class="n">BATCH_SIZE</span><span class="p">)),</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">validation_ds</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>  <span class="c1"># This should be at least 1000.</span>
+<span class="p">)</span>
+
+<span class="n">student</span> <span class="o">=</span> <span class="n">distiller</span><span class="o">.</span><span class="n">student</span>
+<span class="n">student_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">])</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">top1_accuracy</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top-1 accuracy on the test set: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">top1_accuracy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/30
+16/16 [==============================] - 74s 3s/step - distillation_loss: 0.0070 - val_sparse_categorical_accuracy: 0.0039 - val_distillation_loss: 0.0061
+Epoch 2/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0059 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0061
+Epoch 3/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0049 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0060
+Epoch 4/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0048 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0060
+Epoch 5/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0043 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0060
+Epoch 6/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0041 - val_sparse_categorical_accuracy: 0.0108 - val_distillation_loss: 0.0060
+Epoch 7/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0038 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0061
+Epoch 8/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0040 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0062
+Epoch 9/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0039 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0063
+Epoch 10/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0035 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0064
+Epoch 11/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0041 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0064
+Epoch 12/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0039 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0067
+Epoch 13/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0039 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0067
+Epoch 14/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0036 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0066
+Epoch 15/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0037 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0065
+Epoch 16/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0038 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0068
+Epoch 17/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0039 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0066
+Epoch 18/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0038 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0064
+Epoch 19/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0035 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0071
+Epoch 20/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0038 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0066
+Epoch 21/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0038 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0068
+Epoch 22/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0034 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0073
+Epoch 23/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0035 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0078
+Epoch 24/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0037 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0087
+Epoch 25/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0031 - val_sparse_categorical_accuracy: 0.0108 - val_distillation_loss: 0.0078
+Epoch 26/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0033 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0072
+Epoch 27/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0036 - val_sparse_categorical_accuracy: 0.0098 - val_distillation_loss: 0.0071
+Epoch 28/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0036 - val_sparse_categorical_accuracy: 0.0275 - val_distillation_loss: 0.0078
+Epoch 29/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0032 - val_sparse_categorical_accuracy: 0.0196 - val_distillation_loss: 0.0068
+Epoch 30/30
+16/16 [==============================] - 37s 2s/step - distillation_loss: 0.0034 - val_sparse_categorical_accuracy: 0.0147 - val_distillation_loss: 0.0071
+97/97 [==============================] - 7s 64ms/step - loss: 0.0000e+00 - accuracy: 0.0107
+Top-1 accuracy on the test set: 1.07%
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="results">Results</h2>
+<p>With just 30 epochs of training, the results are nowhere near expected.
+This is where the benefits of patience aka a longer training schedule
+will come into play. Let's investigate what the model trained for 1000 epochs can do.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Download the pre-trained weights.</span>
+<span class="err">!</span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">git</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">JBO3Y</span> <span class="o">-</span><span class="n">O</span> <span class="n">S</span><span class="o">-</span><span class="n">r50x1</span><span class="o">-</span><span class="mi">128</span><span class="o">-</span><span class="mf">1000.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="err">!</span><span class="n">tar</span> <span class="n">xf</span> <span class="n">S</span><span class="o">-</span><span class="n">r50x1</span><span class="o">-</span><span class="mi">128</span><span class="o">-</span><span class="mf">1000.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">pretrained_student</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;S-r50x1-128-1000&quot;</span><span class="p">)</span>
+<span class="n">pretrained_student</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Model: &quot;resnet&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+root_block (Sequential)      (None, 32, 32, 64)        9408      
+_________________________________________________________________
+block1 (Sequential)          (None, 32, 32, 256)       214912    
+_________________________________________________________________
+block2 (Sequential)          (None, 16, 16, 512)       1218048   
+_________________________________________________________________
+block3 (Sequential)          (None, 8, 8, 1024)        7095296   
+_________________________________________________________________
+block4 (Sequential)          (None, 4, 4, 2048)        14958592  
+_________________________________________________________________
+group_norm (GroupNormalizati multiple                  4096      
+_________________________________________________________________
+re_lu_97 (ReLU)              multiple                  0         
+_________________________________________________________________
+global_average_pooling2d_1 ( multiple                  0         
+_________________________________________________________________
+head/dense (Dense)           multiple                  208998    
+=================================================================
+Total params: 23,709,350
+Trainable params: 23,709,350
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre></div>
+
+
+</div>
+<p>This model exactly follows what the authors have used in their student models. This is
+why the model summary is a bit different.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">_</span><span class="p">,</span> <span class="n">top1_accuracy</span> <span class="o">=</span> <span class="n">pretrained_student</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top-1 accuracy on the test set: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">top1_accuracy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>97/97 [==============================] - 14s 131ms/step - loss: 0.0000e+00 - accuracy: 0.8102
+Top-1 accuracy on the test set: 81.02%
+</code></pre></div>
+
+
+</div>
+<p>With 100000 epochs of training, this same model leads to a top-1 accuracy of 95.54%.</p>
+<p>There are a number of important ablations studies presented in the paper that show the
+effectiveness of these recipes compared to the prior art. So if you are skeptical about
+these recipes, definitely consult the paper.</p>
+<hr />
+<h2 id="note-on-training-for-longer">Note on training for longer</h2>
+<p>With TPU-based hardware infrastructure, we can train the model for 1000 epochs faster.
+This does not even require adding a lot of changes to this codebase. You
+are encouraged to check
+<a href="https://github.com/sayakpaul/FunMatch-Distillation">this repository</a>
+as it presents TPU-compatible training workflows for these recipes and can be run on
+<a href="https://www.kaggle.com/kernels">Kaggle Kernel</a> leveraging their free TPU v3-8 hardware.</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter18_best-practices-for-the-real-world">Chapter 18: Best practices for the real world</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='better_knowledge_distillation.html#knowledge-distillation-recipes'>Knowledge distillation recipes</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#imports'>Imports</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#hyperparameters-and-constants'>Hyperparameters and constants</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#load-the-flowers102-dataset'>Load the Flowers102 dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#teacher-model'>Teacher model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#the-function-matching-recipe'>The "function matching" recipe</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#data-input-pipeline'>Data input pipeline</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#visualization'>Visualization</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#student-model'>Student model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#distillation-utility'>Distillation utility</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#learning-rate-schedule'>Learning rate schedule</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#training'>Training</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#results'>Results</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#note-on-training-for-longer'>Note on training for longer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='better_knowledge_distillation.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: GPT text generation from scratch with KerasHub">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="text_generation_gpt.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: GPT text generation from scratch with KerasHub">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: GPT text generation from scratch with KerasHub">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>GPT text generation from scratch with KerasHub</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2 active" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2 active" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Generative Deep Learning</a> /
+         GPT text generation from scratch with KerasHub
+    </div>
+    <h1 id="gpt-text-generation-from-scratch-with-kerashub">GPT text generation from scratch with KerasHub</h1>
+<p><strong>Author:</strong> <a href="https://github.com/jessechancy">Jesse Chan</a><br>
+<strong>Date created:</strong> 2022/07/25<br>
+<strong>Last modified:</strong> 2022/07/25<br>
+<strong>Description:</strong> Using KerasHub to train a mini-GPT model for text generation.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/generative/ipynb/text_generation_gpt.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/generative/text_generation_gpt.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>In this example, we will use KerasHub to build a scaled down Generative
+Pre-Trained (GPT) model. GPT is a Transformer-based model that allows you to generate
+sophisticated text from a prompt.</p>
+<p>We will train the model on the <a href="https://arxiv.org/abs/1911.12391">simplebooks-92</a> corpus,
+which is a dataset made from several novels. It is a good dataset for this example since
+it has a small vocabulary and high word frequency, which is beneficial when training a
+model with few parameters.</p>
+<p>This example combines concepts from
+<a href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+with KerasHub abstractions. We will demonstrate how KerasHub tokenization, layers and
+metrics simplify the training
+process, and then show how to generate output text using the KerasHub sampling utilities.</p>
+<p>Note: If you are running this example on a Colab,
+make sure to enable GPU runtime for faster training.</p>
+<p>This example requires KerasHub. You can install it via the following command:
+<code>pip install keras-hub</code></p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span><span class="o">-</span><span class="n">hub</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span>  <span class="c1"># Upgrade to Keras 3.</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow.data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf_data</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow.strings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf_strings</span>
+</code></pre></div>
+
+<hr />
+<h2 id="settings-amp-hyperparameters">Settings &amp; hyperparameters</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Data</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">MIN_STRING_LEN</span> <span class="o">=</span> <span class="mi">512</span>  <span class="c1"># Strings shorter than this will be discarded</span>
+<span class="n">SEQ_LEN</span> <span class="o">=</span> <span class="mi">128</span>  <span class="c1"># Length of training sequences, in tokens</span>
+
+<span class="c1"># Model</span>
+<span class="n">EMBED_DIM</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">FEED_FORWARD_DIM</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">NUM_HEADS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">NUM_LAYERS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">VOCAB_SIZE</span> <span class="o">=</span> <span class="mi">5000</span>  <span class="c1"># Limits parameters in model.</span>
+
+<span class="c1"># Training</span>
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># Inference</span>
+<span class="n">NUM_TOKENS_TO_GENERATE</span> <span class="o">=</span> <span class="mi">80</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-the-data">Load the data</h2>
+<p>Now, let's download the dataset! The SimpleBooks dataset consists of 1,573 Gutenberg books, and has
+one of the smallest vocabulary size to word-level tokens ratio. It has a vocabulary size of ~98k,
+a third of WikiText-103's, with around the same number of tokens (~100M). This makes it easy to fit a small model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://dldata-public.s3.us-east-2.amazonaws.com/simplebooks.zip&quot;</span><span class="p">,</span>
+    <span class="n">extract</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.keras/datasets/simplebooks/&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load simplebooks-92 train set and filter out short lines.</span>
+<span class="n">raw_train_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tf_data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="nb">dir</span> <span class="o">+</span> <span class="s2">&quot;simplebooks-92-raw/train.txt&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf_strings</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MIN_STRING_LEN</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Load simplebooks-92 validation set and filter out short lines.</span>
+<span class="n">raw_val_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tf_data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="nb">dir</span> <span class="o">+</span> <span class="s2">&quot;simplebooks-92-raw/valid.txt&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf_strings</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MIN_STRING_LEN</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://dldata-public.s3.us-east-2.amazonaws.com/simplebooks.zip
+ 282386239/282386239 ━━━━━━━━━━━━━━━━━━━━ 7s 0us/step
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="train-the-tokenizer">Train the tokenizer</h2>
+<p>We train the tokenizer from the training dataset for a vocabulary size of <code>VOCAB_SIZE</code>,
+which is a tuned hyperparameter. We want to limit the vocabulary as much as possible, as
+we will see later on
+that it has a large effect on the number of model parameters. We also don't want to include
+<em>too few</em> vocabulary terms, or there would be too many out-of-vocabulary (OOV) sub-words. In
+addition, three tokens are reserved in the vocabulary:</p>
+<ul>
+<li><code>"[PAD]"</code> for padding sequences to <code>SEQ_LEN</code>. This token has index 0 in both
+<code>reserved_tokens</code> and <code>vocab</code>, since <code>WordPieceTokenizer</code> (and other layers) consider
+<code>0</code>/<code>vocab[0]</code> as the default padding.</li>
+<li><code>"[UNK]"</code> for OOV sub-words, which should match the default <code>oov_token="[UNK]"</code> in
+<code>WordPieceTokenizer</code>.</li>
+<li><code>"[BOS]"</code> stands for beginning of sentence, but here technically it is a token
+representing the beginning of each line of training data.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Train tokenizer vocabulary</span>
+<span class="n">vocab</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">tokenizers</span><span class="o">.</span><span class="n">compute_word_piece_vocabulary</span><span class="p">(</span>
+    <span class="n">raw_train_ds</span><span class="p">,</span>
+    <span class="n">vocabulary_size</span><span class="o">=</span><span class="n">VOCAB_SIZE</span><span class="p">,</span>
+    <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">reserved_tokens</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;[PAD]&quot;</span><span class="p">,</span> <span class="s2">&quot;[UNK]&quot;</span><span class="p">,</span> <span class="s2">&quot;[BOS]&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-tokenizer">Load tokenizer</h2>
+<p>We use the vocabulary data to initialize
+<a href="https://keras.io/keras_hub/api/tokenizers/word_piece_tokenizer#wordpiecetokenizer-class"><code>keras_hub.tokenizers.WordPieceTokenizer</code></a>. WordPieceTokenizer is an efficient
+implementation of the WordPiece algorithm used by BERT and other models. It will strip,
+lower-case and do other irreversible preprocessing operations.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">tokenizers</span><span class="o">.</span><span class="n">WordPieceTokenizer</span><span class="p">(</span>
+    <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="n">SEQ_LEN</span><span class="p">,</span>
+    <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="tokenize-data">Tokenize data</h2>
+<p>We preprocess the dataset by tokenizing and splitting it into <code>features</code> and <code>labels</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># packer adds a start token</span>
+<span class="n">start_packer</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">StartEndPacker</span><span class="p">(</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="n">SEQ_LEN</span><span class="p">,</span>
+    <span class="n">start_value</span><span class="o">=</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">token_to_id</span><span class="p">(</span><span class="s2">&quot;[BOS]&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">start_packer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">outputs</span>
+    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span>
+
+
+<span class="c1"># Tokenize and split into train and label sequences.</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">raw_train_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf_data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span>
+    <span class="n">tf_data</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+<span class="p">)</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">raw_val_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf_data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span>
+    <span class="n">tf_data</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="build-the-model">Build the model</h2>
+<p>We create our scaled down GPT model with the following layers:</p>
+<ul>
+<li>One <a href="https://keras.io/keras_hub/api/modeling_layers/token_and_position_embedding#tokenandpositionembedding-class"><code>keras_hub.layers.TokenAndPositionEmbedding</code></a> layer, which combines the embedding
+for the token and its position.</li>
+<li>Multiple <a href="https://keras.io/keras_hub/api/modeling_layers/transformer_decoder#transformerdecoder-class"><code>keras_hub.layers.TransformerDecoder</code></a> layers, with the default causal masking.
+The layer has no cross-attention when run with decoder sequence only.</li>
+<li>One final dense linear layer</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+<span class="c1"># Embedding.</span>
+<span class="n">embedding_layer</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">TokenAndPositionEmbedding</span><span class="p">(</span>
+    <span class="n">vocabulary_size</span><span class="o">=</span><span class="n">VOCAB_SIZE</span><span class="p">,</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="n">SEQ_LEN</span><span class="p">,</span>
+    <span class="n">embedding_dim</span><span class="o">=</span><span class="n">EMBED_DIM</span><span class="p">,</span>
+    <span class="n">mask_zero</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">embedding_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="c1"># Transformer decoders.</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_LAYERS</span><span class="p">):</span>
+    <span class="n">decoder_layer</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">TransformerDecoder</span><span class="p">(</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="n">NUM_HEADS</span><span class="p">,</span>
+        <span class="n">intermediate_dim</span><span class="o">=</span><span class="n">FEED_FORWARD_DIM</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">decoder_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># Giving one argument only skips cross-attention.</span>
+<span class="c1"># Output.</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">VOCAB_SIZE</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">perplexity</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Perplexity</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask_token_id</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss_fn</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">perplexity</span><span class="p">])</span>
+</code></pre></div>
+
+<p>Let's take a look at our model summary - a large majority of the
+parameters are in the <code>token_and_position_embedding</code> and the output <code>dense</code> layer!
+This means that the vocabulary size (<code>VOCAB_SIZE</code>) has a large effect on the size of the model,
+while the number of Transformer decoder layers (<code>NUM_LAYERS</code>) doesn't affect it as much.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "functional_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">    Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ input_layer (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ token_and_position_embedding    │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)         │  <span style="color: #00af00; text-decoration-color: #00af00">1,312,768</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">TokenAndPositionEmbedding</span>)     │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ transformer_decoder             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)         │    <span style="color: #00af00; text-decoration-color: #00af00">329,085</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">TransformerDecoder</span>)            │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ transformer_decoder_1           │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)         │    <span style="color: #00af00; text-decoration-color: #00af00">329,085</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">TransformerDecoder</span>)            │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ dense (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                   │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">5000</span>)        │  <span style="color: #00af00; text-decoration-color: #00af00">1,285,000</span> │
+└─────────────────────────────────┴───────────────────────────┴────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">3,255,938</span> (12.42 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">3,255,938</span> (12.42 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<hr />
+<h2 id="training">Training</h2>
+<p>Now that we have our model, let's train it with the <code>fit()</code> method.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/5
+ 2445/2445 ━━━━━━━━━━━━━━━━━━━━ 216s 66ms/step - loss: 5.0008 - perplexity: 180.0715 - val_loss: 4.2176 - val_perplexity: 68.0438
+Epoch 2/5
+ 2445/2445 ━━━━━━━━━━━━━━━━━━━━ 127s 48ms/step - loss: 4.1699 - perplexity: 64.7740 - val_loss: 4.0553 - val_perplexity: 57.7996
+Epoch 3/5
+ 2445/2445 ━━━━━━━━━━━━━━━━━━━━ 126s 47ms/step - loss: 4.0286 - perplexity: 56.2138 - val_loss: 4.0134 - val_perplexity: 55.4446
+Epoch 4/5
+ 2445/2445 ━━━━━━━━━━━━━━━━━━━━ 134s 50ms/step - loss: 3.9576 - perplexity: 52.3643 - val_loss: 3.9900 - val_perplexity: 54.1153
+Epoch 5/5
+ 2445/2445 ━━━━━━━━━━━━━━━━━━━━ 135s 51ms/step - loss: 3.9080 - perplexity: 49.8242 - val_loss: 3.9500 - val_perplexity: 52.0006
+
+&lt;keras.src.callbacks.history.History at 0x7f7de0365ba0&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="inference">Inference</h2>
+<p>With our trained model, we can test it out to gauge its performance. To do this
+we can seed our model with an input sequence starting with the <code>"[BOS]"</code> token,
+and progressively sample the model by making predictions for each subsequent
+token in a loop.</p>
+<p>To start lets build a prompt with the same shape as our model inputs, containing
+only the <code>"[BOS]"</code> token.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># The &quot;packer&quot; layers adds the [BOS] token for us.</span>
+<span class="n">prompt_tokens</span> <span class="o">=</span> <span class="n">start_packer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]))</span>
+<span class="n">prompt_tokens</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>&lt;tf.Tensor: shape=(1, 128), dtype=int32, numpy=
+array([[2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+      dtype=int32)&gt;
+</code></pre></div>
+
+
+</div>
+<p>We will use the <code>keras_hub.samplers</code> module for inference, which requires a
+callback function wrapping the model we just trained. This wrapper calls
+the model and returns the logit predictions for the current token we are
+generating.</p>
+<p>Note: There are two pieces of more advanced functionality available when
+defining your callback. The first is the ability to take in a <code>cache</code> of states
+computed in previous generation steps, which can be used to speed up generation.
+The second is the ability to output the final dense "hidden state" of each
+generated token. This is used by <a href="https://keras.io/keras_hub/api/samplers/contrastive_sampler#contrastivesampler-class"><code>keras_hub.samplers.ContrastiveSampler</code></a>, which
+avoids repetition by penalizing repeated hidden states. Both are optional, and
+we will ignore them for now.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">cache</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">prompt</span><span class="p">)[:,</span> <span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="c1"># Ignore hidden states for now; only needed for contrastive search.</span>
+    <span class="n">hidden_states</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">hidden_states</span><span class="p">,</span> <span class="n">cache</span>
+</code></pre></div>
+
+<p>Creating the wrapper function is the most complex part of using these functions. Now that
+it's done, let's test out the different utilities, starting with greedy search.</p>
+<h3 id="greedy-search">Greedy search</h3>
+<p>We greedily pick the most probable token at each timestep. In other words, we get the
+argmax of the model output.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sampler</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">GreedySampler</span><span class="p">()</span>
+<span class="n">output_tokens</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span>
+    <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt_tokens</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Start sampling immediately after the [BOS] token.</span>
+<span class="p">)</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">output_tokens</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Greedy search generated text: </span><span class="se">\n</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Greedy search generated text: 
+[b&#39;[BOS] &quot; i \&#39; m going to tell you , &quot; said the boy , &quot; i \&#39; ll tell you , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good friend , and you \&#39; ll be a good&#39;]
+</code></pre></div>
+
+
+</div>
+
+<p>As you can see, greedy search starts out making some sense, but quickly starts repeating
+itself. This is a common problem with text generation that can be fixed by some of the
+probabilistic text generation utilities shown later on!</p>
+<h3 id="beam-search">Beam search</h3>
+<p>At a high-level, beam search keeps track of the <code>num_beams</code> most probable sequences at
+each timestep, and predicts the best next token from all sequences. It is an improvement
+over greedy search since it stores more possibilities. However, it is less efficient than
+greedy search since it has to compute and store multiple potential sequences.</p>
+<p><strong>Note:</strong> beam search with <code>num_beams=1</code> is identical to greedy search.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sampler</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">BeamSampler</span><span class="p">(</span><span class="n">num_beams</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">output_tokens</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span>
+    <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt_tokens</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">output_tokens</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beam search generated text: </span><span class="se">\n</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Beam search generated text: 
+[b&#39;[BOS] &quot; i don \&#39; t know anything about it , &quot; she said . &quot; i don \&#39; t know anything about it . i don \&#39; t know anything about it , but i don \&#39; t know anything about it . i don \&#39; t know anything about it , but i don \&#39; t know anything about it . i don \&#39; t know anything about it , but i don \&#39; t know it . i don \&#39; t know it , but i don \&#39; t know it . i don \&#39; t know it , but i don \&#39; t know it . i don \&#39; t know it , but i don \&#39; t know it . i don \&#39;&#39;]
+</code></pre></div>
+
+
+</div>
+
+<p>Similar to greedy search, beam search quickly starts repeating itself, since it is still
+a deterministic method.</p>
+<h3 id="random-search">Random search</h3>
+<p>Random search is our first probabilistic method. At each time step, it samples the next
+token using the softmax probabilities provided by the model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sampler</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">RandomSampler</span><span class="p">()</span>
+<span class="n">output_tokens</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span>
+    <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt_tokens</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">output_tokens</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Random search generated text: </span><span class="se">\n</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Random search generated text: 
+[b&#39;[BOS] eleanor . like ice , not children would have suspicious forehead . they will see him , no goods in her plums . i have made a stump one , on the occasion , - - it is sacred , and one is unholy - plaything - - the partial consequences , and one refuge in a style of a boy , who was his grandmother . it was a young gentleman who bore off upon the middle of the day , rush and as he maltreated the female society , were growing at once . in and out of the craid little plays , stopping&#39;]
+</code></pre></div>
+
+
+</div>
+
+<p>Voilà, no repetitions! However, with random search, we may see some nonsensical words
+appearing since any word in the vocabulary has a chance of appearing with this sampling
+method. This is fixed by our next search utility, top-k search.</p>
+<h3 id="topk-search">Top-K search</h3>
+<p>Similar to random search, we sample the next token from the probability distribution
+provided by the model. The only difference is that here, we select out the top <code>k</code> most
+probable tokens, and distribute the probability mass over them before sampling. This way,
+we won't be sampling from low probability tokens, and hence we would have less
+nonsensical words!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sampler</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">TopKSampler</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">output_tokens</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span>
+    <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt_tokens</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">output_tokens</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top-K search generated text: </span><span class="se">\n</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Top-K search generated text: 
+[b&#39;[BOS] &quot; the young man was not the one , and the boy went away to the green forest . they were a little girl \&#39; s wife , and the child loved him as much as he did , and he had often heard of a little girl who lived near the house . they were too tired to go , and when they went down to the barns and get into the barn , and they got the first of the barns that they had been taught to do so , and the little people went to their homes . she did , she told them that she had been a very clever , and they had made the first . she knew they&#39;]
+</code></pre></div>
+
+
+</div>
+
+<h3 id="topp-search">Top-P search</h3>
+<p>Even with the top-k search, there is something to improve upon. With top-k search, the
+number <code>k</code> is fixed, which means it selects the same number of tokens for any probability
+distribution. Consider two scenarios, one where the probability mass is concentrated over
+2 words and another where the probability mass is evenly concentrated across 10. Should
+we choose <code>k=2</code> or <code>k=10</code>? There is no one size that fits all <code>k</code> here.</p>
+<p>This is where top-p search comes in! Instead of choosing a <code>k</code>, we choose a probability
+<code>p</code> that we want the probabilities of the top tokens to sum up to. This way, we can
+dynamically adjust the <code>k</code> based on the probability distribution. By setting <code>p=0.9</code>, if
+90% of the probability mass is concentrated on the top 2 tokens, we can filter out the
+top 2 tokens to sample from. If instead the 90% is distributed over 10 tokens, it will
+similarly filter out the top 10 tokens to sample from.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sampler</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">TopPSampler</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">output_tokens</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span>
+    <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt_tokens</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">output_tokens</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top-P search generated text: </span><span class="se">\n</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Top-P search generated text: 
+[b&#39;[BOS] the children were both born in the spring , and the youngest sister were very much like the other children , but they did not see them . they were very happy , and their mother was a beautiful one . the youngest was one of the youngest sister of the youngest , and the youngest baby was very fond of the children . when they came home , they would see a little girl in the house , and had the beautiful family , and the children of the children had to sit and look on their backs , and the eldest children were very long , and they were so bright and happy , as they were , they had never noticed their hair ,&#39;]
+</code></pre></div>
+
+
+</div>
+
+<h3 id="using-callbacks-for-text-generation">Using callbacks for text generation</h3>
+<p>We can also wrap the utilities in a callback, which allows you to print out a prediction
+sequence for every epoch of the model! Here is an example of a callback for top-k search:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TopKTextGenerator</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A callback to generate text from a trained model using top-k.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">TopKSampler</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">output_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span>
+            <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="n">prompt_tokens</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">output_tokens</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top-K search generated text: </span><span class="se">\n</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="n">text_generation_callback</span> <span class="o">=</span> <span class="n">TopKTextGenerator</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># Dummy training loop to demonstrate callback.</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">text_generation_callback</span><span class="p">])</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/2
+Top-K search generated text: 
+[b&quot;[BOS] the young man was in the middle of a month , and he was able to take the crotch , but a long time , for he felt very well for himself in the sepoys &#39; s hands were chalks . he was the only boy , and he had a few years before been married , and the man said he was a tall one . he was a very handsome , and he was a very handsome young fellow , and a handsome , noble young man , but a boy , and man . he was a very handsome man , and was tall and handsome , and he looked like a gentleman . he was an&quot;]
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>1/1 - 16s - 16s/step - loss: 3.9454 - perplexity: 51.6987
+Epoch 2/2
+Top-K search generated text: 
+[b&#39;[BOS] &quot; well , it is true . it is true that i should go to the house of a collector , in the matter of prussia that there is no other way there . there is no chance of being in the habit of being in the way of an invasion . i know not what i have done , but i have seen the man in the middle of a day . the next morning i shall take him to my father , for i am not the very day of the town , which would have been a little more than the one \&#39; s daughter , i think it over and the whole affair will be&#39;]
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>1/1 - 17s - 17s/step - loss: 3.7860 - perplexity: 44.0932
+
+&lt;keras.src.callbacks.history.History at 0x7f7de0325600&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>To recap, in this example, we use KerasHub layers to train a sub-word vocabulary,
+tokenize training data, create a miniature GPT model, and perform inference with the
+text generation library.</p>
+<p>If you would like to understand how Transformers work, or learn more about training the
+full GPT model, here are some further readings:</p>
+<ul>
+<li>Attention Is All You Need <a href="https://arxiv.org/abs/1706.03762">Vaswani et al., 2017</a></li>
+<li>GPT-3 Paper <a href="https://arxiv.org/abs/2005.14165">Brown et al., 2020</a></li>
+</ul>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter15_language-models-and-the-transformer">Chapter 15: Language models and the Transformer</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter16_text-generation">Chapter 16: Text generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='text_generation_gpt.html#gpt-text-generation-from-scratch-with-kerashub'>GPT text generation from scratch with KerasHub</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#settings-amp-hyperparameters'>Settings & hyperparameters</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#load-the-data'>Load the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#train-the-tokenizer'>Train the tokenizer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#load-tokenizer'>Load tokenizer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#tokenize-data'>Tokenize data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#build-the-model'>Build the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#training'>Training</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#inference'>Inference</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='text_generation_gpt.html#greedy-search'>Greedy search</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='text_generation_gpt.html#beam-search'>Beam search</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='text_generation_gpt.html#random-search'>Random search</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='text_generation_gpt.html#topk-search'>Top-K search</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='text_generation_gpt.html#topp-search'>Top-P search</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='text_generation_gpt.html#using-callbacks-for-text-generation'>Using callbacks for text generation</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#conclusion'>Conclusion</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='text_generation_gpt.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

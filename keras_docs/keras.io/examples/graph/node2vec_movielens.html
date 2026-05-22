@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Graph representation learning with node2vec">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="node2vec_movielens.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Graph representation learning with node2vec">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Graph representation learning with node2vec">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Graph representation learning with node2vec</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Graph Data</a>
+                    
+                      
+                        <a class="nav-sublink2" href="gat_node_classification.html">Graph attention network (GAT) for node classification</a>
+                      
+                        <a class="nav-sublink2" href="gnn_citations.html">Node Classification with Graph Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="mpnn-molecular-graphs/index.html">Message-passing neural network (MPNN) for molecular property prediction</a>
+                      
+                        <a class="nav-sublink2 active" href="node2vec_movielens.html">Graph representation learning with node2vec</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Graph Data</a>
+                    
+                      
+                        <a class="nav-sublink2" href="gat_node_classification.html">Graph attention network (GAT) for node classification</a>
+                      
+                        <a class="nav-sublink2" href="gnn_citations.html">Node Classification with Graph Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="mpnn-molecular-graphs/index.html">Message-passing neural network (MPNN) for molecular property prediction</a>
+                      
+                        <a class="nav-sublink2 active" href="node2vec_movielens.html">Graph representation learning with node2vec</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Graph Data</a> /
+         Graph representation learning with node2vec
+    </div>
+    <h1 id="graph-representation-learning-with-node2vec">Graph representation learning with node2vec</h1>
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/khalid-salama-24403144/">Khalid Salama</a><br>
+<strong>Date created:</strong> 2021/05/15<br>
+<strong>Last modified:</strong> 2026/02/04<br>
+<strong>Description:</strong> Implementing the node2vec model to generate embeddings for movies from the MovieLens dataset.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/graph/ipynb/node2vec_movielens.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/graph/node2vec_movielens.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Learning useful representations from objects structured as graphs is useful for
+a variety of machine learning (ML) applications—such as social and communication networks analysis,
+biomedicine studies, and recommendation systems.
+<a href="https://www.cs.mcgill.ca/~wlh/grl_book/">Graph representation Learning</a> aims to
+learn embeddings for the graph nodes, which can be used for a variety of ML tasks
+such as node label prediction (e.g. categorizing an article based on its citations)
+and link prediction (e.g. recommending an interest group to a user in a social network).</p>
+<p><a href="https://arxiv.org/abs/1607.00653">node2vec</a> is a simple, yet scalable and effective
+technique for learning low-dimensional embeddings for nodes in a graph by optimizing
+a neighborhood-preserving objective. The aim is to learn similar embeddings for
+neighboring nodes, with respect to the graph structure.</p>
+<p>Given your data items structured as a graph (where the items are represented as
+nodes and the relationship between items are represented as edges),
+node2vec works as follows:</p>
+<ol>
+<li>Generate item sequences using (biased) random walk.</li>
+<li>Create positive and negative training examples from these sequences.</li>
+<li>Train a <a href="https://www.tensorflow.org/tutorials/text/word2vec">word2vec</a> model
+(skip-gram) to learn embeddings for the items.</li>
+</ol>
+<p>In this example, we demonstrate the node2vec technique on the
+<a href="https://files.grouplens.org/datasets/movielens/ml-latest-small-README.html">small version of the Movielens dataset</a>
+to learn movie embeddings. Such a dataset can be represented as a graph by treating
+the movies as nodes, and creating edges between movies that have similar ratings
+by the users. The learnt movie embeddings can be used for tasks such as movie recommendation,
+or movie genres prediction.</p>
+<p>This example requires <code>networkx</code> package, which can be installed using the following command:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>networkx
+</code></pre></div>
+
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zipfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZipFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlretrieve</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Set seed for reproducibility</span>
+<span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_random_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;jax&quot;</span>  <span class="c1"># &quot;jax&quot;, &quot;torch&quot;, &quot;tensorflow&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="download-the-movielens-dataset-and-prepare-the-data">Download the MovieLens dataset and prepare the data</h2>
+<p>The small version of the MovieLens dataset includes around 100k ratings
+from 610 users on 9,742 movies.</p>
+<p>First, let's download the dataset. The downloaded folder will contain
+three data files: <code>users.csv</code>, <code>movies.csv</code>, and <code>ratings.csv</code>. In this example,
+we will only need the <code>movies.dat</code>, and <code>ratings.dat</code> data files.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">urlretrieve</span><span class="p">(</span>
+    <span class="s2">&quot;http://files.grouplens.org/datasets/movielens/ml-latest-small.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;movielens.zip&quot;</span>
+<span class="p">)</span>
+<span class="n">ZipFile</span><span class="p">(</span><span class="s2">&quot;movielens.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Then, we load the data into a Pandas DataFrame and perform some basic preprocessing.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Load movies to a DataFrame.</span>
+<span class="n">movies</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;ml-latest-small/movies.csv&quot;</span><span class="p">)</span>
+<span class="c1"># Create a `movieId` string.</span>
+<span class="n">movies</span><span class="p">[</span><span class="s2">&quot;movieId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">movies</span><span class="p">[</span><span class="s2">&quot;movieId&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;movie_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load ratings to a DataFrame.</span>
+<span class="n">ratings</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;ml-latest-small/ratings.csv&quot;</span><span class="p">)</span>
+<span class="c1"># Convert the `ratings` to floating point</span>
+<span class="n">ratings</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="c1"># Create the `movie_id` string.</span>
+<span class="n">ratings</span><span class="p">[</span><span class="s2">&quot;movieId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="s2">&quot;movieId&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;movie_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Movies data shape:&quot;</span><span class="p">,</span> <span class="n">movies</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ratings data shape:&quot;</span><span class="p">,</span> <span class="n">ratings</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Movies data shape: (9742, 3)
+Ratings data shape: (100836, 4)
+</code></pre></div>
+
+
+</div>
+
+<p>Let's inspect a sample instance of the <code>ratings</code> DataFrame.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ratings</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre></div>
+
+
+</div>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>userId</th>
+      <th>movieId</th>
+      <th>rating</th>
+      <th>timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>movie_1</td>
+      <td>4.0</td>
+      <td>964982703</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>movie_3</td>
+      <td>4.0</td>
+      <td>964981247</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>movie_6</td>
+      <td>4.0</td>
+      <td>964982224</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>movie_47</td>
+      <td>5.0</td>
+      <td>964983815</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>movie_50</td>
+      <td>5.0</td>
+      <td>964982931</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Next, let's check a sample instance of the <code>movies</code> DataFrame.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">movies</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre></div>
+
+
+</div>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movieId</th>
+      <th>title</th>
+      <th>genres</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>movie_1</td>
+      <td>Toy Story (1995)</td>
+      <td>Adventure|Animation|Children|Comedy|Fantasy</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>movie_2</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children|Fantasy</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>movie_3</td>
+      <td>Grumpier Old Men (1995)</td>
+      <td>Comedy|Romance</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>movie_4</td>
+      <td>Waiting to Exhale (1995)</td>
+      <td>Comedy|Drama|Romance</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>movie_5</td>
+      <td>Father of the Bride Part II (1995)</td>
+      <td>Comedy</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Implement two utility functions for the <code>movies</code> DataFrame.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_movie_title_by_id</span><span class="p">(</span><span class="n">movieId</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">movies</span><span class="p">[</span><span class="n">movies</span><span class="o">.</span><span class="n">movieId</span> <span class="o">==</span> <span class="n">movieId</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_movie_id_by_title</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">movies</span><span class="p">[</span><span class="n">movies</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">movieId</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="construct-the-movies-graph">Construct the Movies graph</h2>
+<p>We create an edge between two movie nodes in the graph if both movies are rated
+by the same user &gt;= <code>min_rating</code>. The weight of the edge will be based on the
+<a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information">pointwise mutual information</a>
+between the two movies, which is computed as: <code>log(xy) - log(x) - log(y) + log(D)</code>, where:</p>
+<ul>
+<li><code>xy</code> is how many users rated both movie <code>x</code> and movie <code>y</code> with &gt;= <code>min_rating</code>.</li>
+<li><code>x</code> is how many users rated movie <code>x</code> &gt;= <code>min_rating</code>.</li>
+<li><code>y</code> is how many users rated movie <code>y</code> &gt;= <code>min_rating</code>.</li>
+<li><code>D</code> total number of movie ratings &gt;= <code>min_rating</code>.</li>
+</ul>
+<h3 id="step-1-create-the-weighted-edges-between-movies">Step 1: create the weighted edges between movies.</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">min_rating</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">pair_frequency</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">item_frequency</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># Filter instances where rating is greater than or equal to min_rating.</span>
+<span class="n">rated_movies</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="n">ratings</span><span class="o">.</span><span class="n">rating</span> <span class="o">&gt;=</span> <span class="n">min_rating</span><span class="p">]</span>
+<span class="c1"># Group instances by user.</span>
+<span class="n">movies_grouped_by_users</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rated_movies</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;userId&quot;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+    <span class="n">movies_grouped_by_users</span><span class="p">,</span>
+    <span class="n">position</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Compute movie rating frequencies&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Get a list of movies rated by the user.</span>
+    <span class="n">current_movies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;movieId&quot;</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">current_movies</span><span class="p">)):</span>
+        <span class="n">item_frequency</span><span class="p">[</span><span class="n">current_movies</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_movies</span><span class="p">)):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_movies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">current_movies</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">current_movies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">current_movies</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">pair_frequency</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div>
+
+<p>Compute movie rating frequencies:   0%|                                                                                      | 0/573 [00:00&lt;?, ?it/s]</p>
+<p>Compute movie rating frequencies:  49%|████████████████████████████████████▌                                     | 283/573 [00:00&lt;00:00, 2665.28it/s]</p>
+<p>Compute movie rating frequencies:  96%|███████████████████████████████████████████████████████████████████████   | 550/573 [00:00&lt;00:00, 2460.74it/s]</p>
+<p>Compute movie rating frequencies: 100%|██████████████████████████████████████████████████████████████████████████| 573/573 [00:00&lt;00:00, 2288.26it/s]</p>
+<h3 id="step-2-create-the-graph-with-the-nodes-and-the-edges">Step 2: create the graph with the nodes and the edges</h3>
+<p>To reduce the number of edges between nodes, we only add an edge between movies
+if the weight of the edge is greater than <code>min_weight</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">min_weight</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">item_frequency</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+<span class="c1"># Create the movies undirected graph.</span>
+<span class="n">movies_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="c1"># Add weighted edges between movies.</span>
+<span class="c1"># This automatically adds the movie nodes to the graph.</span>
+<span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+    <span class="n">pair_frequency</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Creating the movie graph&quot;</span>
+<span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pair</span>
+    <span class="n">xy_frequency</span> <span class="o">=</span> <span class="n">pair_frequency</span><span class="p">[</span><span class="n">pair</span><span class="p">]</span>
+    <span class="n">x_frequency</span> <span class="o">=</span> <span class="n">item_frequency</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+    <span class="n">y_frequency</span> <span class="o">=</span> <span class="n">item_frequency</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
+    <span class="n">pmi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xy_frequency</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x_frequency</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_frequency</span><span class="p">)</span> <span class="o">+</span> <span class="n">D</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">pmi</span> <span class="o">*</span> <span class="n">xy_frequency</span>
+    <span class="c1"># Only include edges with weight &gt;= min_weight.</span>
+    <span class="k">if</span> <span class="n">weight</span> <span class="o">&gt;=</span> <span class="n">min_weight</span><span class="p">:</span>
+        <span class="n">movies_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Creating the movie graph:   0%|                                                                                           | 0/298586 [00:00&lt;?, ?it/s]</p>
+<p>Creating the movie graph:  46%|█████████████████████████████████▍                                       | 136673/298586 [00:00&lt;00:00, 1366688.94it/s]</p>
+<p>Creating the movie graph:  99%|████████████████████████████████████████████████████████████████████████▎| 295749/298586 [00:00&lt;00:00, 1498456.83it/s]</p>
+<p>Creating the movie graph: 100%|█████████████████████████████████████████████████████████████████████████| 298586/298586 [00:00&lt;00:00, 1476425.78it/s]</p>
+<p>Let's display the total number of nodes and edges in the graph.
+Note that the number of nodes is less than the total number of movies,
+since only the movies that have edges to other movies are added.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total number of graph nodes:&quot;</span><span class="p">,</span> <span class="n">movies_graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total number of graph edges:&quot;</span><span class="p">,</span> <span class="n">movies_graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">())</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Total number of graph nodes: 1405
+Total number of graph edges: 40043
+</code></pre></div>
+
+
+</div>
+
+<p>Let's display the average node degree (number of neighbours) in the graph.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">degrees</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">movies_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+    <span class="n">degrees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">movies_graph</span><span class="o">.</span><span class="n">degree</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average node degree:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">degrees</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Average node degree: 57.0
+</code></pre></div>
+
+
+</div>
+
+<h3 id="step-3-create-vocabulary-and-a-mapping-from-tokens-to-integer-indices">Step 3: Create vocabulary and a mapping from tokens to integer indices</h3>
+<p>The vocabulary is the nodes (movie IDs) in the graph.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">vocabulary</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NA&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">movies_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+<span class="n">vocabulary_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">token</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">)}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="implement-the-biased-random-walk">Implement the biased random walk</h2>
+<p>A random walk starts from a given node, and randomly picks a neighbour node to move to.
+If the edges are weighted, the neighbour is selected <em>probabilistically</em> with
+respect to weights of the edges between the current node and its neighbours.
+This procedure is repeated for <code>num_steps</code> to generate a sequence of <em>related</em> nodes.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Biased_random_walk_on_a_graph"><em>biased</em> random walk</a> balances between <strong>breadth-first sampling</strong>
+(where only local neighbours are visited) and <strong>depth-first sampling</strong>
+(where  distant neighbours are visited) by introducing the following two parameters:</p>
+<ol>
+<li><strong>Return parameter</strong> (<code>p</code>): Controls the likelihood of immediately revisiting
+a node in the walk. Setting it to a high value encourages moderate exploration,
+while setting it to a low value would keep the walk local.</li>
+<li><strong>In-out parameter</strong> (<code>q</code>): Allows the search to differentiate
+between <em>inward</em> and <em>outward</em> nodes. Setting it to a high value biases the
+random walk towards local nodes, while setting it to a low value biases the walk
+to visit nodes which are further away.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">next_step</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">previous</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">neighbor</span> <span class="o">==</span> <span class="n">previous</span><span class="p">:</span>
+            <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">current</span><span class="p">][</span><span class="n">neighbor</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">neighbor</span><span class="p">,</span> <span class="n">previous</span><span class="p">):</span>
+            <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">current</span><span class="p">][</span><span class="n">neighbor</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">current</span><span class="p">][</span><span class="n">neighbor</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">q</span><span class="p">)</span>
+
+    <span class="n">weight_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">weight</span> <span class="o">/</span> <span class="n">weight_sum</span> <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span>
+
+    <span class="n">next_node</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">neighbors</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">next_node</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">random_walk</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">num_walks</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">walks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">walk_iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walks</span><span class="p">):</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="n">nodes</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Random walks iteration </span><span class="si">{</span><span class="n">walk_iteration</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mininterval</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">walk</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">walk</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_steps</span><span class="p">:</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">walk</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">previous</span> <span class="o">=</span> <span class="n">walk</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">walk</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">walk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_step</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">previous</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">))</span>
+            <span class="n">walks</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">vocabulary_lookup</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">walks</span>
+</code></pre></div>
+
+<hr />
+<h2 id="generate-training-data-using-the-biased-random-walk">Generate training data using the biased random walk</h2>
+<p>You can explore different configurations of <code>p</code> and <code>q</code> to different results of
+related movies.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Random walk return parameter.</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># Random walk in-out parameter.</span>
+<span class="n">q</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># Number of iterations of random walks.</span>
+<span class="n">num_walks</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="c1"># Number of steps of each random walk.</span>
+<span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">walks</span> <span class="o">=</span> <span class="n">random_walk</span><span class="p">(</span><span class="n">movies_graph</span><span class="p">,</span> <span class="n">num_walks</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of walks generated:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">walks</span><span class="p">))</span>
+</code></pre></div>
+
+<p>Random walks iteration 1:   0%|                                                                                             | 0/1405 [00:00&lt;?, ?it/s]</p>
+<p>Random walks iteration 1:  72%|█████████████████████████████████████████████████████████▌                      | 1012/1405 [00:01&lt;00:00, 1011.26it/s]</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+
+<p>Random walks iteration 2:   0%|                                                                                             | 0/1405 [00:00&lt;?, ?it/s]</p>
+<p>Random walks iteration 2:  72%|█████████████████████████████████████████████████████████▊                      | 1016/1405 [00:01&lt;00:00, 1015.77it/s]</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+
+<p>Random walks iteration 3:   0%|                                                                                             | 0/1405 [00:00&lt;?, ?it/s]</p>
+<p>Random walks iteration 3:  75%|████████████████████████████████████████████████████████████                    | 1054/1405 [00:01&lt;00:00, 1053.31it/s]</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+
+<p>Random walks iteration 4:   0%|                                                                                             | 0/1405 [00:00&lt;?, ?it/s]</p>
+<p>Random walks iteration 4:  74%|██████████████████████████████████████████████████████████▊                     | 1033/1405 [00:01&lt;00:00, 1032.74it/s]</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+
+<p>Random walks iteration 5:   0%|                                                                                             | 0/1405 [00:00&lt;?, ?it/s]</p>
+<p>Random walks iteration 5:  74%|███████████████████████████████████████████████████████████                     | 1037/1405 [00:01&lt;00:00, 1035.86it/s]</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Number of walks generated: 7025
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="generate-positive-and-negative-examples">Generate positive and negative examples</h2>
+<p>To train a skip-gram model, we use the generated walks to create positive and
+negative training examples. In Keras 3, the legacy preprocessing module
+has been removed. We now implement a manual skip-gram sampling function
+using NumPy to generate positive and negative training examples from our
+random walks. Each example includes the following features:</p>
+<ol>
+<li><code>target</code>: A movie in a walk sequence.</li>
+<li><code>context</code>: Another movie in a walk sequence.</li>
+<li><code>weight</code>: How many times these two movies occurred  in walk sequences.</li>
+<li><code>label</code>: The label is 1 if these two movies are samples from the walk sequences,
+otherwise (i.e., if randomly sampled) the label is 0.</li>
+</ol>
+<h3 id="generate-examples">Generate examples</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">manual_skipgrams</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">negative_samples</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A NumPy-based replacement for the legacy keras.preprocessing.sequence.skipgrams.</span>
+<span class="sd">    Generates (target, context) pairs with positive and negative labels,</span>
+<span class="sd">    ensuring negative samples are not in the positive context window.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">window_size</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="n">window_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">positive_contexts</span> <span class="o">=</span> <span class="p">{</span><span class="n">sequence</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">sequence</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+            <span class="n">pairs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">target</span><span class="p">,</span> <span class="n">context</span><span class="p">])</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">negative_samples</span><span class="p">):</span>
+                <span class="n">negative_context</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">vocabulary_size</span><span class="p">)</span>
+
+                <span class="k">while</span> <span class="p">(</span>
+                    <span class="n">negative_context</span> <span class="o">==</span> <span class="n">target</span> <span class="ow">or</span> <span class="n">negative_context</span> <span class="ow">in</span> <span class="n">positive_contexts</span>
+                <span class="p">):</span>
+                    <span class="n">negative_context</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">vocabulary_size</span><span class="p">)</span>
+
+                <span class="n">pairs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">target</span><span class="p">,</span> <span class="n">negative_context</span><span class="p">])</span>
+                <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pairs</span><span class="p">,</span> <span class="n">labels</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_examples</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span> <span class="n">window_size</span><span class="p">,</span> <span class="n">num_negative_samples</span><span class="p">,</span> <span class="n">vocabulary_size</span><span class="p">):</span>
+    <span class="n">example_weights</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Iterate over all walks</span>
+    <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+        <span class="n">sequences</span><span class="p">,</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Generating positive and negative examples&quot;</span><span class="p">,</span>
+        <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mininterval</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Use our manual skipgrams function</span>
+        <span class="n">pairs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">manual_skipgrams</span><span class="p">(</span>
+            <span class="n">sequence</span><span class="p">,</span>
+            <span class="n">vocabulary_size</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">,</span>
+            <span class="n">window_size</span><span class="o">=</span><span class="n">window_size</span><span class="p">,</span>
+            <span class="n">negative_samples</span><span class="o">=</span><span class="n">num_negative_samples</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)):</span>
+            <span class="n">pair</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">target</span><span class="p">,</span> <span class="n">context</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="n">context</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="n">example_weights</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">targets</span><span class="p">,</span> <span class="n">contexts</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">example_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">target</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">contexts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Execute the generation</span>
+<span class="n">num_negative_samples</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">targets</span><span class="p">,</span> <span class="n">contexts</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">generate_examples</span><span class="p">(</span>
+    <span class="n">sequences</span><span class="o">=</span><span class="n">walks</span><span class="p">,</span>
+    <span class="n">window_size</span><span class="o">=</span><span class="n">num_steps</span><span class="p">,</span>
+    <span class="n">num_negative_samples</span><span class="o">=</span><span class="n">num_negative_samples</span><span class="p">,</span>
+    <span class="n">vocabulary_size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Generating positive and negative examples:   0%|                                                                            | 0/7025 [00:00&lt;?, ?it/s]</p>
+<p>Generating positive and negative examples:  19%|███████████▊                                                   | 1320/7025 [00:01&lt;00:04, 1319.75it/s]</p>
+<p>Generating positive and negative examples:  38%|████████████████████████▏                                      | 2700/7025 [00:02&lt;00:03, 1354.92it/s]</p>
+<p>Generating positive and negative examples:  58%|████████████████████████████████████▎                          | 4055/7025 [00:03&lt;00:02, 1351.41it/s]</p>
+<p>Generating positive and negative examples:  77%|████████████████████████████████████████████████▍              | 5407/7025 [00:04&lt;00:01, 1339.05it/s]</p>
+<p>Generating positive and negative examples:  96%|████████████████████████████████████████████████████████████▌  | 6747/7025 [00:05&lt;00:00, 1300.35it/s]</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+
+<p>Let's display the shapes of the outputs</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Targets shape: </span><span class="si">{</span><span class="n">targets</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Contexts shape: </span><span class="si">{</span><span class="n">contexts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Labels shape: </span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weights shape: </span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Targets shape: (883654,)
+Contexts shape: (883654,)
+Labels shape: (883654,)
+Weights shape: (883654,)
+</code></pre></div>
+
+
+</div>
+
+<h3 id="data-loading-with-pydataset">Data Loading with PyDataset</h3>
+<p>We replace the tf.data pipeline with keras.utils.PyDataset.
+This ensures our data pipeline is fully backend-agnostic and
+avoids symbolic tensor errors when running on JAX or PyTorch.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1024</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MovieLensDataset</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">PyDataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">contexts</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">contexts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="n">index</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="n">high</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">[</span><span class="n">low</span><span class="p">:</span><span class="n">high</span><span class="p">]</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contexts</span><span class="p">[</span><span class="n">low</span><span class="p">:</span><span class="n">high</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">low</span><span class="p">:</span><span class="n">high</span><span class="p">]</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">low</span><span class="p">:</span><span class="n">high</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">},</span> <span class="n">label</span><span class="p">,</span> <span class="n">weight</span>
+
+
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">MovieLensDataset</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">contexts</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-the-skipgram-model">Train the skip-gram model</h2>
+<p>Our skip-gram is a simple binary classification model that works as follows:</p>
+<ol>
+<li>An embedding is looked up for the <code>target</code> movie.</li>
+<li>An embedding is looked up for the <code>context</code> movie.</li>
+<li>The dot product is computed between these two embeddings.</li>
+<li>The result (after a sigmoid activation) is compared to the label.</li>
+<li>A binary crossentropy loss is used.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">embedding_dim</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">10</span>
+</code></pre></div>
+
+<h3 id="implement-the-model">Implement the model</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">):</span>
+    <span class="n">target_in</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+    <span class="n">context_in</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+
+    <span class="n">embed_item</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+        <span class="n">input_dim</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">,</span>
+        <span class="n">output_dim</span><span class="o">=</span><span class="n">embedding_dim</span><span class="p">,</span>
+        <span class="n">embeddings_initializer</span><span class="o">=</span><span class="s2">&quot;he_normal&quot;</span><span class="p">,</span>
+        <span class="n">embeddings_regularizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">),</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;item_embeddings&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">target_embed</span> <span class="o">=</span> <span class="n">embed_item</span><span class="p">(</span><span class="n">target_in</span><span class="p">)</span>
+    <span class="n">context_embed</span> <span class="o">=</span> <span class="n">embed_item</span><span class="p">(</span><span class="n">context_in</span><span class="p">)</span>
+
+    <span class="n">dot_similarity</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dot</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dot_similarity&quot;</span><span class="p">)(</span>
+        <span class="p">[</span><span class="n">target_embed</span><span class="p">,</span> <span class="n">context_embed</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,))(</span><span class="n">dot_similarity</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">target_in</span><span class="p">,</span> <span class="n">context_in</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="train-the-model">Train the model</h3>
+<p>We instantiate the model and compile it.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">),</span> <span class="n">embedding_dim</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">BinaryCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Let's plot the model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">plot_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">show_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_dtype</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_layer_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>You must install graphviz (see instructions at https://graphviz.gitlab.io/download/) for `plot_model` to work.
+</code></pre></div>
+
+
+</div>
+
+<p>Now we train the model on the <code>dataset</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.4523
+
+Epoch 2/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3459
+
+Epoch 3/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3349
+
+Epoch 4/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3312
+
+Epoch 5/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3273
+
+Epoch 6/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3236
+
+Epoch 7/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3201
+
+Epoch 8/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3177
+
+Epoch 9/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3149
+
+Epoch 10/10
+
+862/862 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step - loss: 2.3127
+</code></pre></div>
+
+
+</div>
+
+<p>Finally we plot the learning history.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/graph/node2vec_movielens/node2vec_movielens_48_0.png" /></p>
+<hr />
+<h2 id="analyze-the-learnt-embeddings">Analyze the learnt embeddings.</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">movie_embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="s2">&quot;item_embeddings&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embeddings shape:&quot;</span><span class="p">,</span> <span class="n">movie_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Embeddings shape: (1406, 50)
+</code></pre></div>
+
+
+</div>
+
+<h3 id="find-related-movies">Find related movies</h3>
+<p>Define a list with some movies called <code>query_movies</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">query_movies</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Matrix, The (1999)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Star Wars: Episode IV - A New Hope (1977)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Lion King, The (1994)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Terminator 2: Judgment Day (1991)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Godfather, The (1972)&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<p>Get the embeddings of the movies in <code>query_movies</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">query_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">query_movies</span><span class="p">:</span>
+    <span class="n">movieId</span> <span class="o">=</span> <span class="n">get_movie_id_by_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">query_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vocabulary_lookup</span><span class="p">[</span><span class="n">movieId</span><span class="p">])</span>
+
+<span class="n">query_tokens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">query_tokens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Compute the <a href="https://en.wikipedia.org/wiki/Cosine_similarity">consine similarity</a> between the embeddings of <code>query_movies</code>
+and all the other movies, then pick the top k for each.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_similarities</span><span class="p">(</span><span class="n">query_indices</span><span class="p">,</span> <span class="n">all_embeddings</span><span class="p">):</span>
+    <span class="c1"># Lookup embeddings</span>
+    <span class="n">query_embeds</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">all_embeddings</span><span class="p">,</span> <span class="n">query_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># L2 Normalize using Keras Ops</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">l2_norm</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="c1"># Ensure x is a Keras Tensor before operations with keras.ops</span>
+        <span class="n">x_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x_tensor</span> <span class="o">/</span> <span class="n">ops</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x_tensor</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mf">1e-12</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">query_embeds</span> <span class="o">=</span> <span class="n">l2_norm</span><span class="p">(</span><span class="n">query_embeds</span><span class="p">)</span>
+    <span class="n">all_embeddings</span> <span class="o">=</span> <span class="n">l2_norm</span><span class="p">(</span><span class="n">all_embeddings</span><span class="p">)</span>
+
+    <span class="c1"># Cosine Similarity</span>
+    <span class="n">similarities</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">query_embeds</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">all_embeddings</span><span class="p">))</span>
+
+    <span class="c1"># Get Top K</span>
+    <span class="n">vals</span><span class="p">,</span> <span class="n">inds</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">similarities</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inds</span>
+
+
+<span class="c1"># Convert movie_embeddings to a Keras Tensor before calling compute_similarities</span>
+<span class="n">movie_embeddings_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">movie_embeddings</span><span class="p">)</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">compute_similarities</span><span class="p">(</span><span class="n">query_tokens</span><span class="p">,</span> <span class="n">movie_embeddings_tensor</span><span class="p">)</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Display the top related movies in <code>query_movies</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">query_movies</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">get_movie_title_by_id</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">[</span><span class="n">token</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Matrix, The (1999)
+------------------
+- Matrix, The (1999)
+- Pulp Fiction (1994)
+- Saving Private Ryan (1998)
+- Star Wars: Episode V - The Empire Strikes Back (1980)
+- Full Metal Jacket (1987)
+
+Star Wars: Episode IV - A New Hope (1977)
+-----------------------------------------
+- Star Wars: Episode IV - A New Hope (1977)
+- Princess Bride, The (1987)
+- Star Wars: Episode V - The Empire Strikes Back (1980)
+- Monty Python and the Holy Grail (1975)
+- Raiders of the Lost Ark (Indiana Jones and the Raiders of the Lost Ark) (1981)
+
+Lion King, The (1994)
+---------------------
+- Lion King, The (1994)
+- Beauty and the Beast (1991)
+- Speed (1994)
+- Die Hard: With a Vengeance (1995)
+- Mrs. Doubtfire (1993)
+
+Terminator 2: Judgment Day (1991)
+---------------------------------
+- Terminator 2: Judgment Day (1991)
+- Braveheart (1995)
+- Forrest Gump (1994)
+- Star Wars: Episode V - The Empire Strikes Back (1980)
+- Shawshank Redemption, The (1994)
+
+Godfather, The (1972)
+---------------------
+- Godfather, The (1972)
+- Godfather: Part II, The (1974)
+- American Beauty (1999)
+- Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
+- Monty Python and the Holy Grail (1975)
+</code></pre></div>
+
+
+</div>
+
+<h3 id="visualize-the-embeddings-using-the-embedding-projector">Visualize the embeddings using the Embedding Projector</h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+
+<span class="c1"># Ensure embeddings are converted to a standard format regardless of the backend</span>
+<span class="c1"># This is the &quot;Keras 3 way&quot; to access trained weights for post-processing</span>
+<span class="n">embeddings_np</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">movie_embeddings</span><span class="p">)</span>
+
+<span class="n">out_v</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;embeddings.tsv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<span class="n">out_m</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;metadata.tsv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">movie_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+    <span class="c1"># The movie_id at vocabulary[1:] corresponds to weights at index 1 and onwards</span>
+    <span class="n">vector</span> <span class="o">=</span> <span class="n">embeddings_np</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Standard Pandas/Python logic for metadata</span>
+    <span class="n">movie_title</span> <span class="o">=</span> <span class="n">movies</span><span class="p">[</span><span class="n">movies</span><span class="o">.</span><span class="n">movieId</span> <span class="o">==</span> <span class="n">movie_id</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Write tab-separated values for the projector</span>
+    <span class="n">out_v</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">out_m</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">movie_title</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">out_v</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">out_m</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embeddings and metadata saved for projector.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Embeddings and metadata saved for projector.
+</code></pre></div>
+
+
+</div>
+
+<p>Download the <code>embeddings.tsv</code> and <code>metadata.tsv</code> to analyze the obtained embeddings
+in the <a href="https://projector.tensorflow.org/">Embedding Projector</a>.</p>
+<p><strong>Example available on HuggingFace</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Trained Model</th>
+<th style="text-align: center;">Demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><a href="https://huggingface.co/keras-io/Node2Vec_MovieLens"><img alt="Generic badge" src="https://img.shields.io/badge/%F0%9F%A4%97%20Model%3A%20-Node2Vec%20Movielens-black.svg" /></a></td>
+<td style="text-align: center;"><a href="https://huggingface.co/spaces/keras-io/Node2Vec_MovieLens"><img alt="Generic badge" src="https://img.shields.io/badge/%F0%9F%A4%97%20Spaces%3A-Node2Vec%20Movielens-black.svg" /></a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter14_text-classification">Chapter 14: Text classification</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='node2vec_movielens.html#graph-representation-learning-with-node2vec'>Graph representation learning with node2vec</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#download-the-movielens-dataset-and-prepare-the-data'>Download the MovieLens dataset and prepare the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#construct-the-movies-graph'>Construct the Movies graph</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#step-1-create-the-weighted-edges-between-movies'>Step 1: create the weighted edges between movies.</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#step-2-create-the-graph-with-the-nodes-and-the-edges'>Step 2: create the graph with the nodes and the edges</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#step-3-create-vocabulary-and-a-mapping-from-tokens-to-integer-indices'>Step 3: Create vocabulary and a mapping from tokens to integer indices</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#implement-the-biased-random-walk'>Implement the biased random walk</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#generate-training-data-using-the-biased-random-walk'>Generate training data using the biased random walk</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#generate-positive-and-negative-examples'>Generate positive and negative examples</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#generate-examples'>Generate examples</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#data-loading-with-pydataset'>Data Loading with PyDataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#train-the-skipgram-model'>Train the skip-gram model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#implement-the-model'>Implement the model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#train-the-model'>Train the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#analyze-the-learnt-embeddings'>Analyze the learnt embeddings.</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#find-related-movies'>Find related movies</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='node2vec_movielens.html#visualize-the-embeddings-using-the-embedding-projector'>Visualize the embeddings using the Embedding Projector</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='node2vec_movielens.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

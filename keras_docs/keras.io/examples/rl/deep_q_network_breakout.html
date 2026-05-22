@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Deep Q-Learning for Atari Breakout">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="deep_q_network_breakout.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Deep Q-Learning for Atari Breakout">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Deep Q-Learning for Atari Breakout">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Deep Q-Learning for Atari Breakout</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2 active" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2 active" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Reinforcement Learning</a> /
+         Deep Q-Learning for Atari Breakout
+    </div>
+    <h1 id="deep-qlearning-for-atari-breakout">Deep Q-Learning for Atari Breakout</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/jacoblchapman">Jacob Chapman</a> and <a href="https://twitter.com/MLech20">Mathias Lechner</a><br>
+<strong>Date created:</strong> 2020/05/23<br>
+<strong>Last modified:</strong> 2024/03/16<br>
+<strong>Description:</strong> Play Atari Breakout with a Deep Q-Network.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/rl/ipynb/deep_q_network_breakout.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/rl/deep_q_network_breakout.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This script shows an implementation of Deep Q-Learning on the
+<code>BreakoutNoFrameskip-v4</code> environment.</p>
+<h3 id="deep-qlearning">Deep Q-Learning</h3>
+<p>As an agent takes actions and moves through an environment, it learns to map
+the observed state of the environment to an action. An agent will choose an action
+in a given state based on a "Q-value", which is a weighted reward based on the
+expected highest long-term reward. A Q-Learning Agent learns to perform its
+task such that the recommended action maximizes the potential future rewards.
+This method is considered an "Off-Policy" method,
+meaning its Q values are updated assuming that the best action was chosen, even
+if the best action was not chosen.</p>
+<h3 id="atari-breakout">Atari Breakout</h3>
+<p>In this environment, a board moves along the bottom of the screen returning a ball that
+will destroy blocks at the top of the screen.
+The aim of the game is to remove all blocks and breakout of the
+level. The agent must learn to control the board by moving left and right, returning the
+ball and removing all the blocks without the ball passing the board.</p>
+<h3 id="note">Note</h3>
+<p>The Deepmind paper trained for "a total of 50 million frames (that is, around 38 days of
+game experience in total)". However this script will give good results at around 10
+million frames which are processed in less than 24 hours on a modern machine.</p>
+<p>You can control the number of episodes by setting the <code>max_episodes</code> variable
+to a value greater than 0.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://link.springer.com/content/pdf/10.1007/BF00992698.pdf">Q-Learning</a></li>
+<li><a href="https://www.semanticscholar.org/paper/Human-level-control-through-deep-reinforcement-Mnih-Kavukcuoglu/340f48901f72278f6bf78a04ee5b01df208cc508">Deep Q-Learning</a></li>
+</ul>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium.wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtariPreprocessing</span><span class="p">,</span> <span class="n">FrameStack</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="c1"># Configuration parameters for the whole setup</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.99</span>  <span class="c1"># Discount factor for past rewards</span>
+<span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Epsilon greedy parameter</span>
+<span class="n">epsilon_min</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># Minimum epsilon greedy parameter</span>
+<span class="n">epsilon_max</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Maximum epsilon greedy parameter</span>
+<span class="n">epsilon_interval</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">epsilon_max</span> <span class="o">-</span> <span class="n">epsilon_min</span>
+<span class="p">)</span>  <span class="c1"># Rate at which to reduce chance of random action being taken</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># Size of batch taken from replay buffer</span>
+<span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">max_episodes</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Limit training episodes, will run until solved if smaller than 1</span>
+
+<span class="c1"># Use the Atari environment</span>
+<span class="c1"># Specify the `render_mode` parameter to show the attempts of the agent in a pop up window.</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;BreakoutNoFrameskip-v4&quot;</span><span class="p">)</span>  <span class="c1"># , render_mode=&quot;human&quot;)</span>
+<span class="c1"># Environment preprocessing</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">AtariPreprocessing</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+<span class="c1"># Stack four frames</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">FrameStack</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">env</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>A.L.E: Arcade Learning Environment (version 0.8.1+unknown)
+[Powered by Stella]
+Game console created:
+  ROM file:  /Users/luca/mambaforge/envs/keras-io/lib/python3.9/site-packages/AutoROM/roms/breakout.bin
+  Cart Name: Breakout - Breakaway IV (1978) (Atari)
+  Cart MD5:  f34f08e5eb96e500e851a80be3277a56
+  Display Format:  AUTO-DETECT ==&gt; NTSC
+  ROM Size:        2048
+  Bankswitch Type: AUTO-DETECT ==&gt; 2K
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Running ROM file...
+Random seed is -975249067
+Game console created:
+  ROM file:  /Users/luca/mambaforge/envs/keras-io/lib/python3.9/site-packages/AutoROM/roms/breakout.bin
+  Cart Name: Breakout - Breakaway IV (1978) (Atari)
+  Cart MD5:  f34f08e5eb96e500e851a80be3277a56
+  Display Format:  AUTO-DETECT ==&gt; NTSC
+  ROM Size:        2048
+  Bankswitch Type: AUTO-DETECT ==&gt; 2K
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Running ROM file...
+Random seed is -1625411987
+
+(3444837047, 2669555309)
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="implement-the-deep-qnetwork">Implement the Deep Q-Network</h2>
+<p>This network learns an approximation of the Q-table, which is a mapping between
+the states and actions that an agent will take. For every state we'll have four
+actions, that can be taken. The environment provides the state, and the action
+is chosen by selecting the larger of the four Q-values predicted in the output layer.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">num_actions</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_q_model</span><span class="p">():</span>
+    <span class="c1"># Network defined by the Deepmind paper</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="n">output_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="c1"># Convolutions on the frames on the screen</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">)),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_actions</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># The first model makes the predictions for Q-values which are used to</span>
+<span class="c1"># make a action.</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">create_q_model</span><span class="p">()</span>
+<span class="c1"># Build a target model for the prediction of future rewards.</span>
+<span class="c1"># The weights of a target model get updated every 10000 steps thus when the</span>
+<span class="c1"># loss between the Q-values is calculated the target Q-value is stable.</span>
+<span class="n">model_target</span> <span class="o">=</span> <span class="n">create_q_model</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train">Train</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In the Deepmind paper they use RMSProp however then Adam optimizer</span>
+<span class="c1"># improves training time</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.00025</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># Experience replay buffers</span>
+<span class="n">action_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">state_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">state_next_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rewards_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">done_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">episode_reward_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">running_reward</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">episode_count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">frame_count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># Number of frames to take random action and observe output</span>
+<span class="n">epsilon_random_frames</span> <span class="o">=</span> <span class="mi">50000</span>
+<span class="c1"># Number of frames for exploration</span>
+<span class="n">epsilon_greedy_frames</span> <span class="o">=</span> <span class="mf">1000000.0</span>
+<span class="c1"># Maximum replay length</span>
+<span class="c1"># Note: The Deepmind paper suggests 1000000 however this causes memory issues</span>
+<span class="n">max_memory_length</span> <span class="o">=</span> <span class="mi">100000</span>
+<span class="c1"># Train the model after 4 actions</span>
+<span class="n">update_after_actions</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="c1"># How often to update the target network</span>
+<span class="n">update_target_network</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="c1"># Using huber loss for stability</span>
+<span class="n">loss_function</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Huber</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">observation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+    <span class="n">episode_reward</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">timestep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_steps_per_episode</span><span class="p">):</span>
+        <span class="n">frame_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Use epsilon-greedy for exploration</span>
+        <span class="k">if</span> <span class="n">frame_count</span> <span class="o">&lt;</span> <span class="n">epsilon_random_frames</span> <span class="ow">or</span> <span class="n">epsilon</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="c1"># Take random action</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">num_actions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Predict action Q-values</span>
+            <span class="c1"># From environment state</span>
+            <span class="n">state_tensor</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">state_tensor</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">state_tensor</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">action_probs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">state_tensor</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># Take best action</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_probs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="c1"># Decay probability of taking random action</span>
+        <span class="n">epsilon</span> <span class="o">-=</span> <span class="n">epsilon_interval</span> <span class="o">/</span> <span class="n">epsilon_greedy_frames</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">epsilon_min</span><span class="p">)</span>
+
+        <span class="c1"># Apply the sampled action in our environment</span>
+        <span class="n">state_next</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">state_next</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">state_next</span><span class="p">)</span>
+
+        <span class="n">episode_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+
+        <span class="c1"># Save actions and states in replay buffer</span>
+        <span class="n">action_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">state_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">state_next_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_next</span><span class="p">)</span>
+        <span class="n">done_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">done</span><span class="p">)</span>
+        <span class="n">rewards_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state_next</span>
+
+        <span class="c1"># Update every fourth frame and once batch size is over 32</span>
+        <span class="k">if</span> <span class="n">frame_count</span> <span class="o">%</span> <span class="n">update_after_actions</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">done_history</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">batch_size</span><span class="p">:</span>
+            <span class="c1"># Get indices of samples for replay buffers</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">done_history</span><span class="p">)),</span> <span class="n">size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+            <span class="c1"># Using list comprehension to sample from replay buffer</span>
+            <span class="n">state_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">state_history</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">])</span>
+            <span class="n">state_next_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">state_next_history</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">])</span>
+            <span class="n">rewards_sample</span> <span class="o">=</span> <span class="p">[</span><span class="n">rewards_history</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">action_sample</span> <span class="o">=</span> <span class="p">[</span><span class="n">action_history</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">done_sample</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">done_history</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Build the updated Q-values for the sampled future states</span>
+            <span class="c1"># Use the target model for stability</span>
+            <span class="n">future_rewards</span> <span class="o">=</span> <span class="n">model_target</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">state_next_sample</span><span class="p">)</span>
+            <span class="c1"># Q value = reward + discount factor * expected future reward</span>
+            <span class="n">updated_q_values</span> <span class="o">=</span> <span class="n">rewards_sample</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span>
+                <span class="n">future_rewards</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+
+            <span class="c1"># If final frame set the last value to -1</span>
+            <span class="n">updated_q_values</span> <span class="o">=</span> <span class="n">updated_q_values</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">done_sample</span><span class="p">)</span> <span class="o">-</span> <span class="n">done_sample</span>
+
+            <span class="c1"># Create a mask so we only calculate loss on the updated Q-values</span>
+            <span class="n">masks</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">action_sample</span><span class="p">,</span> <span class="n">num_actions</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+                <span class="c1"># Train the model on the states and updated Q-values</span>
+                <span class="n">q_values</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">state_sample</span><span class="p">)</span>
+
+                <span class="c1"># Apply the masks to the Q-values to get the Q-value for action taken</span>
+                <span class="n">q_action</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">q_values</span><span class="p">,</span> <span class="n">masks</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># Calculate loss between new Q-value and old Q-value</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_function</span><span class="p">(</span><span class="n">updated_q_values</span><span class="p">,</span> <span class="n">q_action</span><span class="p">)</span>
+
+            <span class="c1"># Backpropagation</span>
+            <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">frame_count</span> <span class="o">%</span> <span class="n">update_target_network</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># update the the target network with new weights</span>
+            <span class="n">model_target</span><span class="o">.</span><span class="n">set_weights</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_weights</span><span class="p">())</span>
+            <span class="c1"># Log details</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;running reward: </span><span class="si">{:.2f}</span><span class="s2"> at episode </span><span class="si">{}</span><span class="s2">, frame count </span><span class="si">{}</span><span class="s2">&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">running_reward</span><span class="p">,</span> <span class="n">episode_count</span><span class="p">,</span> <span class="n">frame_count</span><span class="p">))</span>
+
+        <span class="c1"># Limit the state and reward history</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rewards_history</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_memory_length</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">rewards_history</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">state_history</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">state_next_history</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">action_history</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">done_history</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Update running reward to check condition for solving</span>
+    <span class="n">episode_reward_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">episode_reward</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">episode_reward_history</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">episode_reward_history</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">running_reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">episode_reward_history</span><span class="p">)</span>
+
+    <span class="n">episode_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">running_reward</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">:</span>  <span class="c1"># Condition to consider the task solved</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solved at episode </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">episode_count</span><span class="p">))</span>
+        <span class="k">break</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">max_episodes</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">episode_count</span> <span class="o">&gt;=</span> <span class="n">max_episodes</span>
+    <span class="p">):</span>  <span class="c1"># Maximum number of episodes reached</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stopped at episode </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">episode_count</span><span class="p">))</span>
+        <span class="k">break</span>
+</code></pre></div>
+
+<hr />
+<h2 id="visualizations">Visualizations</h2>
+<p>Before any training:
+<img alt="Imgur" src="https://i.imgur.com/rRxXF4H.gif" /></p>
+<p>In early stages of training:
+<img alt="Imgur" src="https://i.imgur.com/X8ghdpL.gif" /></p>
+<p>In later stages of training:
+<img alt="Imgur" src="https://i.imgur.com/Z1K6qBQ.gif" /></p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='deep_q_network_breakout.html#deep-qlearning-for-atari-breakout'>Deep Q-Learning for Atari Breakout</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_q_network_breakout.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='deep_q_network_breakout.html#deep-qlearning'>Deep Q-Learning</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='deep_q_network_breakout.html#atari-breakout'>Atari Breakout</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='deep_q_network_breakout.html#note'>Note</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='deep_q_network_breakout.html#references'>References</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_q_network_breakout.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_q_network_breakout.html#implement-the-deep-qnetwork'>Implement the Deep Q-Network</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_q_network_breakout.html#train'>Train</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_q_network_breakout.html#visualizations'>Visualizations</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

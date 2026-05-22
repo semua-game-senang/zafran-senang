@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2 active" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Quick Keras Recipes</a>
+                    
+                      
+                        <a class="nav-sublink2 active" href="parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+                      
+                        <a class="nav-sublink2" href="float8_training_and_inference_with_transformer.html">Float8 training and inference with a simple Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="debugging_tips.html">Keras debugging tips</a>
+                      
+                        <a class="nav-sublink2" href="subclassing_conv_layers.html">Customizing the convolution operation of a Conv2D layer</a>
+                      
+                        <a class="nav-sublink2" href="trainer_pattern.html">Trainer pattern</a>
+                      
+                        <a class="nav-sublink2" href="endpoint_layer_pattern.html">Endpoint layer pattern</a>
+                      
+                        <a class="nav-sublink2" href="reproducibility_recipes.html">Reproducibility in Keras Models</a>
+                      
+                        <a class="nav-sublink2" href="tensorflow_numpy_models.html">Writing Keras Models With TensorFlow NumPy</a>
+                      
+                        <a class="nav-sublink2" href="antirectifier.html">Simple custom layer example: Antirectifier</a>
+                      
+                        <a class="nav-sublink2" href="packaging_keras_models_for_wide_distribution.html">Packaging Keras models for wide distribution using Functional Subclassing</a>
+                      
+                        <a class="nav-sublink2" href="approximating_non_function_mappings.html">Approximating non-Function Mappings with Mixture Density Networks</a>
+                      
+                        <a class="nav-sublink2" href="tf_serving.html">Serving TensorFlow models with TFServing</a>
+                      
+                        <a class="nav-sublink2" href="sample_size_estimate.html">Estimating required sample size for model training</a>
+                      
+                        <a class="nav-sublink2" href="memory_efficient_embeddings.html">Memory-efficient embeddings for recommendation systems</a>
+                      
+                        <a class="nav-sublink2" href="creating_tfrecords.html">Creating TFRecords</a>
+                      
+                        <a class="nav-sublink2" href="bayesian_neural_networks/index.html">Probabilistic Bayesian Neural Networks</a>
+                      
+                        <a class="nav-sublink2" href="better_knowledge_distillation.html">Knowledge distillation recipes</a>
+                      
+                        <a class="nav-sublink2" href="sklearn_metric_callbacks.html">Evaluating and exporting scikit-learn metrics in a Keras callback</a>
+                      
+                        <a class="nav-sublink2" href="tfrecord/index.html">How to train a Keras model on TFRecord files</a>
+                      
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Quick Keras Recipes</a> /
+         Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA
+    </div>
+    <h1 id="parameterefficient-finetuning-of-gemma-with-lora-and-qlora">Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</h1>
+<p><strong>Authors:</strong> <a href="https://github.com/james77777778">Hongyu Chiu</a>, <a href="https://github.com/abheesht17/">Abheesht Sharma</a>, <a href="https://github.com/mattdangerw/">Matthew Watson</a><br>
+<strong>Date created:</strong> 2024/08/06<br>
+<strong>Last modified:</strong> 2024/08/06<br>
+<strong>Description:</strong> Use KerasHub to fine-tune a Gemma LLM with LoRA and QLoRA.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/keras_recipes/ipynb/parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/keras_recipes/parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Large Language Models (LLMs) have been shown to be effective at a variety of NLP
+tasks. An LLM is first pre-trained on a large corpus of text in a
+self-supervised fashion. Pre-training helps LLMs learn general-purpose
+knowledge, such as statistical relationships between words. An LLM can then be
+fine-tuned on a downstream task of interest (such as sentiment analysis).</p>
+<p>However, LLMs are extremely large in size, and we don't need to train all the
+parameters in the model while fine-tuning, especially because datasets on which
+the model is fine-tuned are relatively small. Another way of saying this is
+that LLMs are over-parametrized for fine-tuning. This is where
+<a href="https://arxiv.org/abs/2106.09685">Low-Rank Adaptation (LoRA)</a> comes in; it
+significantly reduces the number of trainable parameters. This results in a
+decrease in training time and GPU memory usage, while maintaining the quality
+of the outputs.</p>
+<p>Furthermore,
+<a href="https://arxiv.org/abs/2305.14314">Quantized Low-Rank Adaptation (QLoRA)</a>
+extends LoRA to enhance efficiency through quantization techniques without
+performance degradation.</p>
+<p>In this example, we will fine-tune KerasHub's
+<a href="https://keras.io/api/keras_hub/models/gemma/">Gemma model</a> on the next token
+prediction task using LoRA and QLoRA.</p>
+<p>Note that this example runs on all backends supported by Keras. TensorFlow is
+only used for data preprocessing.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<p>Before we start implementing the pipeline, let's install and import all the
+libraries we need. We'll be using the KerasHub library.</p>
+<p>Secondly, let's set the precision to bfloat16. This will help us reduce the
+memory usage and training time.</p>
+<p>Also, ensure that <code>KAGGLE_USERNAME</code> and <code>KAGGLE_KEY</code> have been correctly
+configured to access the Gemma model.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># We might need the latest code from Keras and KerasHub</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">keras</span><span class="o">-</span><span class="n">team</span><span class="o">/</span><span class="n">keras</span><span class="o">.</span><span class="n">git</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">keras</span><span class="o">-</span><span class="n">team</span><span class="o">/</span><span class="n">keras</span><span class="o">-</span><span class="n">hub</span><span class="o">.</span><span class="n">git</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;jax&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>  <span class="c1"># Suppress verbose logging from TF</span>
+
+<span class="c1"># os.environ[&quot;KAGGLE_USERNAME&quot;] = &quot;...&quot;</span>
+<span class="c1"># os.environ[&quot;KAGGLE_KEY&quot;] = &quot;...&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+
+<span class="n">keras</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set_dtype_policy</span><span class="p">(</span><span class="s2">&quot;bfloat16&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dataset">Dataset</h2>
+<p>We will use the MTNT (Machine Translation of Noisy Text) dataset, which is
+available from TensorFlow Datasets. In this example, we will use the
+French-to-English portion of the dataset.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;mtnt/fr-en&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We can print some samples. Each sample in the dataset contains two entries:</p>
+<ul>
+<li>src: the original French sentence.</li>
+<li>dst: the corresponding English translation.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">examples</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">examples</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">example</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Example </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">example</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Example 0:
+dst: b&#39;Yep, serious...&#39;
+src: b&quot;Le journal l&#39;est peut-\xc3\xaatre, mais m\xc3\xaame moi qui suit de droite je les trouve limite de temps en temps...&quot;
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Example 1:
+dst: b&#39;Finally, I explained to you in what context this copy-pasting is relevant: when we are told padamalgame etc.&#39;
+src: b&quot;Enfin je t&#39;ai expliqu\xc3\xa9 dans quel cadre ce copypasta est pertinent : quand on nous dit padamalgame etc.&quot;
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Example 2:
+dst: b&#39;Gift of Ubiquity: Fran\xc3\xa7ois Baroin is now advisor to the Barclays Bank, mayor, president of the agglomeration, professor at HEC Paris, president of the Association of Mayors of France and Advocate Counselor, it must take him half a day each month.&#39;
+src: b&quot;Don d&#39;Ubiquit\xc3\xa9 : Fran\xc3\xa7ois Baroin est d\xc3\xa9sormais conseiller \xc3\xa0 la Banque Barclays, maire, pr\xc3\xa9sident d&#39;agglom\xc3\xa9ration, professeur \xc3\xa0 HEC Paris, pr\xc3\xa9sident de l&#39;association des maires de France et avocat  Conseiller, \xc3\xa7a doit lui prendre une demi journ\xc3\xa9e par mois.&quot;
+</code></pre></div>
+
+
+</div>
+
+<p>Since we will fine-tune our model to perform a French-to-English translation
+task, we should format the inputs for instruction tuning. For example, we could
+format the translation task in this example like:</p>
+<div class="codehilite"><pre><span></span><code>&lt;start_of_turn&gt;user
+Translate French into English:
+{src}&lt;end_of_turn&gt;
+&lt;start_of_turn&gt;model
+{dst}&lt;end_of_turn&gt;
+</code></pre></div>
+
+<p>The special tokens such as <code>&lt;start_of_turn&gt;user</code>, <code>&lt;start_of_turn&gt;model</code> and
+<code>&lt;end_of_turn&gt;</code> are used for Gemma models. You can learn more from
+https://ai.google.dev/gemma/docs/formatting</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;&lt;start_of_turn&gt;user</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Translate French into English:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;&lt;end_of_turn&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&lt;start_of_turn&gt;model</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Translation:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;dst&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;&lt;end_of_turn&gt;&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">examples</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">examples</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">example</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Example </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Example 0:
+b&quot;&lt;start_of_turn&gt;user\nTranslate French into English:\nLe journal l&#39;est peut-\xc3\xaatre, mais m\xc3\xaame moi qui suit de droite je les trouve limite de temps en temps...&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;model\nTranslation:\nYep, serious...&lt;end_of_turn&gt;&quot;
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Example 1:
+b&quot;&lt;start_of_turn&gt;user\nTranslate French into English:\nEnfin je t&#39;ai expliqu\xc3\xa9 dans quel cadre ce copypasta est pertinent : quand on nous dit padamalgame etc.&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;model\nTranslation:\nFinally, I explained to you in what context this copy-pasting is relevant: when we are told padamalgame etc.&lt;end_of_turn&gt;&quot;
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Example 2:
+b&quot;&lt;start_of_turn&gt;user\nTranslate French into English:\nDon d&#39;Ubiquit\xc3\xa9 : Fran\xc3\xa7ois Baroin est d\xc3\xa9sormais conseiller \xc3\xa0 la Banque Barclays, maire, pr\xc3\xa9sident d&#39;agglom\xc3\xa9ration, professeur \xc3\xa0 HEC Paris, pr\xc3\xa9sident de l&#39;association des maires de France et avocat  Conseiller, \xc3\xa7a doit lui prendre une demi journ\xc3\xa9e par mois.&lt;end_of_turn&gt;\n&lt;start_of_turn&gt;model\nTranslation:\nGift of Ubiquity: Fran\xc3\xa7ois Baroin is now advisor to the Barclays Bank, mayor, president of the agglomeration, professor at HEC Paris, president of the Association of Mayors of France and Advocate Counselor, it must take him half a day each month.&lt;end_of_turn&gt;&quot;
+</code></pre></div>
+
+
+</div>
+
+<p>We will take a subset of the dataset for the purpose of this example.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="model">Model</h2>
+<p>KerasHub provides implementations of many popular model architectures.
+In this example, we will use <code>GemmaCausalLM</code>, an end-to-end Gemma model for
+causal language modeling. A causal language model predicts the next token based
+on previous tokens.</p>
+<p>Note that <code>sequence_length</code> is set to <code>256</code> to speed up the fitting.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GemmaCausalLMPreprocessor</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gemma_1.1_instruct_2b_en&quot;</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="mi">256</span>
+<span class="p">)</span>
+<span class="n">gemma_lm</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GemmaCausalLM</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gemma_1.1_instruct_2b_en&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span>
+<span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Preprocessor: "gemma_causal_lm_preprocessor"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Tokenizer (type)                                   </span>┃<span style="font-weight: bold">                                             Vocab # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gemma_tokenizer (<span style="color: #0087ff; text-decoration-color: #0087ff">GemmaTokenizer</span>)                   │                                             <span style="color: #00af00; text-decoration-color: #00af00">256,000</span> │
+└────────────────────────────────────────────────────┴─────────────────────────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "gemma_causal_lm"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                  </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">         Param # </span>┃<span style="font-weight: bold"> Connected to               </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ padding_mask (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │               <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                          │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ token_ids (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │               <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                          │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ gemma_backbone                │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2048</span>)        │   <span style="color: #00af00; text-decoration-color: #00af00">2,506,172,416</span> │ padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],        │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">GemmaBackbone</span>)               │                           │                 │ token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]            │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ token_embedding               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256000</span>)      │     <span style="color: #00af00; text-decoration-color: #00af00">524,288,000</span> │ gemma_backbone[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">ReversibleEmbedding</span>)         │                           │                 │                            │
+└───────────────────────────────┴───────────────────────────┴─────────────────┴────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">2,506,172,416</span> (4.67 GB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">2,506,172,416</span> (4.67 GB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<hr />
+<h2 id="lora-finetuning">LoRA Fine-tuning</h2>
+<h3 id="what-exactly-is-lora">What exactly is LoRA?</h3>
+<p>Low-rank adaptation (LoRA) is a parameter-efficient fine-tuning technique for
+LLMs. It freezes the weights of the LLM, and injects trainable
+rank-decomposition matrices. Let's understand this more clearly.</p>
+<p>Assume we have an <code>n x n</code> pre-trained dense layer (or weight matrix), <code>W0</code>. We
+initialize two dense layers, <code>A</code> and <code>B</code>, of shapes <code>n x rank</code>, and <code>rank x n</code>,
+respectively. <code>rank</code> is much smaller than <code>n</code>. In the paper, values between 1
+and 4 are shown to work well.</p>
+<h3 id="lora-equation">LoRA equation</h3>
+<p>The original equation is <code>output = W0x + b0</code>, where <code>x</code> is the input, <code>W0</code> and
+<code>b0</code> are the weight matrix and bias terms of the original dense layer (frozen).
+The LoRA equation is: <code>output = W0x + b0 + BAx</code>, where <code>A</code> and <code>B</code> are the
+rank-decomposition matrices.</p>
+<p>LoRA is based on the idea that updates to the weights of the pre-trained
+language model have a low "intrinsic rank" since pre-trained language models are
+over-parametrized. Predictive performance of full fine-tuning can be replicated
+even by constraining <code>W0</code>'s updates to low-rank decomposition matrices.</p>
+<h3 id="number-of-trainable-parameters">Number of trainable parameters</h3>
+<p>Let's do some quick math. Suppose <code>n</code> is 768, and <code>rank</code> is 4. <code>W0</code> has
+<code>768 x 768 = 589,824</code> parameters, whereas the LoRA layers, <code>A</code> and <code>B</code> together
+have <code>768 x 4 + 4 x 768 = 6,144</code> parameters. So, for the dense layer, we go
+from <code>589,824</code> trainable parameters to <code>6,144</code> trainable parameters!</p>
+<h3 id="why-does-lora-reduce-memory-footprint">Why does LoRA reduce memory footprint?</h3>
+<p>Even though the total number of parameters increase
+(since we are adding LoRA layers), the memory footprint reduces, because the
+number of trainable parameters reduces. Let's dive deeper into this.</p>
+<p>The memory usage of a model can be split into four parts:</p>
+<ul>
+<li>Model memory: This is the memory required to store the model weights. This
+will be slightly higher for LoRA than the original model.</li>
+<li>Forward pass memory: This mostly depends on batch size, sequence length, etc.
+We keep this constant for both models for a fair comparison.</li>
+<li>Backward pass memory: This is the memory required to store the gradients. Note
+that the gradients are computed only for the trainable parameters.</li>
+<li>Optimizer memory: This is the memory required to store the optimizer state.
+For example, the Adam optimizer stores the "1st moment vectors" and
+"2nd moment vectors" for the trainable parameters.</li>
+</ul>
+<p>Since, with LoRA, there is a huge reduction in the number of trainable
+parameters, the optimizer memory and the memory required to store the gradients
+for LoRA is much less than the original model. This is where most of the memory
+savings happen.</p>
+<h3 id="why-is-lora-so-popular">Why is LoRA so popular?</h3>
+<ul>
+<li>Reduces GPU memory usage;</li>
+<li>Faster training; and</li>
+<li>No additional inference latency.</li>
+</ul>
+<p>When using KerasHub, we can enable LoRA with an one-line API:
+<code>enable_lora(rank=4)</code></p>
+<p>From <code>gemma_lm.summary()</code>, we can see enabling LoRA reduces the number of
+trainable parameters significantly (from 2.5 billion to 1.3 million).</p>
+<div class="codehilite"><pre><span></span><code><span class="n">gemma_lm</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">enable_lora</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Preprocessor: "gemma_causal_lm_preprocessor"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Tokenizer (type)                                   </span>┃<span style="font-weight: bold">                                             Vocab # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gemma_tokenizer (<span style="color: #0087ff; text-decoration-color: #0087ff">GemmaTokenizer</span>)                   │                                             <span style="color: #00af00; text-decoration-color: #00af00">256,000</span> │
+└────────────────────────────────────────────────────┴─────────────────────────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "gemma_causal_lm"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                  </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">         Param # </span>┃<span style="font-weight: bold"> Connected to               </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ padding_mask (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │               <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                          │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ token_ids (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │               <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                          │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ gemma_backbone                │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2048</span>)        │   <span style="color: #00af00; text-decoration-color: #00af00">2,507,536,384</span> │ padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],        │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">GemmaBackbone</span>)               │                           │                 │ token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]            │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ token_embedding               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256000</span>)      │     <span style="color: #00af00; text-decoration-color: #00af00">524,288,000</span> │ gemma_backbone[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">ReversibleEmbedding</span>)         │                           │                 │                            │
+└───────────────────────────────┴───────────────────────────┴─────────────────┴────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">2,507,536,384</span> (4.67 GB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">1,363,968</span> (2.60 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">2,506,172,416</span> (4.67 GB)
+</pre>
+
+<p>Let's fine-tune the LoRA model.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># To save memory, use the SGD optimizer instead of the usual AdamW optimizer.</span>
+<span class="c1"># For this specific example, SGD is more than enough.</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">weighted_metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+<span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+<p>After fine-tuning, responses will follow the instructions provided in the
+prompt.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">template</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;&lt;start_of_turn&gt;user</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Translate French into English:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="si">{inputs}</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;&lt;end_of_turn&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;&lt;start_of_turn&gt;model</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Translation:</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="s2">&quot;Bonjour, je m&#39;appelle Morgane.&quot;</span><span class="p">)</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">gemma_lm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Translation:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outputs</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Translation:
+ Hello, my name is Morgane.
+</code></pre></div>
+
+
+</div>
+<p>Release memory.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">del</span> <span class="n">preprocessor</span>
+<span class="k">del</span> <span class="n">gemma_lm</span>
+<span class="k">del</span> <span class="n">optimizer</span>
+<span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="qlora-finetuning">QLoRA Fine-tuning</h2>
+<p>Quantized Low-Rank Adaptation (QLoRA) extends LoRA to enhance efficiency by
+quantizing the model weights from high precision data types, such as float32, to
+lower precision data types like int8. This leads to reduced memory usage and
+faster computation. The saved model weights are also much smaller.</p>
+<p>Note that the QLoRA implementation here is a simplified version compared to the
+original. The differences are:</p>
+<ul>
+<li>The 4-bit NormalFloat format is not used because no backend supports it.</li>
+<li>No double quantization.</li>
+<li>No Paged optimizer.</li>
+</ul>
+<p>To enable QLoRA in KerasHub, follow these steps:</p>
+<ol>
+<li>Instantiate the model.</li>
+<li>Quantize the weights using dynamic int8 quantization.</li>
+<li>Enable LoRA.</li>
+</ol>
+<p>Steps 2 and 3 are achieved with one-line APIs:</p>
+<ul>
+<li><code>quantize("int8")</code></li>
+<li><code>enable_lora(...)</code></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GemmaCausalLMPreprocessor</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gemma_1.1_instruct_2b_en&quot;</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="mi">256</span>
+<span class="p">)</span>
+<span class="n">gemma_lm</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GemmaCausalLM</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gemma_1.1_instruct_2b_en&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span>
+<span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">enable_lora</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Preprocessor: "gemma_causal_lm_preprocessor_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Tokenizer (type)                                   </span>┃<span style="font-weight: bold">                                             Vocab # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gemma_tokenizer (<span style="color: #0087ff; text-decoration-color: #0087ff">GemmaTokenizer</span>)                   │                                             <span style="color: #00af00; text-decoration-color: #00af00">256,000</span> │
+└────────────────────────────────────────────────────┴─────────────────────────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "gemma_causal_lm_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                  </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">         Param # </span>┃<span style="font-weight: bold"> Connected to               </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ padding_mask (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │               <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                          │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ token_ids (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │               <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                          │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ gemma_backbone                │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2048</span>)        │   <span style="color: #00af00; text-decoration-color: #00af00">2,508,502,016</span> │ padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],        │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">GemmaBackbone</span>)               │                           │                 │ token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]            │
+├───────────────────────────────┼───────────────────────────┼─────────────────┼────────────────────────────┤
+│ token_embedding               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256000</span>)      │     <span style="color: #00af00; text-decoration-color: #00af00">524,544,000</span> │ gemma_backbone[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">ReversibleEmbedding</span>)         │                           │                 │                            │
+└───────────────────────────────┴───────────────────────────┴─────────────────┴────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">2,508,502,016</span> (2.34 GB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">1,363,968</span> (2.60 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">2,507,138,048</span> (2.34 GB)
+</pre>
+
+<p>Let's fine-tune the QLoRA model.</p>
+<p>If you are using a device with int8 acceleration support, you should see an
+improvement in the training speed.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">weighted_metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+<span class="p">)</span>
+<span class="n">gemma_lm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+<p>You should get a similar output with QLoRA fine-tuning.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">prompt</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="s2">&quot;Bonjour, je m&#39;appelle Morgane.&quot;</span><span class="p">)</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">gemma_lm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Translation:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outputs</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Translation:
+ Hello, my name is Morgane.
+</code></pre></div>
+
+
+</div>
+<p>And we're all done!</p>
+<p>Note that for demonstration purposes, this example fine-tunes the model on a
+small subset of the dataset for just one epoch and with a low LoRA rank value.
+To get better responses from the fine-tuned model, you can experiment with:</p>
+<ul>
+<li>Increasing the size of the fine-tuning dataset.</li>
+<li>Training for more steps (epochs).</li>
+<li>Setting a higher LoRA rank.</li>
+<li>Modifying the hyperparameter values such as <code>learning_rate</code> and
+<code>weight_decay</code>.</li>
+</ul>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter16_text-generation">Chapter 16: Text generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#parameterefficient-finetuning-of-gemma-with-lora-and-qlora'>Parameter-efficient fine-tuning of Gemma with LoRA and QLoRA</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#dataset'>Dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#model'>Model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#lora-finetuning'>LoRA Fine-tuning</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#what-exactly-is-lora'>What exactly is LoRA?</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#lora-equation'>LoRA equation</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#number-of-trainable-parameters'>Number of trainable parameters</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#why-does-lora-reduce-memory-footprint'>Why does LoRA reduce memory footprint?</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#why-is-lora-so-popular'>Why is LoRA so popular?</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#qlora-finetuning'>QLoRA Fine-tuning</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gemma_with_lora_and_qlora.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

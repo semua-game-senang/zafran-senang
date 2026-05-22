@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Denoising Diffusion Implicit Models">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="ddim.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Denoising Diffusion Implicit Models">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Denoising Diffusion Implicit Models">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Denoising Diffusion Implicit Models</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2 active" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2 active" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Generative Deep Learning</a> /
+         Denoising Diffusion Implicit Models
+    </div>
+    <h1 id="denoising-diffusion-implicit-models">Denoising Diffusion Implicit Models</h1>
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/andras-beres-789190210">András Béres</a><br>
+<strong>Date created:</strong> 2022/06/24<br>
+<strong>Last modified:</strong> 2022/06/24<br>
+<strong>Description:</strong> Generating images of flowers with denoising diffusion implicit models.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/generative/ipynb/ddim.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<h3 id="what-are-diffusion-models">What are diffusion models?</h3>
+<p>Recently, <a href="https://arxiv.org/abs/2006.11239">denoising diffusion models</a>, including
+<a href="https://arxiv.org/abs/1907.05600">score-based generative models</a>, gained popularity as a
+powerful class of generative models, that can <a href="https://arxiv.org/abs/2105.05233">rival</a>
+even <a href="https://arxiv.org/abs/1406.2661">generative adversarial networks (GANs)</a> in image
+synthesis quality. They tend to generate more diverse samples, while being stable to
+train and easy to scale. Recent large diffusion models, such as
+<a href="https://openai.com/dall-e-2/">DALL-E 2</a> and <a href="https://imagen.research.google/">Imagen</a>,
+have shown incredible text-to-image generation capability. One of their drawbacks is
+however, that they are slower to sample from, because they require multiple forward passes
+for generating an image.</p>
+<p>Diffusion refers to the process of turning a structured signal (an image) into noise
+step-by-step. By simulating diffusion, we can generate noisy images from our training
+images, and can train a neural network to try to denoise them. Using the trained network
+we can simulate the opposite of diffusion, reverse diffusion, which is the process of an
+image emerging from noise.</p>
+<p><img alt="diffusion process gif" src="https://i.imgur.com/dipPOfa.gif" /></p>
+<p>One-sentence summary: <strong>diffusion models are trained to denoise noisy images, and can
+generate images by iteratively denoising pure noise.</strong></p>
+<h3 id="goal-of-this-example">Goal of this example</h3>
+<p>This code example intends to be a minimal but feature-complete (with a generation quality
+metric) implementation of diffusion models, with modest compute requirements and
+reasonable performance. My implementation choices and hyperparameter tuning were done
+with these goals in mind.</p>
+<p>Since currently the literature of diffusion models is
+<a href="https://arxiv.org/abs/2206.00364">mathematically quite complex</a>
+with multiple theoretical frameworks
+(<a href="https://arxiv.org/abs/1907.05600">score matching</a>,
+<a href="https://arxiv.org/abs/2011.13456">differential equations</a>,
+<a href="https://arxiv.org/abs/2006.11239">Markov chains</a>) and sometimes even
+<a href="https://arxiv.org/abs/2010.02502">conflicting notations (see Appendix C.2)</a>,
+it can be daunting trying to understand
+them. My view of these models in this example will be that they learn to separate a
+noisy image into its image and Gaussian noise components.</p>
+<p>In this example I made effort to break down all long mathematical expressions into
+digestible pieces and gave all variables explanatory names. I also included numerous
+links to relevant literature to help interested readers dive deeper into the topic, in
+the hope that this code example will become a good starting point for practitioners
+learning about diffusion models.</p>
+<p>In the following sections, we will implement a continuous time version of
+<a href="https://arxiv.org/abs/2010.02502">Denoising Diffusion Implicit Models (DDIMs)</a>
+with deterministic sampling.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+</code></pre></div>
+
+<hr />
+<h2 id="hyperparameters">Hyperparameters</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># data</span>
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;oxford_flowers102&quot;</span>
+<span class="n">dataset_repetitions</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># train for at least 50 epochs for good results</span>
+<span class="n">image_size</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="c1"># KID = Kernel Inception Distance, see related section</span>
+<span class="n">kid_image_size</span> <span class="o">=</span> <span class="mi">75</span>
+<span class="n">kid_diffusion_steps</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">plot_diffusion_steps</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># sampling</span>
+<span class="n">min_signal_rate</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">max_signal_rate</span> <span class="o">=</span> <span class="mf">0.95</span>
+
+<span class="c1"># architecture</span>
+<span class="n">embedding_dims</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">embedding_max_frequency</span> <span class="o">=</span> <span class="mf">1000.0</span>
+<span class="n">widths</span> <span class="o">=</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">128</span><span class="p">]</span>
+<span class="n">block_depth</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># optimization</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">ema</span> <span class="o">=</span> <span class="mf">0.999</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">weight_decay</span> <span class="o">=</span> <span class="mf">1e-4</span>
+</code></pre></div>
+
+<hr />
+<h2 id="data-pipeline">Data pipeline</h2>
+<p>We will use the
+<a href="https://www.tensorflow.org/datasets/catalog/oxford_flowers102">Oxford Flowers 102</a>
+dataset for
+generating images of flowers, which is a diverse natural dataset containing around 8,000
+images. Unfortunately the official splits are imbalanced, as most of the images are
+contained in the test split. We create new splits (80% train, 20% validation) using the
+<a href="https://www.tensorflow.org/datasets/splits">Tensorflow Datasets slicing API</a>. We apply
+center crops as preprocessing, and repeat the dataset multiple times (reason given in the
+next section).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">preprocess_image</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># center crop image</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">crop_size</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">crop_to_bounding_box</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
+        <span class="p">(</span><span class="n">height</span> <span class="o">-</span> <span class="n">crop_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="n">crop_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">crop_size</span><span class="p">,</span>
+        <span class="n">crop_size</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># resize and clip</span>
+    <span class="c1"># for image downsampling it is important to turn on antialiasing</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">],</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">image</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare_dataset</span><span class="p">(</span><span class="n">split</span><span class="p">):</span>
+    <span class="c1"># the validation dataset is shuffled as well, because data order matters</span>
+    <span class="c1"># for the KID estimation</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">dataset_repetitions</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">drop_remainder</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># load dataset</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="s2">&quot;train[:80%]+validation[:80%]+test[:80%]&quot;</span><span class="p">)</span>
+<span class="n">val_dataset</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="s2">&quot;train[80%:]+validation[80%:]+test[80%:]&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="kernel-inception-distance">Kernel inception distance</h2>
+<p><a href="https://arxiv.org/abs/1801.01401">Kernel Inception Distance (KID)</a> is an image quality
+metric which was proposed as a replacement for the popular
+<a href="https://arxiv.org/abs/1706.08500">Frechet Inception Distance (FID)</a>.
+I prefer KID to FID because it is simpler to
+implement, can be estimated per-batch, and is computationally lighter. More details
+<a href="gan_ada.html#kernel-inception-distance">here</a>.</p>
+<p>In this example, the images are evaluated at the minimal possible resolution of the
+Inception network (75x75 instead of 299x299), and the metric is only measured on the
+validation set for computational efficiency. We also limit the number of sampling steps
+at evaluation to 5 for the same reason.</p>
+<p>Since the dataset is relatively small, we go over the train and validation splits
+multiple times per epoch, because the KID estimation is noisy and compute-intensive, so
+we want to evaluate only after many iterations, but for many iterations.</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">register_keras_serializable</span><span class="p">()</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KID</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># KID is estimated per batch and is averaged across batches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kid_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kid_tracker&quot;</span><span class="p">)</span>
+
+        <span class="c1"># a pretrained InceptionV3 is used without its classification layer</span>
+        <span class="c1"># transform the pixel values to the 0-255 range, then use the same</span>
+        <span class="c1"># preprocessing as during pretraining</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">Rescaling</span><span class="p">(</span><span class="mf">255.0</span><span class="p">),</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">Resizing</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">kid_image_size</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">kid_image_size</span><span class="p">),</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">applications</span><span class="o">.</span><span class="n">inception_v3</span><span class="o">.</span><span class="n">preprocess_input</span><span class="p">),</span>
+                <span class="n">keras</span><span class="o">.</span><span class="n">applications</span><span class="o">.</span><span class="n">InceptionV3</span><span class="p">(</span>
+                    <span class="n">include_top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">kid_image_size</span><span class="p">,</span> <span class="n">kid_image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                    <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;imagenet&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">GlobalAveragePooling2D</span><span class="p">(),</span>
+            <span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;inception_encoder&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">polynomial_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features_1</span><span class="p">,</span> <span class="n">features_2</span><span class="p">):</span>
+        <span class="n">feature_dimensions</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">features_1</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">features_1</span> <span class="o">@</span> <span class="n">ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">features_2</span><span class="p">)</span> <span class="o">/</span> <span class="n">feature_dimensions</span> <span class="o">+</span> <span class="mf">1.0</span>
+        <span class="p">)</span> <span class="o">**</span> <span class="mf">3.0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real_images</span><span class="p">,</span> <span class="n">generated_images</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">real_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">real_images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">generated_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">generated_images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># compute polynomial kernels using the two sets of features</span>
+        <span class="n">kernel_real</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polynomial_kernel</span><span class="p">(</span><span class="n">real_features</span><span class="p">,</span> <span class="n">real_features</span><span class="p">)</span>
+        <span class="n">kernel_generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polynomial_kernel</span><span class="p">(</span>
+            <span class="n">generated_features</span><span class="p">,</span> <span class="n">generated_features</span>
+        <span class="p">)</span>
+        <span class="n">kernel_cross</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polynomial_kernel</span><span class="p">(</span><span class="n">real_features</span><span class="p">,</span> <span class="n">generated_features</span><span class="p">)</span>
+
+        <span class="c1"># estimate the squared maximum mean discrepancy using the average kernel values</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">real_features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">batch_size_f</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">mean_kernel_real</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kernel_real</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ops</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)))</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">batch_size_f</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_size_f</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">mean_kernel_generated</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">kernel_generated</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ops</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">batch_size_f</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_size_f</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">mean_kernel_cross</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kernel_cross</span><span class="p">)</span>
+        <span class="n">kid</span> <span class="o">=</span> <span class="n">mean_kernel_real</span> <span class="o">+</span> <span class="n">mean_kernel_generated</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">mean_kernel_cross</span>
+
+        <span class="c1"># update the average KID estimate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kid_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">kid</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kid_tracker</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kid_tracker</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="network-architecture">Network architecture</h2>
+<p>Here we specify the architecture of the neural network that we will use for denoising. We
+build a <a href="https://arxiv.org/abs/1505.04597">U-Net</a> with identical input and output
+dimensions. U-Net is a popular semantic segmentation architecture, whose main idea is
+that it progressively downsamples and then upsamples its input image, and adds skip
+connections between layers having the same resolution. These help with gradient flow and
+avoid introducing a representation bottleneck, unlike usual
+<a href="https://www.deeplearningbook.org/contents/autoencoders.html">autoencoders</a>. Based on
+this, one can view
+<a href="https://benanne.github.io/2022/01/31/diffusion.html">diffusion models as denoising autoencoders</a>
+without a bottleneck.</p>
+<p>The network takes two inputs, the noisy images and the variances of their noise
+components. The latter is required since denoising a signal requires different operations
+at different levels of noise. We transform the noise variances using sinusoidal
+embeddings, similarly to positional encodings used both in
+<a href="https://arxiv.org/abs/1706.03762">transformers</a> and
+<a href="https://arxiv.org/abs/2003.08934">NeRF</a>. This helps the network to be
+<a href="https://arxiv.org/abs/2006.10739">highly sensitive</a> to the noise level, which is
+crucial for good performance. We implement sinusoidal embeddings using a
+<a href="https://keras.io/api/layers/core_layers/lambda/">Lambda layer</a>.</p>
+<p>Some other considerations:</p>
+<ul>
+<li>We build the network using the
+<a href="https://keras.io/guides/functional_api/">Keras Functional API</a>, and use
+<a href="https://twitter.com/fchollet/status/1441927912836321280">closures</a> to build blocks of
+layers in a consistent style.</li>
+<li><a href="https://arxiv.org/abs/2006.11239">Diffusion models</a> embed the index of the timestep of
+the diffusion process instead of the noise variance, while
+<a href="https://arxiv.org/abs/2206.00364">score-based models (Table 1)</a>
+usually use some function of the noise level. I
+prefer the latter so that we can change the sampling schedule at inference time, without
+retraining the network.</li>
+<li><a href="https://arxiv.org/abs/2006.11239">Diffusion models</a> input the embedding to each
+convolution block separately. We only input it at the start of the network for
+simplicity, which in my experience barely decreases performance, because the skip and
+residual connections help the information propagate through the network properly.</li>
+<li>In the literature it is common to use
+<a href="https://keras.io/api/layers/attention_layers/multi_head_attention/">attention layers</a>
+at lower resolutions for better global coherence. I omitted it for simplicity.</li>
+<li>We disable the learnable center and scale parameters of the batch normalization layers,
+since the following convolution layers make them redundant.</li>
+<li>We initialize the last convolution's kernel to all zeros as a good practice, making the
+network predict only zeros after initialization, which is the mean of its targets. This
+will improve behaviour at the start of training and make the mean squared error loss
+start at exactly 1.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="nd">@keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">register_keras_serializable</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sinusoidal_embedding</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">embedding_min_frequency</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">embedding_min_frequency</span><span class="p">),</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">embedding_max_frequency</span><span class="p">),</span>
+            <span class="n">embedding_dims</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">angular_speeds</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">ops</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angular_speeds</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="n">ops</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angular_speeds</span> <span class="o">*</span> <span class="n">x</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">embeddings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ResidualBlock</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">input_width</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">input_width</span> <span class="o">==</span> <span class="n">width</span><span class="p">:</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;swish&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">x</span><span class="p">,</span> <span class="n">residual</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">return</span> <span class="n">apply</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">DownBlock</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">skips</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">block_depth</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">ResidualBlock</span><span class="p">(</span><span class="n">width</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">skips</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">AveragePooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">return</span> <span class="n">apply</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">UpBlock</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">skips</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">block_depth</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">()([</span><span class="n">x</span><span class="p">,</span> <span class="n">skips</span><span class="o">.</span><span class="n">pop</span><span class="p">()])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">ResidualBlock</span><span class="p">(</span><span class="n">width</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">return</span> <span class="n">apply</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_network</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">widths</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">):</span>
+    <span class="n">noisy_images</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">noise_variances</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">sinusoidal_embedding</span><span class="p">,</span> <span class="n">output_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">))(</span><span class="n">noise_variances</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">widths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)(</span><span class="n">noisy_images</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">()([</span><span class="n">x</span><span class="p">,</span> <span class="n">e</span><span class="p">])</span>
+
+    <span class="n">skips</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">width</span> <span class="ow">in</span> <span class="n">widths</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">DownBlock</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">)([</span><span class="n">x</span><span class="p">,</span> <span class="n">skips</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">block_depth</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ResidualBlock</span><span class="p">(</span><span class="n">widths</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">width</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">widths</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">UpBlock</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">)([</span><span class="n">x</span><span class="p">,</span> <span class="n">skips</span><span class="p">])</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">([</span><span class="n">noisy_images</span><span class="p">,</span> <span class="n">noise_variances</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;residual_unet&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>This showcases the power of the Functional API. Note how we built a relatively complex
+U-Net with skip connections, residual blocks, multiple inputs, and sinusoidal embeddings
+in 80 lines of code!</p>
+<hr />
+<h2 id="diffusion-model">Diffusion model</h2>
+<h3 id="diffusion-schedule">Diffusion schedule</h3>
+<p>Let us say, that a diffusion process starts at time = 0, and ends at time = 1. This
+variable will be called diffusion time, and can be either discrete (common in diffusion
+models) or continuous (common in score-based models). I choose the latter, so that the
+number of sampling steps can be changed at inference time.</p>
+<p>We need to have a function that tells us at each point in the diffusion process the noise
+levels and signal levels of the noisy image corresponding to the actual diffusion time.
+This will be called the diffusion schedule (see <code>diffusion_schedule()</code>).</p>
+<p>This schedule outputs two quantities: the <code>noise_rate</code> and the <code>signal_rate</code>
+(corresponding to sqrt(1 - alpha) and sqrt(alpha) in the DDIM paper, respectively). We
+generate the noisy image by weighting the random noise and the training image by their
+corresponding rates and adding them together.</p>
+<p>Since the (standard normal) random noises and the (normalized) images both have zero mean
+and unit variance, the noise rate and signal rate can be interpreted as the standard
+deviation of their components in the noisy image, while the squares of their rates can be
+interpreted as their variance (or their power in the signal processing sense). The rates
+will always be set so that their squared sum is 1, meaning that the noisy images will
+always have unit variance, just like its unscaled components.</p>
+<p>We will use a simplified, continuous version of the
+<a href="https://arxiv.org/abs/2102.09672">cosine schedule (Section 3.2)</a>,
+that is quite commonly used in the literature.
+This schedule is symmetric, slow towards the start and end of the diffusion process, and
+it also has a nice geometric interpretation, using the
+<a href="https://en.wikipedia.org/wiki/Unit_circle#/media/File:Circle-trig6.svg">trigonometric properties of the unit circle</a>:</p>
+<p><img alt="diffusion schedule gif" src="https://i.imgur.com/JW9W0fA.gif" /></p>
+<h3 id="training-process">Training process</h3>
+<p>The training procedure (see <code>train_step()</code> and <code>denoise()</code>) of denoising diffusion models
+is the following: we sample random diffusion times uniformly, and mix the training images
+with random gaussian noises at rates corresponding to the diffusion times. Then, we train
+the model to separate the noisy image to its two components.</p>
+<p>Usually, the neural network is trained to predict the unscaled noise component, from
+which the predicted image component can be calculated using the signal and noise rates.
+Pixelwise
+<a href="https://keras.io/api/losses/regression_losses/#mean_squared_error-function">mean squared error</a> should
+be used theoretically, however I recommend using
+<a href="https://keras.io/api/losses/regression_losses/#mean_absolute_error-function">mean absolute error</a>
+instead (similarly to
+<a href="https://github.com/lucidrains/denoising-diffusion-pytorch/blob/master/denoising_diffusion_pytorch/denoising_diffusion_pytorch.py#L371">this</a>
+implementation), which produces better results on this dataset.</p>
+<h3 id="sampling-reverse-diffusion">Sampling (reverse diffusion)</h3>
+<p>When sampling (see <code>reverse_diffusion()</code>), at each step we take the previous estimate of
+the noisy image and separate it into image and noise using our network. Then we recombine
+these components using the signal and noise rate of the following step.</p>
+<p>Though a similar view is shown in
+<a href="https://arxiv.org/abs/2010.02502">Equation 12 of DDIMs</a>, I believe the above explanation
+of the sampling equation is not widely known.</p>
+<p>This example only implements the deterministic sampling procedure from DDIM, which
+corresponds to <em>eta = 0</em> in the paper. One can also use stochastic sampling (in which
+case the model becomes a
+<a href="https://arxiv.org/abs/2006.11239">Denoising Diffusion Probabilistic Model (DDPM)</a>),
+where a part of the predicted noise is
+replaced with the same or larger amount of random noise
+(<a href="https://arxiv.org/abs/2010.02502">see Equation 16 and below</a>).</p>
+<p>Stochastic sampling can be used without retraining the network (since both models are
+trained the same way), and it can improve sample quality, while on the other hand
+requiring more sampling steps usually.</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">register_keras_serializable</span><span class="p">()</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiffusionModel</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">widths</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Normalization</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">get_network</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">widths</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ema_network</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">clone_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;n_loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;i_loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kid</span> <span class="o">=</span> <span class="n">KID</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kid&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_loss_tracker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_loss_tracker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kid</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">denormalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">):</span>
+        <span class="c1"># convert the pixel values back to 0-1 range</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="o">.</span><span class="n">mean</span> <span class="o">+</span> <span class="n">images</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="o">.</span><span class="n">variance</span><span class="o">**</span><span class="mf">0.5</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">diffusion_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diffusion_times</span><span class="p">):</span>
+        <span class="c1"># diffusion times -&gt; angles</span>
+        <span class="n">start_angle</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">max_signal_rate</span><span class="p">),</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">end_angle</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">min_signal_rate</span><span class="p">),</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+        <span class="n">diffusion_angles</span> <span class="o">=</span> <span class="n">start_angle</span> <span class="o">+</span> <span class="n">diffusion_times</span> <span class="o">*</span> <span class="p">(</span><span class="n">end_angle</span> <span class="o">-</span> <span class="n">start_angle</span><span class="p">)</span>
+
+        <span class="c1"># angles -&gt; signal and noise rates</span>
+        <span class="n">signal_rates</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">diffusion_angles</span><span class="p">)</span>
+        <span class="n">noise_rates</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">diffusion_angles</span><span class="p">)</span>
+        <span class="c1"># note that their squared sum is always: sin^2(x) + cos^2(x) = 1</span>
+
+        <span class="k">return</span> <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">denoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noisy_images</span><span class="p">,</span> <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="c1"># the exponential moving average weights are used at evaluation</span>
+        <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+            <span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ema_network</span>
+
+        <span class="c1"># predict noise component and calculate the image component using it</span>
+        <span class="n">pred_noises</span> <span class="o">=</span> <span class="n">network</span><span class="p">([</span><span class="n">noisy_images</span><span class="p">,</span> <span class="n">noise_rates</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">pred_images</span> <span class="o">=</span> <span class="p">(</span><span class="n">noisy_images</span> <span class="o">-</span> <span class="n">noise_rates</span> <span class="o">*</span> <span class="n">pred_noises</span><span class="p">)</span> <span class="o">/</span> <span class="n">signal_rates</span>
+
+        <span class="k">return</span> <span class="n">pred_noises</span><span class="p">,</span> <span class="n">pred_images</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reverse_diffusion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_noise</span><span class="p">,</span> <span class="n">diffusion_steps</span><span class="p">):</span>
+        <span class="c1"># reverse diffusion = sampling</span>
+        <span class="n">num_images</span> <span class="o">=</span> <span class="n">initial_noise</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">step_size</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">diffusion_steps</span>
+
+        <span class="c1"># important line:</span>
+        <span class="c1"># at the first sampling step, the &quot;noisy image&quot; is pure noise</span>
+        <span class="c1"># but its signal rate is assumed to be nonzero (min_signal_rate)</span>
+        <span class="n">next_noisy_images</span> <span class="o">=</span> <span class="n">initial_noise</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">diffusion_steps</span><span class="p">):</span>
+            <span class="n">noisy_images</span> <span class="o">=</span> <span class="n">next_noisy_images</span>
+
+            <span class="c1"># separate the current noisy image to its components</span>
+            <span class="n">diffusion_times</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_images</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="n">step</span> <span class="o">*</span> <span class="n">step_size</span>
+            <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_schedule</span><span class="p">(</span><span class="n">diffusion_times</span><span class="p">)</span>
+            <span class="n">pred_noises</span><span class="p">,</span> <span class="n">pred_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">denoise</span><span class="p">(</span>
+                <span class="n">noisy_images</span><span class="p">,</span> <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="c1"># network used in eval mode</span>
+
+            <span class="c1"># remix the predicted components using the next signal and noise rates</span>
+            <span class="n">next_diffusion_times</span> <span class="o">=</span> <span class="n">diffusion_times</span> <span class="o">-</span> <span class="n">step_size</span>
+            <span class="n">next_noise_rates</span><span class="p">,</span> <span class="n">next_signal_rates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_schedule</span><span class="p">(</span>
+                <span class="n">next_diffusion_times</span>
+            <span class="p">)</span>
+            <span class="n">next_noisy_images</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">next_signal_rates</span> <span class="o">*</span> <span class="n">pred_images</span> <span class="o">+</span> <span class="n">next_noise_rates</span> <span class="o">*</span> <span class="n">pred_noises</span>
+            <span class="p">)</span>
+            <span class="c1"># this new noisy image will be used in the next step</span>
+
+        <span class="k">return</span> <span class="n">pred_images</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_images</span><span class="p">,</span> <span class="n">diffusion_steps</span><span class="p">):</span>
+        <span class="c1"># noise -&gt; images -&gt; denormalized images</span>
+        <span class="n">initial_noise</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_images</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">generated_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_diffusion</span><span class="p">(</span><span class="n">initial_noise</span><span class="p">,</span> <span class="n">diffusion_steps</span><span class="p">)</span>
+        <span class="n">generated_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span><span class="n">generated_images</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generated_images</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">):</span>
+        <span class="c1"># normalize images to have standard deviation of 1, like the noises</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">noises</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># sample uniform random diffusion times</span>
+        <span class="n">diffusion_times</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="p">)</span>
+        <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_schedule</span><span class="p">(</span><span class="n">diffusion_times</span><span class="p">)</span>
+        <span class="c1"># mix the images with noises accordingly</span>
+        <span class="n">noisy_images</span> <span class="o">=</span> <span class="n">signal_rates</span> <span class="o">*</span> <span class="n">images</span> <span class="o">+</span> <span class="n">noise_rates</span> <span class="o">*</span> <span class="n">noises</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># train the network to separate noisy images to their components</span>
+            <span class="n">pred_noises</span><span class="p">,</span> <span class="n">pred_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">denoise</span><span class="p">(</span>
+                <span class="n">noisy_images</span><span class="p">,</span> <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+            <span class="n">noise_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">noises</span><span class="p">,</span> <span class="n">pred_noises</span><span class="p">)</span>  <span class="c1"># used for training</span>
+            <span class="n">image_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">pred_images</span><span class="p">)</span>  <span class="c1"># only used as metric</span>
+
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">noise_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">noise_loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">image_loss</span><span class="p">)</span>
+
+        <span class="c1"># track the exponential moving averages of weights</span>
+        <span class="k">for</span> <span class="n">weight</span><span class="p">,</span> <span class="n">ema_weight</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ema_network</span><span class="o">.</span><span class="n">weights</span><span class="p">):</span>
+            <span class="n">ema_weight</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ema</span> <span class="o">*</span> <span class="n">ema_weight</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ema</span><span class="p">)</span> <span class="o">*</span> <span class="n">weight</span><span class="p">)</span>
+
+        <span class="c1"># KID is not measured during the training phase for computational efficiency</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">):</span>
+        <span class="c1"># normalize images to have standard deviation of 1, like the noises</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">noises</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># sample uniform random diffusion times</span>
+        <span class="n">diffusion_times</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="p">)</span>
+        <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_schedule</span><span class="p">(</span><span class="n">diffusion_times</span><span class="p">)</span>
+        <span class="c1"># mix the images with noises accordingly</span>
+        <span class="n">noisy_images</span> <span class="o">=</span> <span class="n">signal_rates</span> <span class="o">*</span> <span class="n">images</span> <span class="o">+</span> <span class="n">noise_rates</span> <span class="o">*</span> <span class="n">noises</span>
+
+        <span class="c1"># use the network to separate noisy images to their components</span>
+        <span class="n">pred_noises</span><span class="p">,</span> <span class="n">pred_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">denoise</span><span class="p">(</span>
+            <span class="n">noisy_images</span><span class="p">,</span> <span class="n">noise_rates</span><span class="p">,</span> <span class="n">signal_rates</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">noise_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">noises</span><span class="p">,</span> <span class="n">pred_noises</span><span class="p">)</span>
+        <span class="n">image_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">pred_images</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">image_loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">noise_loss</span><span class="p">)</span>
+
+        <span class="c1"># measure KID between real and generated images</span>
+        <span class="c1"># this is computationally demanding, kid_diffusion_steps has to be small</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+        <span class="n">generated_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+            <span class="n">num_images</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">diffusion_steps</span><span class="o">=</span><span class="n">kid_diffusion_steps</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kid</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">generated_images</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_rows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_cols</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+        <span class="c1"># plot random generated images for visual evaluation of generation quality</span>
+        <span class="n">generated_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+            <span class="n">num_images</span><span class="o">=</span><span class="n">num_rows</span> <span class="o">*</span> <span class="n">num_cols</span><span class="p">,</span>
+            <span class="n">diffusion_steps</span><span class="o">=</span><span class="n">plot_diffusion_steps</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">num_cols</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">num_rows</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_rows</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_cols</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">row</span> <span class="o">*</span> <span class="n">num_cols</span> <span class="o">+</span> <span class="n">col</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">num_rows</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">generated_images</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="training">Training</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># create and compile the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DiffusionModel</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">widths</span><span class="p">,</span> <span class="n">block_depth</span><span class="p">)</span>
+<span class="c1"># below tensorflow 2.9:</span>
+<span class="c1"># pip install tensorflow_addons</span>
+<span class="c1"># import tensorflow_addons as tfa</span>
+<span class="c1"># optimizer=tfa.optimizers.AdamW</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span>
+    <span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">mean_absolute_error</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># pixelwise mean absolute error is used as loss</span>
+
+<span class="c1"># save the best model based on the validation KID metric</span>
+<span class="n">checkpoint_path</span> <span class="o">=</span> <span class="s2">&quot;checkpoints/diffusion_model.weights.h5&quot;</span>
+<span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+    <span class="n">filepath</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span>
+    <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_kid&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+    <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># calculate mean and variance of training dataset for normalization</span>
+<span class="n">model</span><span class="o">.</span><span class="n">normalizer</span><span class="o">.</span><span class="n">adapt</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="c1"># run training and plot generated images periodically</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">LambdaCallback</span><span class="p">(</span><span class="n">on_epoch_end</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">plot_images</span><span class="p">),</span>
+        <span class="n">checkpoint_callback</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://storage.googleapis.com/tensorflow/keras-applications/inception_v3/inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5
+ 87910968/87910968 ━━━━━━━━━━━━━━━━━━━━ 0s 0us/step
+
+ 511/511 ━━━━━━━━━━━━━━━━━━━━ 0s 48ms/step - i_loss: 0.6896 - n_loss: 0.2961
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/generative/ddim/ddim_16_3.png" /></p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 511/511 ━━━━━━━━━━━━━━━━━━━━ 110s 138ms/step - i_loss: 0.6891 - n_loss: 0.2959 - kid: 0.0000e+00 - val_i_loss: 2.5650 - val_kid: 2.0372 - val_n_loss: 0.7914
+
+&lt;keras.src.callbacks.history.History at 0x7f521b149870&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="inference">Inference</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># load the best model and generate images</span>
+<span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plot_images</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/generative/ddim/ddim_18_0.png" /></p>
+<hr />
+<h2 id="results">Results</h2>
+<p>By running the training for at least 50 epochs (takes 2 hours on a T4 GPU and 30 minutes
+on an A100 GPU), one can get high quality image generations using this code example.</p>
+<p>The evolution of a batch of images over a 80 epoch training (color artifacts are due to
+GIF compression):</p>
+<p><img alt="flowers training gif" src="https://i.imgur.com/FSCKtZq.gif" /></p>
+<p>Images generated using between 1 and 20 sampling steps from the same initial noise:</p>
+<p><img alt="flowers sampling steps gif" src="https://i.imgur.com/tM5LyH3.gif" /></p>
+<p>Interpolation (spherical) between initial noise samples:</p>
+<p><img alt="flowers interpolation gif" src="https://i.imgur.com/hk5Hd5o.gif" /></p>
+<p>Deterministic sampling process (noisy images on top, predicted images on bottom, 40
+steps):</p>
+<p><img alt="flowers deterministic generation gif" src="https://i.imgur.com/wCvzynh.gif" /></p>
+<p>Stochastic sampling process (noisy images on top, predicted images on bottom, 80 steps):</p>
+<p><img alt="flowers stochastic generation gif" src="https://i.imgur.com/kRXOGzd.gif" /></p>
+<hr />
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>During preparation for this code example I have run numerous experiments using
+<a href="https://github.com/beresandras/clear-diffusion-keras">this repository</a>.
+In this section I list
+the lessons learned and my recommendations in my subjective order of importance.</p>
+<h3 id="algorithmic-tips">Algorithmic tips</h3>
+<ul>
+<li><strong>min. and max. signal rates</strong>: I found the min. signal rate to be an important
+hyperparameter. Setting it too low will make the generated images oversaturated, while
+setting it too high will make them undersaturated. I recommend tuning it carefully. Also,
+setting it to 0 will lead to a division by zero error. The max. signal rate can be set to
+1, but I found that setting it lower slightly improves generation quality.</li>
+<li><strong>loss function</strong>: While large models tend to use mean squared error (MSE) loss, I
+recommend using mean absolute error (MAE) on this dataset. In my experience MSE loss
+generates more diverse samples (it also seems to hallucinate more
+<a href="https://arxiv.org/abs/2111.05826">Section 3</a>), while MAE loss leads to smoother images.
+I recommend trying both.</li>
+<li><strong>weight decay</strong>: I did occasionally run into diverged trainings when scaling up the
+model, and found that weight decay helps in avoiding instabilities at a low performance
+cost. This is why I use
+<a href="https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/experimental/AdamW">AdamW</a>
+instead of <a href="https://keras.io/api/optimizers/adam/">Adam</a> in this example.</li>
+<li><strong>exponential moving average of weights</strong>: This helps to reduce the variance of the KID
+metric, and helps in averaging out short-term changes during training.</li>
+<li><strong>image augmentations</strong>: Though I did not use image augmentations in this example, in
+my experience adding horizontal flips to the training increases generation performance,
+while random crops do not. Since we use a supervised denoising loss, overfitting can be
+an issue, so image augmentations might be important on small datasets. One should also be
+careful not to use
+<a href="gan_ada.html#invertible-data-augmentation">leaky augmentations</a>,
+which can be done following
+<a href="https://arxiv.org/abs/2206.00364">this method (end of Section 5)</a> for instance.</li>
+<li><strong>data normalization</strong>: In the literature the pixel values of images are usually
+converted to the -1 to 1 range. For theoretical correctness, I normalize the images to
+have zero mean and unit variance instead, exactly like the random noises.</li>
+<li><strong>noise level input</strong>: I chose to input the noise variance to the network, as it is
+symmetrical under our sampling schedule. One could also input the noise rate (similar
+performance), the signal rate (lower performance), or even the
+<a href="https://arxiv.org/abs/2107.00630">log-signal-to-noise ratio (Appendix B.1)</a>
+(did not try, as its range is highly
+dependent on the min. and max. signal rates, and would require adjusting the min.
+embedding frequency accordingly).</li>
+<li><strong>gradient clipping</strong>: Using global gradient clipping with a value of 1 can help with
+training stability for large models, but decreased performance significantly in my
+experience.</li>
+<li><strong>residual connection downscaling</strong>: For
+<a href="https://arxiv.org/abs/2205.11487">deeper models (Appendix B)</a>, scaling the residual
+connections with 1/sqrt(2) can be helpful, but did not help in my case.</li>
+<li><strong>learning rate</strong>: For me, <a href="https://keras.io/api/optimizers/adam/">Adam optimizer's</a>
+default learning rate of 1e-3 worked very well, but lower learning rates are more common
+in the <a href="https://arxiv.org/abs/2105.05233">literature (Tables 11-13)</a>.</li>
+</ul>
+<h3 id="architectural-tips">Architectural tips</h3>
+<ul>
+<li><strong>sinusoidal embedding</strong>: Using sinusoidal embeddings on the noise level input of the
+network is crucial for good performance. I recommend setting the min. embedding frequency
+to the reciprocal of the range of this input, and since we use the noise variance in this
+example, it can be left always at 1. The max. embedding frequency controls the smallest
+change in the noise variance that the network will be sensitive to, and the embedding
+dimensions set the number of frequency components in the embedding. In my experience the
+performance is not too sensitive to these values.</li>
+<li><strong>skip connections</strong>: Using skip connections in the network architecture is absolutely
+critical, without them the model will fail to learn to denoise at a good performance.</li>
+<li><strong>residual connections</strong>: In my experience residual connections also significantly
+improve performance, but this might be due to the fact that we only input the noise
+level embeddings to the first layer of the network instead of to all of them.</li>
+<li><strong>normalization</strong>: When scaling up the model, I did occasionally encounter diverged
+trainings, using normalization layers helped to mitigate this issue. In the literature it
+is common to use
+<a href="https://www.tensorflow.org/addons/api_docs/python/tfa/layers/GroupNormalization">GroupNormalization</a>
+(with 8 groups for example) or
+<a href="https://keras.io/api/layers/normalization_layers/layer_normalization/">LayerNormalization</a>
+in the network, I however chose to use
+<a href="https://keras.io/api/layers/normalization_layers/batch_normalization/">BatchNormalization</a>,
+as it gave similar benefits in my experiments but was computationally lighter.</li>
+<li><strong>activations</strong>: The choice of activation functions had a larger effect on generation
+quality than I expected. In my experiments using non-monotonic activation functions
+outperformed monotonic ones (such as
+<a href="https://www.tensorflow.org/api_docs/python/tf/keras/activations/relu">ReLU</a>), with
+<a href="https://www.tensorflow.org/api_docs/python/tf/keras/activations/swish">Swish</a> performing
+the best (this is also what <a href="https://arxiv.org/abs/2205.11487">Imagen uses, page 41</a>).</li>
+<li><strong>attention</strong>: As mentioned earlier, it is common in the literature to use
+<a href="https://keras.io/api/layers/attention_layers/multi_head_attention/">attention layers</a> at low
+resolutions for better global coherence. I omitted them for simplicity.</li>
+<li><strong>upsampling</strong>:
+<a href="https://keras.io/api/layers/reshaping_layers/up_sampling2d/">Bilinear and nearest neighbour upsampling</a>
+in the network performed similarly, however I did not try
+<a href="https://keras.io/api/layers/convolution_layers/convolution2d_transpose/">transposed convolutions</a>.</li>
+</ul>
+<p>For a similar list about GANs check out
+<a href="gan_ada.html#gan-tips-and-tricks">this Keras tutorial</a>.</p>
+<hr />
+<h2 id="what-to-try-next">What to try next?</h2>
+<p>If you would like to dive in deeper to the topic, I recommend checking out
+<a href="https://github.com/beresandras/clear-diffusion-keras">this repository</a> that I created in
+preparation for this code example, which implements a wider range of features in a
+similar style, such as:</p>
+<ul>
+<li>stochastic sampling</li>
+<li>second-order sampling based on the
+<a href="https://arxiv.org/abs/2010.02502">differential equation view of DDIMs (Equation 13)</a></li>
+<li>more diffusion schedules</li>
+<li>more network output types: predicting image or
+<a href="https://arxiv.org/abs/2202.00512">velocity (Appendix D)</a> instead of noise</li>
+<li>more datasets</li>
+</ul>
+<hr />
+<h2 id="related-works">Related works</h2>
+<ul>
+<li><a href="https://yang-song.github.io/blog/2021/score/">Score-based generative modeling</a>
+(blogpost)</li>
+<li><a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">What are diffusion models?</a>
+(blogpost)</li>
+<li><a href="https://huggingface.co/blog/annotated-diffusion">Annotated diffusion model</a> (blogpost)</li>
+<li><a href="https://cvpr2022-tutorial-diffusion-models.github.io/">CVPR 2022 tutorial on diffusion models</a>
+(slides available)</li>
+<li><a href="https://arxiv.org/abs/2206.00364">Elucidating the Design Space of Diffusion-Based Generative Models</a>:
+attempts unifying diffusion methods under a common framework</li>
+<li>High-level video overviews: <a href="https://www.youtube.com/watch?v=yTAMrHVG1ew">1</a>,
+<a href="https://www.youtube.com/watch?v=344w5h24-h8">2</a></li>
+<li>Detailed technical videos: <a href="https://www.youtube.com/watch?v=fbLgFrlTnGU">1</a>,
+<a href="https://www.youtube.com/watch?v=W-O7AZNzbzQ">2</a></li>
+<li>Score-based generative models: <a href="https://arxiv.org/abs/1907.05600">NCSN</a>,
+<a href="https://arxiv.org/abs/2006.09011">NCSN+</a>, <a href="https://arxiv.org/abs/2011.13456">NCSN++</a></li>
+<li>Denoising diffusion models: <a href="https://arxiv.org/abs/2006.11239">DDPM</a>,
+<a href="https://arxiv.org/abs/2010.02502">DDIM</a>, <a href="https://arxiv.org/abs/2102.09672">DDPM+</a>,
+<a href="https://arxiv.org/abs/2105.05233">DDPM++</a></li>
+<li>Large diffusion models: <a href="https://arxiv.org/abs/2112.10741">GLIDE</a>,
+<a href="https://arxiv.org/abs/2204.06125/">DALL-E 2</a>, <a href="https://arxiv.org/abs/2205.11487">Imagen</a></li>
+</ul>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter17_image-generation">Chapter 17: Image generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='ddim.html#denoising-diffusion-implicit-models'>Denoising Diffusion Implicit Models</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#what-are-diffusion-models'>What are diffusion models?</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#goal-of-this-example'>Goal of this example</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#hyperparameters'>Hyperparameters</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#data-pipeline'>Data pipeline</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#kernel-inception-distance'>Kernel inception distance</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#network-architecture'>Network architecture</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#diffusion-model'>Diffusion model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#diffusion-schedule'>Diffusion schedule</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#training-process'>Training process</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#sampling-reverse-diffusion'>Sampling (reverse diffusion)</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#training'>Training</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#inference'>Inference</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#results'>Results</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#lessons-learned'>Lessons learned</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#algorithmic-tips'>Algorithmic tips</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ddim.html#architectural-tips'>Architectural tips</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#what-to-try-next'>What to try next?</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#related-works'>Related works</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddim.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Traffic forecasting using graph neural networks and LSTM">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="timeseries_traffic_forecasting.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Traffic forecasting using graph neural networks and LSTM">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Traffic forecasting using graph neural networks and LSTM">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Traffic forecasting using graph neural networks and LSTM</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Timeseries</a>
+                    
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_from_scratch.html">Timeseries classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_transformer.html">Timeseries classification with a Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="eeg_signal_classification.html">Electroencephalogram Signal Classification for action identification</a>
+                      
+                        <a class="nav-sublink2" href="event_classification_for_payment_card_fraud_detection.html">Event classification for payment card fraud detection</a>
+                      
+                        <a class="nav-sublink2" href="eeg_bci_ssvepformer.html">Electroencephalogram Signal Classification for Brain-Computer Interface</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_anomaly_detection.html">Timeseries anomaly detection using an Autoencoder</a>
+                      
+                        <a class="nav-sublink2 active" href="timeseries_traffic_forecasting.html">Traffic forecasting using graph neural networks and LSTM</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_weather_forecasting.html">Timeseries forecasting for weather prediction</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Timeseries</a>
+                    
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_from_scratch.html">Timeseries classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_transformer.html">Timeseries classification with a Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="eeg_signal_classification.html">Electroencephalogram Signal Classification for action identification</a>
+                      
+                        <a class="nav-sublink2" href="event_classification_for_payment_card_fraud_detection.html">Event classification for payment card fraud detection</a>
+                      
+                        <a class="nav-sublink2" href="eeg_bci_ssvepformer.html">Electroencephalogram Signal Classification for Brain-Computer Interface</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_anomaly_detection.html">Timeseries anomaly detection using an Autoencoder</a>
+                      
+                        <a class="nav-sublink2 active" href="timeseries_traffic_forecasting.html">Traffic forecasting using graph neural networks and LSTM</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_weather_forecasting.html">Timeseries forecasting for weather prediction</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Timeseries</a> /
+         Traffic forecasting using graph neural networks and LSTM
+    </div>
+    <h1 id="traffic-forecasting-using-graph-neural-networks-and-lstm">Traffic forecasting using graph neural networks and LSTM</h1>
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/arash-khodadadi-08a02490/">Arash Khodadadi</a><br>
+<strong>Date created:</strong> 2021/12/28<br>
+<strong>Last modified:</strong> 2023/11/22<br>
+<strong>Description:</strong> This example demonstrates how to do timeseries forecasting over graphs.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/timeseries/ipynb/timeseries_traffic_forecasting.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/timeseries/timeseries_traffic_forecasting.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This example shows how to forecast traffic condition using graph neural networks and LSTM.
+Specifically, we are interested in predicting the future values of the traffic speed given
+a history of the traffic speed for a collection of road segments.</p>
+<p>One popular method to
+solve this problem is to consider each road segment's traffic speed as a separate
+timeseries and predict the future values of each timeseries
+using the past values of the same timeseries.</p>
+<p>This method, however, ignores the dependency of the traffic speed of one road segment on
+the neighboring segments. To be able to take into account the complex interactions between
+the traffic speed on a collection of neighboring roads, we can define the traffic network
+as a graph and consider the traffic speed as a signal on this graph. In this example,
+we implement a neural network architecture which can process timeseries data over a graph.
+We first show how to process the data and create a
+<a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset">tf.data.Dataset</a> for
+forecasting over graphs. Then, we implement a model which uses graph convolution and
+LSTM layers to perform forecasting over a graph.</p>
+<p>The data processing and the model architecture are inspired by this paper:</p>
+<p>Yu, Bing, Haoteng Yin, and Zhanxing Zhu. "Spatio-temporal graph convolutional networks:
+a deep learning framework for traffic forecasting." Proceedings of the 27th International
+Joint Conference on Artificial Intelligence, 2018.
+(<a href="https://github.com/VeritasYin/STGCN_IJCAI-18">github</a>)</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+</code></pre></div>
+
+<hr />
+<h2 id="data-preparation">Data preparation</h2>
+<h3 id="data-description">Data description</h3>
+<p>We use a real-world traffic speed dataset named <code>PeMSD7</code>. We use the version
+collected and prepared by <a href="https://arxiv.org/abs/1709.04875">Yu et al., 2018</a>
+and available
+<a href="https://github.com/VeritasYin/STGCN_IJCAI-18/tree/master/dataset">here</a>.</p>
+<p>The data consists of two files:</p>
+<ul>
+<li><code>PeMSD7_W_228.csv</code> contains the distances between 228
+stations across the District 7 of California.</li>
+<li><code>PeMSD7_V_228.csv</code> contains traffic
+speed collected for those stations in the weekdays of May and June of 2012.</li>
+</ul>
+<p>The full description of the dataset can be found in
+<a href="https://arxiv.org/abs/1709.04875">Yu et al., 2018</a>.</p>
+<h3 id="loading-data">Loading data</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/VeritasYin/STGCN_IJCAI-18/raw/master/dataset/PeMSD7_Full.zip&quot;</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">extract</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">archive_format</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">)</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;PeMSD7_Full.zip&quot;</span><span class="p">)</span>
+
+<span class="n">route_distances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;PeMSD7_W_228.csv&quot;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">speeds_array</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;PeMSD7_V_228.csv&quot;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;route_distances shape=</span><span class="si">{</span><span class="n">route_distances</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;speeds_array shape=</span><span class="si">{</span><span class="n">speeds_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>route_distances shape=(228, 228)
+speeds_array shape=(12672, 228)
+</code></pre></div>
+
+
+</div>
+<h3 id="subsampling-roads">sub-sampling roads</h3>
+<p>To reduce the problem size and make the training faster, we will only
+work with a sample of 26 roads out of the 228 roads in the dataset.
+We have chosen the roads by starting from road 0, choosing the 5 closest
+roads to it, and continuing this process until we get 25 roads. You can choose
+any other subset of the roads. We chose the roads in this way to increase the likelihood
+of having roads with correlated speed timeseries.
+<code>sample_routes</code> contains the IDs of the selected roads.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sample_routes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">0</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">,</span>
+    <span class="mi">8</span><span class="p">,</span>
+    <span class="mi">11</span><span class="p">,</span>
+    <span class="mi">15</span><span class="p">,</span>
+    <span class="mi">108</span><span class="p">,</span>
+    <span class="mi">109</span><span class="p">,</span>
+    <span class="mi">114</span><span class="p">,</span>
+    <span class="mi">115</span><span class="p">,</span>
+    <span class="mi">118</span><span class="p">,</span>
+    <span class="mi">120</span><span class="p">,</span>
+    <span class="mi">123</span><span class="p">,</span>
+    <span class="mi">124</span><span class="p">,</span>
+    <span class="mi">126</span><span class="p">,</span>
+    <span class="mi">127</span><span class="p">,</span>
+    <span class="mi">129</span><span class="p">,</span>
+    <span class="mi">130</span><span class="p">,</span>
+    <span class="mi">132</span><span class="p">,</span>
+    <span class="mi">133</span><span class="p">,</span>
+    <span class="mi">136</span><span class="p">,</span>
+    <span class="mi">139</span><span class="p">,</span>
+    <span class="mi">144</span><span class="p">,</span>
+    <span class="mi">147</span><span class="p">,</span>
+    <span class="mi">216</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">route_distances</span> <span class="o">=</span> <span class="n">route_distances</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">sample_routes</span><span class="p">,</span> <span class="n">sample_routes</span><span class="p">)]</span>
+<span class="n">speeds_array</span> <span class="o">=</span> <span class="n">speeds_array</span><span class="p">[:,</span> <span class="n">sample_routes</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;route_distances shape=</span><span class="si">{</span><span class="n">route_distances</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;speeds_array shape=</span><span class="si">{</span><span class="n">speeds_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>route_distances shape=(26, 26)
+speeds_array shape=(12672, 26)
+</code></pre></div>
+
+
+</div>
+<h3 id="data-visualization">Data visualization</h3>
+<p>Here are the timeseries of the traffic speed for two of the routes:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">speeds_array</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;route_0&quot;</span><span class="p">,</span> <span class="s2">&quot;route_25&quot;</span><span class="p">])</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>&lt;matplotlib.legend.Legend at 0x7f5a870b2050&gt;
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_traffic_forecasting/timeseries_traffic_forecasting_11_1.png" /></p>
+<p>We can also visualize the correlation between the timeseries in different routes.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">speeds_array</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;road number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;road number&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Text(0, 0.5, &#39;road number&#39;)
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_traffic_forecasting/timeseries_traffic_forecasting_13_1.png" /></p>
+<p>Using this correlation heatmap, we can see that for example the speed in
+routes 4, 5, 6 are highly correlated.</p>
+<h3 id="splitting-and-normalizing-data">Splitting and normalizing data</h3>
+<p>Next, we split the speed values array into train/validation/test sets,
+and normalize the resulting arrays:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="n">data_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">train_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">val_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits data into train/val/test sets and normalizes the data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_array: ndarray of shape `(num_time_steps, num_routes)`</span>
+<span class="sd">        train_size: A float value between 0.0 and 1.0 that represent the proportion of the dataset</span>
+<span class="sd">            to include in the train split.</span>
+<span class="sd">        val_size: A float value between 0.0 and 1.0 that represent the proportion of the dataset</span>
+<span class="sd">            to include in the validation split.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        `train_array`, `val_array`, `test_array`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">num_time_steps</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_train</span><span class="p">,</span> <span class="n">num_val</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">num_time_steps</span> <span class="o">*</span> <span class="n">train_size</span><span class="p">),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">num_time_steps</span> <span class="o">*</span> <span class="n">val_size</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">train_array</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">[:</span><span class="n">num_train</span><span class="p">]</span>
+    <span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">train_array</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">train_array</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">train_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_array</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+    <span class="n">val_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="n">num_train</span> <span class="p">:</span> <span class="p">(</span><span class="n">num_train</span> <span class="o">+</span> <span class="n">num_val</span><span class="p">)]</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+    <span class="n">test_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_array</span><span class="p">[(</span><span class="n">num_train</span> <span class="o">+</span> <span class="n">num_val</span><span class="p">)</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+
+    <span class="k">return</span> <span class="n">train_array</span><span class="p">,</span> <span class="n">val_array</span><span class="p">,</span> <span class="n">test_array</span>
+
+
+<span class="n">train_array</span><span class="p">,</span> <span class="n">val_array</span><span class="p">,</span> <span class="n">test_array</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">speeds_array</span><span class="p">,</span> <span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;train set size: </span><span class="si">{</span><span class="n">train_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;validation set size: </span><span class="si">{</span><span class="n">val_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;test set size: </span><span class="si">{</span><span class="n">test_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>train set size: (6336, 26)
+validation set size: (2534, 26)
+test set size: (3802, 26)
+</code></pre></div>
+
+
+</div>
+<h3 id="creating-tensorflow-datasets">Creating TensorFlow Datasets</h3>
+<p>Next, we create the datasets for our forecasting problem. The forecasting problem
+can be stated as follows: given a sequence of the
+road speed values at times <code>t+1, t+2, ..., t+T</code>, we want to predict the future values of
+the roads speed for times <code>t+T+1, ..., t+T+h</code>. So for each time <code>t</code> the inputs to our
+model are <code>T</code> vectors each of size <code>N</code> and the targets are <code>h</code> vectors each of size <code>N</code>,
+where <code>N</code> is the number of roads.</p>
+<p>We use the Keras built-in function
+<a href="https://keras.io/api/data_loading/timeseries#timeseriesdatasetfromarray-function"><code>keras.utils.timeseries_dataset_from_array</code></a>.
+The function <code>create_tf_dataset()</code> below takes as input a <code>numpy.ndarray</code> and returns a
+<a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset"><code>tf.data.Dataset</code></a>. In this function <code>input_sequence_length=T</code> and <code>forecast_horizon=h</code>.</p>
+<p>The argument <code>multi_horizon</code> needs more explanation. Assume <code>forecast_horizon=3</code>.
+If <code>multi_horizon=True</code> then the model will make a forecast for time steps
+<code>t+T+1, t+T+2, t+T+3</code>. So the target will have shape <code>(T,3)</code>. But if
+<code>multi_horizon=False</code>, the model will make a forecast only for time step <code>t+T+3</code> and
+so the target will have shape <code>(T, 1)</code>.</p>
+<p>You may notice that the input tensor in each batch has shape
+<code>(batch_size, input_sequence_length, num_routes, 1)</code>. The last dimension is added to
+make the model more general: at each time step, the input features for each raod may
+contain multiple timeseries. For instance, one might want to use temperature timeseries
+in addition to historical values of the speed as input features. In this example,
+however, the last dimension of the input is always 1.</p>
+<p>We use the last 12 values of the speed in each road to forecast the speed for 3 time
+steps ahead:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">input_sequence_length</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">forecast_horizon</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">multi_horizon</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_tf_dataset</span><span class="p">(</span>
+    <span class="n">data_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">input_sequence_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">forecast_horizon</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">multi_horizon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates tensorflow dataset from numpy array.</span>
+
+<span class="sd">    This function creates a dataset where each element is a tuple `(inputs, targets)`.</span>
+<span class="sd">    `inputs` is a Tensor</span>
+<span class="sd">    of shape `(batch_size, input_sequence_length, num_routes, 1)` containing</span>
+<span class="sd">    the `input_sequence_length` past values of the timeseries for each node.</span>
+<span class="sd">    `targets` is a Tensor of shape `(batch_size, forecast_horizon, num_routes)`</span>
+<span class="sd">    containing the `forecast_horizon`</span>
+<span class="sd">    future values of the timeseries for each node.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_array: np.ndarray with shape `(num_time_steps, num_routes)`</span>
+<span class="sd">        input_sequence_length: Length of the input sequence (in number of timesteps).</span>
+<span class="sd">        forecast_horizon: If `multi_horizon=True`, the target will be the values of the timeseries for 1 to</span>
+<span class="sd">            `forecast_horizon` timesteps ahead. If `multi_horizon=False`, the target will be the value of the</span>
+<span class="sd">            timeseries `forecast_horizon` steps ahead (only one value).</span>
+<span class="sd">        batch_size: Number of timeseries samples in each batch.</span>
+<span class="sd">        shuffle: Whether to shuffle output samples, or instead draw them in chronological order.</span>
+<span class="sd">        multi_horizon: See `forecast_horizon`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tf.data.Dataset instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">timeseries_dataset_from_array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">data_array</span><span class="p">[:</span><span class="o">-</span><span class="n">forecast_horizon</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sequence_length</span><span class="o">=</span><span class="n">input_sequence_length</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">target_offset</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">input_sequence_length</span>
+        <span class="k">if</span> <span class="n">multi_horizon</span>
+        <span class="k">else</span> <span class="n">input_sequence_length</span> <span class="o">+</span> <span class="n">forecast_horizon</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">target_seq_length</span> <span class="o">=</span> <span class="n">forecast_horizon</span> <span class="k">if</span> <span class="n">multi_horizon</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">timeseries_dataset_from_array</span><span class="p">(</span>
+        <span class="n">data_array</span><span class="p">[</span><span class="n">target_offset</span><span class="p">:],</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sequence_length</span><span class="o">=</span><span class="n">target_seq_length</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">((</span><span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+
+<span class="n">train_dataset</span><span class="p">,</span> <span class="n">val_dataset</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">create_tf_dataset</span><span class="p">(</span><span class="n">data_array</span><span class="p">,</span> <span class="n">input_sequence_length</span><span class="p">,</span> <span class="n">forecast_horizon</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">data_array</span> <span class="ow">in</span> <span class="p">[</span><span class="n">train_array</span><span class="p">,</span> <span class="n">val_array</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">create_tf_dataset</span><span class="p">(</span>
+    <span class="n">test_array</span><span class="p">,</span>
+    <span class="n">input_sequence_length</span><span class="p">,</span>
+    <span class="n">forecast_horizon</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">test_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">multi_horizon</span><span class="o">=</span><span class="n">multi_horizon</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="roads-graph">Roads Graph</h3>
+<p>As mentioned before, we assume that the road segments form a graph.
+The <code>PeMSD7</code> dataset has the road segments distance. The next step
+is to create the graph adjacency matrix from these distances. Following
+<a href="https://arxiv.org/abs/1709.04875">Yu et al., 2018</a> (equation 10) we assume there
+is an edge between two nodes in the graph if the distance between the corresponding roads
+is less than a threshold.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_adjacency_matrix</span><span class="p">(</span>
+    <span class="n">route_distances</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sigma2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the adjacency matrix from distances matrix.</span>
+
+<span class="sd">    It uses the formula in https://github.com/VeritasYin/STGCN_IJCAI-18#data-preprocessing to</span>
+<span class="sd">    compute an adjacency matrix from the distance matrix.</span>
+<span class="sd">    The implementation follows that paper.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        route_distances: np.ndarray of shape `(num_routes, num_routes)`. Entry `i,j` of this array is the</span>
+<span class="sd">            distance between roads `i,j`.</span>
+<span class="sd">        sigma2: Determines the width of the Gaussian kernel applied to the square distances matrix.</span>
+<span class="sd">        epsilon: A threshold specifying if there is an edge between two nodes. Specifically, `A[i,j]=1`</span>
+<span class="sd">            if `np.exp(-w2[i,j] / sigma2) &gt;= epsilon` and `A[i,j]=0` otherwise, where `A` is the adjacency</span>
+<span class="sd">            matrix and `w2=route_distances * route_distances`</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A boolean graph adjacency matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_routes</span> <span class="o">=</span> <span class="n">route_distances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">route_distances</span> <span class="o">=</span> <span class="n">route_distances</span> <span class="o">/</span> <span class="mf">10000.0</span>
+    <span class="n">w2</span><span class="p">,</span> <span class="n">w_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">route_distances</span> <span class="o">*</span> <span class="n">route_distances</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">num_routes</span><span class="p">,</span> <span class="n">num_routes</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">num_routes</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">w2</span> <span class="o">/</span> <span class="n">sigma2</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">epsilon</span><span class="p">)</span> <span class="o">*</span> <span class="n">w_mask</span>
+</code></pre></div>
+
+<p>The function <code>compute_adjacency_matrix()</code> returns a boolean adjacency matrix
+where 1 means there is an edge between two nodes. We use the following class
+to store the information about the graph.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GraphInfo</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span> <span class="o">=</span> <span class="n">num_nodes</span>
+
+
+<span class="n">sigma2</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">adjacency_matrix</span> <span class="o">=</span> <span class="n">compute_adjacency_matrix</span><span class="p">(</span><span class="n">route_distances</span><span class="p">,</span> <span class="n">sigma2</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+<span class="n">node_indices</span><span class="p">,</span> <span class="n">neighbor_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adjacency_matrix</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">GraphInfo</span><span class="p">(</span>
+    <span class="n">edges</span><span class="o">=</span><span class="p">(</span><span class="n">node_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">neighbor_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
+    <span class="n">num_nodes</span><span class="o">=</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;number of nodes: </span><span class="si">{</span><span class="n">graph</span><span class="o">.</span><span class="n">num_nodes</span><span class="si">}</span><span class="s2">, number of edges: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>number of nodes: 26, number of edges: 150
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="network-architecture">Network architecture</h2>
+<p>Our model for forecasting over the graph consists of a graph convolution
+layer and a LSTM layer.</p>
+<h3 id="graph-convolution-layer">Graph convolution layer</h3>
+<p>Our implementation of the graph convolution layer resembles the implementation
+in <a href="../graph/gnn_citations.html">this Keras example</a>. Note that
+in that example input to the layer is a 2D tensor of shape <code>(num_nodes,in_feat)</code>
+but in our example the input to the layer is a 4D tensor of shape
+<code>(num_nodes, batch_size, input_seq_length, in_feat)</code>. The graph convolution layer
+performs the following steps:</p>
+<ul>
+<li>The nodes' representations are computed in <code>self.compute_nodes_representation()</code>
+by multiplying the input features by <code>self.weight</code></li>
+<li>The aggregated neighbors' messages are computed in <code>self.compute_aggregated_messages()</code>
+by first aggregating the neighbors' representations and then multiplying the results by
+<code>self.weight</code></li>
+<li>The final output of the layer is computed in <code>self.update()</code> by combining the nodes
+representations and the neighbors' aggregated messages</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GraphConv</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_feat</span><span class="p">,</span>
+        <span class="n">out_feat</span><span class="p">,</span>
+        <span class="n">graph_info</span><span class="p">:</span> <span class="n">GraphInfo</span><span class="p">,</span>
+        <span class="n">aggregation_type</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="n">combination_type</span><span class="o">=</span><span class="s2">&quot;concat&quot;</span><span class="p">,</span>
+        <span class="n">activation</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_feat</span> <span class="o">=</span> <span class="n">in_feat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_feat</span> <span class="o">=</span> <span class="n">out_feat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_info</span> <span class="o">=</span> <span class="n">graph_info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_type</span> <span class="o">=</span> <span class="n">aggregation_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_type</span> <span class="o">=</span> <span class="n">combination_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">GlorotUniform</span><span class="p">(),</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">in_feat</span><span class="p">,</span> <span class="n">out_feat</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="n">activation</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neighbour_representations</span><span class="p">):</span>
+        <span class="n">aggregation_func</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">unsorted_segment_sum</span><span class="p">,</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">unsorted_segment_mean</span><span class="p">,</span>
+            <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">unsorted_segment_max</span><span class="p">,</span>
+        <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregation_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">aggregation_func</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">aggregation_func</span><span class="p">(</span>
+                <span class="n">neighbour_representations</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph_info</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">num_segments</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_info</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid aggregation type: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregation_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_nodes_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes each node&#39;s representation.</span>
+
+<span class="sd">        The nodes&#39; representations are obtained by multiplying the features tensor with</span>
+<span class="sd">        `self.weight`. Note that</span>
+<span class="sd">        `self.weight` has shape `(in_feat, out_feat)`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features: Tensor of shape `(num_nodes, batch_size, input_seq_len, in_feat)`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tensor of shape `(num_nodes, batch_size, input_seq_len, out_feat)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_aggregated_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="n">neighbour_representations</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_info</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">aggregated_messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">neighbour_representations</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">aggregated_messages</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes_representation</span><span class="p">,</span> <span class="n">aggregated_messages</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_type</span> <span class="o">==</span> <span class="s2">&quot;concat&quot;</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">nodes_representation</span><span class="p">,</span> <span class="n">aggregated_messages</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_type</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">nodes_representation</span> <span class="o">+</span> <span class="n">aggregated_messages</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid combination type: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_type</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward pass.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features: tensor of shape `(num_nodes, batch_size, input_seq_len, in_feat)`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tensor of shape `(num_nodes, batch_size, input_seq_len, out_feat)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes_representation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_nodes_representation</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">aggregated_messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_aggregated_messages</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">nodes_representation</span><span class="p">,</span> <span class="n">aggregated_messages</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="lstm-plus-graph-convolution">LSTM plus graph convolution</h3>
+<p>By applying the graph convolution layer to the input tensor, we get another tensor
+containing the nodes' representations over time (another 4D tensor). For each time
+step, a node's representation is informed by the information from its neighbors.</p>
+<p>To make good forecasts, however, we need not only information from the neighbors
+but also we need to process the information over time. To this end, we can pass each
+node's tensor through a recurrent layer. The <code>LSTMGC</code> layer below, first applies
+a graph convolution layer to the inputs and then passes the results through a
+<code>LSTM</code> layer.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LSTMGC</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer comprising a convolution layer followed by LSTM and dense layers.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_feat</span><span class="p">,</span>
+        <span class="n">out_feat</span><span class="p">,</span>
+        <span class="n">lstm_units</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">input_seq_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">output_seq_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">graph_info</span><span class="p">:</span> <span class="n">GraphInfo</span><span class="p">,</span>
+        <span class="n">graph_conv_params</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># graph conv layer</span>
+        <span class="k">if</span> <span class="n">graph_conv_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">graph_conv_params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;aggregation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;combination_type&quot;</span><span class="p">:</span> <span class="s2">&quot;concat&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_conv</span> <span class="o">=</span> <span class="n">GraphConv</span><span class="p">(</span><span class="n">in_feat</span><span class="p">,</span> <span class="n">out_feat</span><span class="p">,</span> <span class="n">graph_info</span><span class="p">,</span> <span class="o">**</span><span class="n">graph_conv_params</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">lstm_units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dense</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">output_seq_len</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_seq_len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_seq_len</span> <span class="o">=</span> <span class="n">input_seq_len</span><span class="p">,</span> <span class="n">output_seq_len</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward pass.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs: tensor of shape `(batch_size, input_seq_len, num_nodes, in_feat)`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tensor of shape `(batch_size, output_seq_len, num_nodes)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># convert shape to  (num_nodes, batch_size, input_seq_len, in_feat)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+        <span class="n">gcn_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_conv</span><span class="p">(</span>
+            <span class="n">inputs</span>
+        <span class="p">)</span>  <span class="c1"># gcn_out has shape: (num_nodes, batch_size, input_seq_len, out_feat)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">gcn_out</span><span class="p">)</span>
+        <span class="n">num_nodes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">input_seq_len</span><span class="p">,</span> <span class="n">out_feat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># LSTM takes only 3D tensors as input</span>
+        <span class="n">gcn_out</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">gcn_out</span><span class="p">,</span> <span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">input_seq_len</span><span class="p">,</span> <span class="n">out_feat</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">lstm_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span>
+            <span class="n">gcn_out</span>
+        <span class="p">)</span>  <span class="c1"># lstm_out has shape: (batch_size * num_nodes, lstm_units)</span>
+
+        <span class="n">dense_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dense</span><span class="p">(</span>
+            <span class="n">lstm_out</span>
+        <span class="p">)</span>  <span class="c1"># dense_output has shape: (batch_size * num_nodes, output_seq_len)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dense_output</span><span class="p">,</span> <span class="p">(</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_seq_len</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+            <span class="n">output</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># returns Tensor of shape (batch_size, output_seq_len, num_nodes)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="model-training">Model training</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">in_feat</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">input_sequence_length</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">forecast_horizon</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">multi_horizon</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">out_feat</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">lstm_units</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">graph_conv_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;aggregation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;combination_type&quot;</span><span class="p">:</span> <span class="s2">&quot;concat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">st_gcn</span> <span class="o">=</span> <span class="n">LSTMGC</span><span class="p">(</span>
+    <span class="n">in_feat</span><span class="p">,</span>
+    <span class="n">out_feat</span><span class="p">,</span>
+    <span class="n">lstm_units</span><span class="p">,</span>
+    <span class="n">input_sequence_length</span><span class="p">,</span>
+    <span class="n">forecast_horizon</span><span class="p">,</span>
+    <span class="n">graph</span><span class="p">,</span>
+    <span class="n">graph_conv_params</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">input_sequence_length</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">in_feat</span><span class="p">))</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">st_gcn</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">RMSprop</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.0002</span><span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">10</span><span class="p">)],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/20
+  1/99 [37m━━━━━━━━━━━━━━━━━━━━  5:16 3s/step - loss: 1.0735
+
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1700705896.341813 3354152 device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+W0000 00:00:1700705896.362213 3354152 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+W0000 00:00:1700705896.363019 3354152 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+
+ 44/99 ━━━━━━━━[37m━━━━━━━━━━━━  1s 32ms/step - loss: 0.7919
+
+W0000 00:00:1700705897.577991 3354154 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+W0000 00:00:1700705897.578802 3354154 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 7s 36ms/step - loss: 0.7470 - val_loss: 0.3568
+Epoch 2/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.2785 - val_loss: 0.1845
+Epoch 3/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.1734 - val_loss: 0.1250
+Epoch 4/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.1313 - val_loss: 0.1084
+Epoch 5/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.1095 - val_loss: 0.0994
+Epoch 6/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0960 - val_loss: 0.0930
+Epoch 7/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0896 - val_loss: 0.0954
+Epoch 8/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0862 - val_loss: 0.0920
+Epoch 9/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 1s 5ms/step - loss: 0.0841 - val_loss: 0.0898
+Epoch 10/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 1s 5ms/step - loss: 0.0827 - val_loss: 0.0884
+Epoch 11/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 1s 5ms/step - loss: 0.0817 - val_loss: 0.0865
+Epoch 12/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0809 - val_loss: 0.0843
+Epoch 13/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0803 - val_loss: 0.0828
+Epoch 14/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0798 - val_loss: 0.0814
+Epoch 15/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0794 - val_loss: 0.0802
+Epoch 16/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0790 - val_loss: 0.0794
+Epoch 17/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0787 - val_loss: 0.0786
+Epoch 18/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0785 - val_loss: 0.0780
+Epoch 19/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0782 - val_loss: 0.0776
+Epoch 20/20
+ 99/99 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0780 - val_loss: 0.0776
+
+&lt;keras.src.callbacks.history.History at 0x7f59b8152560&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="making-forecasts-on-test-set">Making forecasts on test set</h2>
+<p>Now we can use the trained model to make forecasts for the test set. Below, we
+compute the MAE of the model and compare it to the MAE of naive forecasts.
+The naive forecasts are the last value of the speed for each node.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">x_test</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">test_dataset</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">())</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;actual&quot;</span><span class="p">,</span> <span class="s2">&quot;forecast&quot;</span><span class="p">])</span>
+
+<span class="n">naive_mse</span><span class="p">,</span> <span class="n">model_mse</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x_test</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;naive MAE: </span><span class="si">{</span><span class="n">naive_mse</span><span class="si">}</span><span class="s2">, model MAE: </span><span class="si">{</span><span class="n">model_mse</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 119/119 ━━━━━━━━━━━━━━━━━━━━ 1s 6ms/step
+naive MAE: 0.13472308593195767, model MAE: 0.13524348477186485
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_traffic_forecasting/timeseries_traffic_forecasting_32_1.png" /></p>
+<p>Of course, the goal here is to demonstrate the method,
+not to achieve the best performance. To improve the
+model's accuracy, all model hyperparameters should be tuned carefully. In addition,
+several of the <code>LSTMGC</code> blocks can be stacked to increase the representation power
+of the model.</p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='timeseries_traffic_forecasting.html#traffic-forecasting-using-graph-neural-networks-and-lstm'>Traffic forecasting using graph neural networks and LSTM</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_traffic_forecasting.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_traffic_forecasting.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_traffic_forecasting.html#data-preparation'>Data preparation</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#data-description'>Data description</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#loading-data'>Loading data</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#subsampling-roads'>sub-sampling roads</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#data-visualization'>Data visualization</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#splitting-and-normalizing-data'>Splitting and normalizing data</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#creating-tensorflow-datasets'>Creating TensorFlow Datasets</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#roads-graph'>Roads Graph</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_traffic_forecasting.html#network-architecture'>Network architecture</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#graph-convolution-layer'>Graph convolution layer</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_traffic_forecasting.html#lstm-plus-graph-convolution'>LSTM plus graph convolution</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_traffic_forecasting.html#model-training'>Model training</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_traffic_forecasting.html#making-forecasts-on-test-set'>Making forecasts on test set</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

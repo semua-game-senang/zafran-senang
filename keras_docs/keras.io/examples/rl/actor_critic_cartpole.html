@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Actor Critic Method">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="actor_critic_cartpole.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Actor Critic Method">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Actor Critic Method">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Actor Critic Method</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2 active" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2 active" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Reinforcement Learning</a> /
+         Actor Critic Method
+    </div>
+    <h1 id="actor-critic-method">Actor Critic Method</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/NandanApoorv">Apoorv Nandan</a><br>
+<strong>Date created:</strong> 2020/05/13<br>
+<strong>Last modified:</strong> 2025/01/07<br>
+<strong>Description:</strong> Implement Actor Critic Method in CartPole environment.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/rl/ipynb/actor_critic_cartpole.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/rl/actor_critic_cartpole.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This script shows an implementation of Actor Critic method on CartPole-V1 environment.</p>
+<h3 id="actor-critic-method">Actor Critic Method</h3>
+<p>As an agent takes actions and moves through an environment, it learns to map
+the observed state of the environment to two possible outputs:</p>
+<ol>
+<li>Recommended action: A probability value for each action in the action space.
+   The part of the agent responsible for this output is called the <strong>actor</strong>.</li>
+<li>Estimated rewards in the future: Sum of all rewards it expects to receive in the
+   future. The part of the agent responsible for this output is the <strong>critic</strong>.</li>
+</ol>
+<p>Agent and Critic learn to perform their tasks, such that the recommended actions
+from the actor maximize the rewards.</p>
+<h3 id="cartpolev1">CartPole-V1</h3>
+<p>A pole is attached to a cart placed on a frictionless track. The agent has to apply
+force to move the cart. It is rewarded for every time step the pole
+remains upright. The agent, therefore, must learn to keep the pole from falling over.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://gymnasium.farama.org/environments/classic_control/cart_pole/">Environment documentation</a></li>
+<li><a href="http://www.derongliu.org/adp/adp-cdrom/Barto1983.pdf">CartPole paper</a></li>
+<li><a href="https://hal.inria.fr/hal-00840470/document">Actor Critic Method</a></li>
+</ul>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="c1"># Configuration parameters for the whole setup</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.99</span>  <span class="c1"># Discount factor for past rewards</span>
+<span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="c1"># Adding `render_mode=&#39;human&#39;` will show the attempts of the agent</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;CartPole-v1&quot;</span><span class="p">)</span>  <span class="c1"># Create the environment</span>
+<span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+<span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>  <span class="c1"># Smallest number such that 1.0 + eps != 1.0</span>
+</code></pre></div>
+
+<hr />
+<h2 id="implement-actor-critic-network">Implement Actor Critic network</h2>
+<p>This network learns two functions:</p>
+<ol>
+<li>Actor: This takes as input the state of our environment and returns a
+probability value for each action in its action space.</li>
+<li>Critic: This takes as input the state of our environment and returns
+an estimate of total rewards in the future.</li>
+</ol>
+<p>In our implementation, they share the initial layer.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">num_inputs</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">num_actions</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">num_hidden</span> <span class="o">=</span> <span class="mi">128</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_inputs</span><span class="p">,))</span>
+<span class="n">common</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_hidden</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="n">action</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_actions</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;softmax&quot;</span><span class="p">)(</span><span class="n">common</span><span class="p">)</span>
+<span class="n">critic</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="n">common</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">action</span><span class="p">,</span> <span class="n">critic</span><span class="p">])</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train">Train</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">huber_loss</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Huber</span><span class="p">()</span>
+<span class="n">action_probs_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">critic_value_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rewards_history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">running_reward</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">episode_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># Run until solved</span>
+    <span class="n">obs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="n">episode_reward</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">timestep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_steps_per_episode</span><span class="p">):</span>
+
+            <span class="n">state</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Predict action probabilities and estimated future rewards</span>
+            <span class="c1"># from environment state</span>
+            <span class="n">action_probs</span><span class="p">,</span> <span class="n">critic_value</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">critic_value_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">critic_value</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># Sample action from action probability distribution</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">num_actions</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">action_probs</span><span class="p">))</span>
+            <span class="n">action_probs_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">action_probs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">action</span><span class="p">]))</span>
+
+            <span class="c1"># Apply the sampled action in our environment</span>
+            <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">rewards_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+            <span class="n">episode_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+
+            <span class="n">done</span> <span class="o">=</span> <span class="n">terminated</span> <span class="ow">or</span> <span class="n">truncated</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Update running reward to check condition for solving</span>
+        <span class="n">running_reward</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">episode_reward</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">*</span> <span class="n">running_reward</span>
+
+        <span class="c1"># Calculate expected value from rewards</span>
+        <span class="c1"># - At each timestep what was the total reward received after that timestep</span>
+        <span class="c1"># - Rewards in the past are discounted by multiplying them with gamma</span>
+        <span class="c1"># - These are the labels for our critic</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">discounted_sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rewards_history</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">discounted_sum</span> <span class="o">=</span> <span class="n">r</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">discounted_sum</span>
+            <span class="n">returns</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">discounted_sum</span><span class="p">)</span>
+
+        <span class="c1"># Normalize</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="p">(</span><span class="n">returns</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">returns</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># Calculating loss values to update our network</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">action_probs_history</span><span class="p">,</span> <span class="n">critic_value_history</span><span class="p">,</span> <span class="n">returns</span><span class="p">)</span>
+        <span class="n">actor_losses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">critic_losses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">log_prob</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">ret</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+            <span class="c1"># At this point in history, the critic estimated that we would get a</span>
+            <span class="c1"># total reward = `value` in the future. We took an action with log probability</span>
+            <span class="c1"># of `log_prob` and ended up receiving a total reward = `ret`.</span>
+            <span class="c1"># The actor must be updated so that it predicts an action that leads to</span>
+            <span class="c1"># high rewards (compared to critic&#39;s estimate) with high probability.</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">ret</span> <span class="o">-</span> <span class="n">value</span>
+            <span class="n">actor_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">log_prob</span> <span class="o">*</span> <span class="n">diff</span><span class="p">)</span>  <span class="c1"># actor loss</span>
+
+            <span class="c1"># The critic must be updated so that it predicts a better estimate of</span>
+            <span class="c1"># the future rewards.</span>
+            <span class="n">critic_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">huber_loss</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Backpropagation</span>
+        <span class="n">loss_value</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">actor_losses</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">critic_losses</span><span class="p">)</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss_value</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">))</span>
+
+        <span class="c1"># Clear the loss and reward history</span>
+        <span class="n">action_probs_history</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">critic_value_history</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">rewards_history</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="c1"># Log details</span>
+    <span class="n">episode_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">episode_count</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;running reward: </span><span class="si">{:.2f}</span><span class="s2"> at episode </span><span class="si">{}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">running_reward</span><span class="p">,</span> <span class="n">episode_count</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">running_reward</span> <span class="o">&gt;</span> <span class="mi">195</span><span class="p">:</span>  <span class="c1"># Condition to consider the task solved</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solved at episode </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">episode_count</span><span class="p">))</span>
+        <span class="k">break</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>running reward: 13.73 at episode 10
+running reward: 22.93 at episode 20
+running reward: 20.96 at episode 30
+running reward: 18.73 at episode 40
+running reward: 28.80 at episode 50
+running reward: 27.52 at episode 60
+running reward: 29.73 at episode 70
+running reward: 45.53 at episode 80
+running reward: 60.19 at episode 90
+running reward: 78.66 at episode 100
+running reward: 112.70 at episode 110
+running reward: 91.89 at episode 120
+running reward: 91.08 at episode 130
+running reward: 77.85 at episode 140
+running reward: 121.86 at episode 150
+running reward: 173.82 at episode 160
+Solved at episode 163!
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="visualizations">Visualizations</h2>
+<p>In early stages of training:
+<img alt="Imgur" src="https://i.imgur.com/5gCs5kH.gif" /></p>
+<p>In later stages of training:
+<img alt="Imgur" src="https://i.imgur.com/5ziiZUD.gif" /></p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='actor_critic_cartpole.html#actor-critic-method'>Actor Critic Method</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='actor_critic_cartpole.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='actor_critic_cartpole.html#actor-critic-method'>Actor Critic Method</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='actor_critic_cartpole.html#cartpolev1'>CartPole-V1</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='actor_critic_cartpole.html#references'>References</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='actor_critic_cartpole.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='actor_critic_cartpole.html#implement-actor-critic-network'>Implement Actor Critic network</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='actor_critic_cartpole.html#train'>Train</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='actor_critic_cartpole.html#visualizations'>Visualizations</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

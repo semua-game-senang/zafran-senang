@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Classification with Neural Decision Forests">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="deep_neural_decision_forests.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Classification with Neural Decision Forests">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Classification with Neural Decision Forests">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Classification with Neural Decision Forests</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Structured Data</a>
+                    
+                      
+                        <a class="nav-sublink2" href="structured_data_classification_with_feature_space.html">Structured data classification with FeatureSpace</a>
+                      
+                        <a class="nav-sublink2" href="feature_space_advanced.html">FeatureSpace advanced use cases</a>
+                      
+                        <a class="nav-sublink2" href="imbalanced_classification.html">Imbalanced classification: credit card fraud detection</a>
+                      
+                        <a class="nav-sublink2" href="structured_data_classification_from_scratch.html">Structured data classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="wide_deep_cross_networks.html">Structured data learning with Wide, Deep, and Cross networks</a>
+                      
+                        <a class="nav-sublink2" href="customer_lifetime_value.html">Deep Learning for Customer Lifetime Value</a>
+                      
+                        <a class="nav-sublink2" href="classification_with_grn_and_vsn.html">Classification with Gated Residual and Variable Selection Networks</a>
+                      
+                        <a class="nav-sublink2" href="classification_with_tfdf/index.html">Classification with TensorFlow Decision Forests</a>
+                      
+                        <a class="nav-sublink2 active" href="deep_neural_decision_forests.html">Classification with Neural Decision Forests</a>
+                      
+                        <a class="nav-sublink2" href="tabtransformer.html">Structured data learning with TabTransformer</a>
+                      
+                        <a class="nav-sublink2" href="class_with_grn_and_vsn_with_hyperparameters_tuning.html">Classification with Gated Residual and Variable Selection Networks with HyperParameters tuning</a>
+                      
+                        <a class="nav-sublink2" href="collaborative_filtering_movielens.html">Collaborative Filtering for Movie Recommendations</a>
+                      
+                        <a class="nav-sublink2" href="movielens_recommendations_transformers.html">A Transformer-based recommendation system</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Structured Data</a>
+                    
+                      
+                        <a class="nav-sublink2" href="structured_data_classification_with_feature_space.html">Structured data classification with FeatureSpace</a>
+                      
+                        <a class="nav-sublink2" href="feature_space_advanced.html">FeatureSpace advanced use cases</a>
+                      
+                        <a class="nav-sublink2" href="imbalanced_classification.html">Imbalanced classification: credit card fraud detection</a>
+                      
+                        <a class="nav-sublink2" href="structured_data_classification_from_scratch.html">Structured data classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="wide_deep_cross_networks.html">Structured data learning with Wide, Deep, and Cross networks</a>
+                      
+                        <a class="nav-sublink2" href="customer_lifetime_value.html">Deep Learning for Customer Lifetime Value</a>
+                      
+                        <a class="nav-sublink2" href="classification_with_grn_and_vsn.html">Classification with Gated Residual and Variable Selection Networks</a>
+                      
+                        <a class="nav-sublink2" href="classification_with_tfdf/index.html">Classification with TensorFlow Decision Forests</a>
+                      
+                        <a class="nav-sublink2 active" href="deep_neural_decision_forests.html">Classification with Neural Decision Forests</a>
+                      
+                        <a class="nav-sublink2" href="tabtransformer.html">Structured data learning with TabTransformer</a>
+                      
+                        <a class="nav-sublink2" href="class_with_grn_and_vsn_with_hyperparameters_tuning.html">Classification with Gated Residual and Variable Selection Networks with HyperParameters tuning</a>
+                      
+                        <a class="nav-sublink2" href="collaborative_filtering_movielens.html">Collaborative Filtering for Movie Recommendations</a>
+                      
+                        <a class="nav-sublink2" href="movielens_recommendations_transformers.html">A Transformer-based recommendation system</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Structured Data</a> /
+         Classification with Neural Decision Forests
+    </div>
+    <h1 id="classification-with-neural-decision-forests">Classification with Neural Decision Forests</h1>
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/khalid-salama-24403144/">Khalid Salama</a><br>
+<strong>Date created:</strong> 2021/01/15<br>
+<strong>Last modified:</strong> 2021/01/15<br>
+<strong>Description:</strong> How to train differentiable decision trees for end-to-end learning in deep neural networks.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/structured_data/ipynb/deep_neural_decision_forests.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/structured_data/deep_neural_decision_forests.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This example provides an implementation of the
+<a href="https://ieeexplore.ieee.org/document/7410529">Deep Neural Decision Forest</a>
+model introduced by P. Kontschieder et al. for structured data classification.
+It demonstrates how to build a stochastic and differentiable decision tree model,
+train it end-to-end, and unify decision trees with deep representation learning.</p>
+<hr />
+<h2 id="the-dataset">The dataset</h2>
+<p>This example uses the
+<a href="https://archive.ics.uci.edu/ml/datasets/census+income">United States Census Income Dataset</a>
+provided by the
+<a href="https://archive.ics.uci.edu/ml/index.php">UC Irvine Machine Learning Repository</a>.
+The task is binary classification
+to predict whether a person is likely to be making over USD 50,000 a year.</p>
+<p>The dataset includes 48,842 instances with 14 input features (such as age, work class, education, occupation, and so on): 5 numerical features
+and 9 categorical features.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringLookup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">data</span> <span class="k">as</span> <span class="n">tf_data</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+</code></pre></div>
+
+<hr />
+<h2 id="prepare-the-data">Prepare the data</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">CSV_HEADER</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;age&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;workclass&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fnlwgt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;education&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;education_num&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;marital_status&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;occupation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relationship&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;race&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gender&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_gain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hours_per_week&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;native_country&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_bracket&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">train_data_url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data&quot;</span>
+<span class="p">)</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">train_data_url</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">CSV_HEADER</span><span class="p">)</span>
+
+<span class="n">test_data_url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test&quot;</span>
+<span class="p">)</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">test_data_url</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">CSV_HEADER</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Train dataset shape: </span><span class="si">{</span><span class="n">train_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test dataset shape: </span><span class="si">{</span><span class="n">test_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Train dataset shape: (32561, 15)
+Test dataset shape: (16282, 15)
+</code></pre></div>
+
+
+</div>
+<p>Remove the first record (because it is not a valid data example) and a trailing
+'dot' in the class labels.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">test_data</span> <span class="o">=</span> <span class="n">test_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="n">test_data</span><span class="o">.</span><span class="n">income_bracket</span> <span class="o">=</span> <span class="n">test_data</span><span class="o">.</span><span class="n">income_bracket</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>We store the training and test data splits locally as CSV files.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_data_file</span> <span class="o">=</span> <span class="s2">&quot;train_data.csv&quot;</span>
+<span class="n">test_data_file</span> <span class="o">=</span> <span class="s2">&quot;test_data.csv&quot;</span>
+
+<span class="n">train_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">train_data_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">test_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">test_data_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="define-dataset-metadata">Define dataset metadata</h2>
+<p>Here, we define the metadata of the dataset that will be useful for reading and parsing
+and encoding input features.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># A list of the numerical feature names.</span>
+<span class="n">NUMERIC_FEATURE_NAMES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;age&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;education_num&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_gain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hours_per_week&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># A dictionary of the categorical features and their vocabulary.</span>
+<span class="n">CATEGORICAL_FEATURES_WITH_VOCABULARY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;workclass&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;workclass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;education&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;education&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;marital_status&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;marital_status&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;occupation&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;occupation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;relationship&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;relationship&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;race&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;race&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;gender&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;gender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+    <span class="s2">&quot;native_country&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="s2">&quot;native_country&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())),</span>
+<span class="p">}</span>
+<span class="c1"># A list of the columns to ignore from the dataset.</span>
+<span class="n">IGNORE_COLUMN_NAMES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;fnlwgt&quot;</span><span class="p">]</span>
+<span class="c1"># A list of the categorical feature names.</span>
+<span class="n">CATEGORICAL_FEATURE_NAMES</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">CATEGORICAL_FEATURES_WITH_VOCABULARY</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="c1"># A list of all the input features.</span>
+<span class="n">FEATURE_NAMES</span> <span class="o">=</span> <span class="n">NUMERIC_FEATURE_NAMES</span> <span class="o">+</span> <span class="n">CATEGORICAL_FEATURE_NAMES</span>
+<span class="c1"># A list of column default values for each feature.</span>
+<span class="n">COLUMN_DEFAULTS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">NUMERIC_FEATURE_NAMES</span> <span class="o">+</span> <span class="n">IGNORE_COLUMN_NAMES</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;NA&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">CSV_HEADER</span>
+<span class="p">]</span>
+<span class="c1"># The name of the target feature.</span>
+<span class="n">TARGET_FEATURE_NAME</span> <span class="o">=</span> <span class="s2">&quot;income_bracket&quot;</span>
+<span class="c1"># A list of the labels of the target features.</span>
+<span class="n">TARGET_LABELS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; &lt;=50K&quot;</span><span class="p">,</span> <span class="s2">&quot; &gt;50K&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="create-tfdatadataset-objects-for-training-and-validation">Create <code>tf_data.Dataset</code> objects for training and validation</h2>
+<p>We create an input function to read and parse the file, and convert features and labels
+into a <a href="https://www.tensorflow.org/guide/datasets"><code>tf_data.Dataset</code></a>
+for training and validation. We also preprocess the input by mapping the target label
+to an index.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">target_label_lookup</span> <span class="o">=</span> <span class="n">StringLookup</span><span class="p">(</span>
+    <span class="n">vocabulary</span><span class="o">=</span><span class="n">TARGET_LABELS</span><span class="p">,</span> <span class="n">mask_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_oov_indices</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+
+<span class="n">lookup_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">CATEGORICAL_FEATURE_NAMES</span><span class="p">:</span>
+    <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">CATEGORICAL_FEATURES_WITH_VOCABULARY</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span>
+    <span class="c1"># Create a lookup to convert a string values to an integer indices.</span>
+    <span class="c1"># Since we are not using a mask token, nor expecting any out of vocabulary</span>
+    <span class="c1"># (oov) token, we set mask_token to None and num_oov_indices to 0.</span>
+    <span class="n">lookup</span> <span class="o">=</span> <span class="n">StringLookup</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span> <span class="n">mask_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_oov_indices</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">lookup_dict</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">lookup</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_categorical</span><span class="p">(</span><span class="n">batch_x</span><span class="p">,</span> <span class="n">batch_y</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">CATEGORICAL_FEATURE_NAMES</span><span class="p">:</span>
+        <span class="n">batch_x</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">lookup_dict</span><span class="p">[</span><span class="n">feature_name</span><span class="p">](</span><span class="n">batch_x</span><span class="p">[</span><span class="n">feature_name</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">batch_x</span><span class="p">,</span> <span class="n">batch_y</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">tf_data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">make_csv_dataset</span><span class="p">(</span>
+            <span class="n">csv_file_path</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">column_names</span><span class="o">=</span><span class="n">CSV_HEADER</span><span class="p">,</span>
+            <span class="n">column_defaults</span><span class="o">=</span><span class="n">COLUMN_DEFAULTS</span><span class="p">,</span>
+            <span class="n">label_name</span><span class="o">=</span><span class="n">TARGET_FEATURE_NAME</span><span class="p">,</span>
+            <span class="n">num_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">na_value</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">features</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">target_label_lookup</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">encode_categorical</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="create-model-inputs">Create model inputs</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model_inputs</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">FEATURE_NAMES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">NUMERIC_FEATURE_NAMES</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">inputs</span>
+</code></pre></div>
+
+<hr />
+<h2 id="encode-input-features">Encode input features</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">encode_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+    <span class="n">encoded_features</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">feature_name</span> <span class="ow">in</span> <span class="n">CATEGORICAL_FEATURE_NAMES</span><span class="p">:</span>
+            <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">CATEGORICAL_FEATURES_WITH_VOCABULARY</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span>
+            <span class="c1"># Create a lookup to convert a string values to an integer indices.</span>
+            <span class="c1"># Since we are not using a mask token, nor expecting any out of vocabulary</span>
+            <span class="c1"># (oov) token, we set mask_token to None and num_oov_indices to 0.</span>
+            <span class="n">value_index</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span>
+            <span class="n">embedding_dims</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lookup</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">()))</span>
+            <span class="c1"># Create an embedding layer with the specified dimensions.</span>
+            <span class="n">embedding</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+                <span class="n">input_dim</span><span class="o">=</span><span class="n">lookup</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">(),</span> <span class="n">output_dim</span><span class="o">=</span><span class="n">embedding_dims</span>
+            <span class="p">)</span>
+            <span class="c1"># Convert the index values to embedding representations.</span>
+            <span class="n">encoded_feature</span> <span class="o">=</span> <span class="n">embedding</span><span class="p">(</span><span class="n">value_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use the numerical features as-is.</span>
+            <span class="n">encoded_feature</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">encoded_feature</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">encoded_feature</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">encoded_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">encoded_feature</span><span class="p">)</span>
+
+    <span class="n">encoded_features</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">encoded_features</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">encoded_features</span>
+</code></pre></div>
+
+<hr />
+<h2 id="deep-neural-decision-tree">Deep Neural Decision Tree</h2>
+<p>A neural decision tree model has two sets of weights to learn. The first set is <code>pi</code>,
+which represents the probability distribution of the classes in the tree leaves.
+The second set is the weights of the routing layer <code>decision_fn</code>, which represents the probability
+of going to each leave. The forward pass of the model works as follows:</p>
+<ol>
+<li>The model expects input <code>features</code> as a single vector encoding all the features of an instance
+in the batch. This vector can be generated from a Convolution Neural Network (CNN) applied to images
+or dense transformations applied to structured data features.</li>
+<li>The model first applies a <code>used_features_mask</code> to randomly select a subset of input features to use.</li>
+<li>Then, the model computes the probabilities (<code>mu</code>) for the input instances to reach the tree leaves
+by iteratively performing a <em>stochastic</em> routing throughout the tree levels.</li>
+<li>Finally, the probabilities of reaching the leaves are combined by the class probabilities at the
+leaves to produce the final <code>outputs</code>.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NeuralDecisionTree</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">num_features</span><span class="p">,</span> <span class="n">used_features_rate</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_leaves</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
+
+        <span class="c1"># Create a mask for the randomly selected features.</span>
+        <span class="n">num_used_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_features</span> <span class="o">*</span> <span class="n">used_features_rate</span><span class="p">)</span>
+        <span class="n">one_hot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_features</span><span class="p">)</span>
+        <span class="n">sampled_feature_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_features</span><span class="p">),</span> <span class="n">num_used_features</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">used_features_mask</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span>
+            <span class="n">one_hot</span><span class="p">[</span><span class="n">sampled_feature_indices</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Initialize the weights of the classes in leaves.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="s2">&quot;random_normal&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_leaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Initialize the stochastic routing layer.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decision_fn</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+            <span class="n">units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_leaves</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;decision&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">features</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Apply the feature mask to the input features.</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span>
+            <span class="n">features</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">used_features_mask</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># [batch_size, num_used_features]</span>
+        <span class="c1"># Compute the routing probabilities.</span>
+        <span class="n">decisions</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decision_fn</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>  <span class="c1"># [batch_size, num_leaves, 1]</span>
+        <span class="c1"># Concatenate the routing probabilities with their complements.</span>
+        <span class="n">decisions</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">decisions</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">decisions</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>  <span class="c1"># [batch_size, num_leaves, 2]</span>
+
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">begin_idx</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="c1"># Traverse the tree in breadth-first order.</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">):</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>  <span class="c1"># [batch_size, 2 ** level, 1]</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># [batch_size, 2 ** level, 2]</span>
+            <span class="n">level_decisions</span> <span class="o">=</span> <span class="n">decisions</span><span class="p">[</span>
+                <span class="p">:,</span> <span class="n">begin_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">,</span> <span class="p">:</span>
+            <span class="p">]</span>  <span class="c1"># [batch_size, 2 ** level, 2]</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">level_decisions</span>  <span class="c1"># [batch_size, 2**level, 2]</span>
+            <span class="n">begin_idx</span> <span class="o">=</span> <span class="n">end_idx</span>
+            <span class="n">end_idx</span> <span class="o">=</span> <span class="n">begin_idx</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_leaves</span><span class="p">])</span>  <span class="c1"># [batch_size, num_leaves]</span>
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>  <span class="c1"># [num_leaves, num_classes]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">)</span>  <span class="c1"># [batch_size, num_classes]</span>
+        <span class="k">return</span> <span class="n">outputs</span>
+</code></pre></div>
+
+<hr />
+<h2 id="deep-neural-decision-forest">Deep Neural Decision Forest</h2>
+<p>The neural decision forest model consists of a set of neural decision trees that are
+trained simultaneously. The output of the forest model is the average outputs of its trees.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NeuralDecisionForest</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_trees</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">num_features</span><span class="p">,</span> <span class="n">used_features_rate</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Initialize the ensemble by adding NeuralDecisionTree instances.</span>
+        <span class="c1"># Each tree will have its own randomly selected input features to use.</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_trees</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">NeuralDecisionTree</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">num_features</span><span class="p">,</span> <span class="n">used_features_rate</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="c1"># Initialize the outputs: a [batch_size, num_classes] matrix of zeros.</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">])</span>
+
+        <span class="c1"># Aggregate the outputs of trees in the ensemble.</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">+=</span> <span class="n">tree</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="c1"># Divide the outputs by the ensemble size to get the average.</span>
+        <span class="n">outputs</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs</span>
+</code></pre></div>
+
+<p>Finally, let's set up the code that will train and evaluate the model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">265</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_experiment</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">),</span>
+        <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(),</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start training the model...&quot;</span><span class="p">)</span>
+    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">get_dataset_from_csv</span><span class="p">(</span>
+        <span class="n">train_data_file</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model training finished&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Evaluating the model on the test data...&quot;</span><span class="p">)</span>
+    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">get_dataset_from_csv</span><span class="p">(</span><span class="n">test_data_file</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">accuracy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test accuracy: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">accuracy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="experiment-1-train-a-decision-tree-model">Experiment 1: train a decision tree model</h2>
+<p>In this experiment, we train a single neural decision tree model
+where we use all input features.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">num_trees</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">depth</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">used_features_rate</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">TARGET_LABELS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_tree_model</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">create_model_inputs</span><span class="p">()</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">encode_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">NeuralDecisionTree</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">num_features</span><span class="p">,</span> <span class="n">used_features_rate</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tree</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="n">tree_model</span> <span class="o">=</span> <span class="n">create_tree_model</span><span class="p">()</span>
+<span class="n">run_experiment</span><span class="p">(</span><span class="n">tree_model</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Start training the model...
+Epoch 1/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 5s 26ms/step - loss: 0.5308 - sparse_categorical_accuracy: 0.8150
+Epoch 2/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3476 - sparse_categorical_accuracy: 0.8429
+Epoch 3/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3312 - sparse_categorical_accuracy: 0.8478
+Epoch 4/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3247 - sparse_categorical_accuracy: 0.8495
+Epoch 5/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3202 - sparse_categorical_accuracy: 0.8512
+Epoch 6/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3158 - sparse_categorical_accuracy: 0.8536
+Epoch 7/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3116 - sparse_categorical_accuracy: 0.8572
+Epoch 8/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3071 - sparse_categorical_accuracy: 0.8608
+Epoch 9/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 11ms/step - loss: 0.3026 - sparse_categorical_accuracy: 0.8630
+Epoch 10/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.2975 - sparse_categorical_accuracy: 0.8653
+Model training finished
+Evaluating the model on the test data...
+ 62/62 ━━━━━━━━━━━━━━━━━━━━ 1s 13ms/step - loss: 0.3279 - sparse_categorical_accuracy: 0.8463
+Test accuracy: 85.08%
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="experiment-2-train-a-forest-model">Experiment 2: train a forest model</h2>
+<p>In this experiment, we train a neural decision forest with <code>num_trees</code> trees
+where each tree uses randomly selected 50% of the input features. You can control the number
+of features to be used in each tree by setting the <code>used_features_rate</code> variable.
+In addition, we set the depth to 5 instead of 10 compared to the previous experiment.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">num_trees</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">depth</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">used_features_rate</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_forest_model</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">create_model_inputs</span><span class="p">()</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">encode_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">forest_model</span> <span class="o">=</span> <span class="n">NeuralDecisionForest</span><span class="p">(</span>
+        <span class="n">num_trees</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">num_features</span><span class="p">,</span> <span class="n">used_features_rate</span><span class="p">,</span> <span class="n">num_classes</span>
+    <span class="p">)</span>
+
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">forest_model</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="n">forest_model</span> <span class="o">=</span> <span class="n">create_forest_model</span><span class="p">()</span>
+
+<span class="n">run_experiment</span><span class="p">(</span><span class="n">forest_model</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Start training the model...
+Epoch 1/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 47s 202ms/step - loss: 0.5469 - sparse_categorical_accuracy: 0.7915
+Epoch 2/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3459 - sparse_categorical_accuracy: 0.8494
+Epoch 3/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3268 - sparse_categorical_accuracy: 0.8523
+Epoch 4/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3195 - sparse_categorical_accuracy: 0.8524
+Epoch 5/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3149 - sparse_categorical_accuracy: 0.8539
+Epoch 6/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3112 - sparse_categorical_accuracy: 0.8556
+Epoch 7/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - loss: 0.3079 - sparse_categorical_accuracy: 0.8566
+Epoch 8/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 9ms/step - loss: 0.3050 - sparse_categorical_accuracy: 0.8582
+Epoch 9/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 9ms/step - loss: 0.3021 - sparse_categorical_accuracy: 0.8595
+Epoch 10/10
+ 123/123 ━━━━━━━━━━━━━━━━━━━━ 1s 9ms/step - loss: 0.2992 - sparse_categorical_accuracy: 0.8617
+Model training finished
+Evaluating the model on the test data...
+ 62/62 ━━━━━━━━━━━━━━━━━━━━ 5s 39ms/step - loss: 0.3145 - sparse_categorical_accuracy: 0.8503
+Test accuracy: 85.55%
+</code></pre></div>
+
+
+</div>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='deep_neural_decision_forests.html#classification-with-neural-decision-forests'>Classification with Neural Decision Forests</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#the-dataset'>The dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#prepare-the-data'>Prepare the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#define-dataset-metadata'>Define dataset metadata</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#create-tfdatadataset-objects-for-training-and-validation'>Create <code>tf_data.Dataset</code> objects for training and validation</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#create-model-inputs'>Create model inputs</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#encode-input-features'>Encode input features</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#deep-neural-decision-tree'>Deep Neural Decision Tree</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#deep-neural-decision-forest'>Deep Neural Decision Forest</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#experiment-1-train-a-decision-tree-model'>Experiment 1: train a decision tree model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deep_neural_decision_forests.html#experiment-2-train-a-forest-model'>Experiment 2: train a forest model</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

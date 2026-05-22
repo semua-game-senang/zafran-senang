@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Named Entity Recognition using Transformers">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="ner_transformers.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Named Entity Recognition using Transformers">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Named Entity Recognition using Transformers">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Named Entity Recognition using Transformers</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2 active" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2 active" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Natural Language Processing</a> /
+         Named Entity Recognition using Transformers
+    </div>
+    <h1 id="named-entity-recognition-using-transformers">Named Entity Recognition using Transformers</h1>
+<p><strong>Author:</strong> <a href="https://www.linkedin.com/in/varunsingh2/">Varun Singh</a><br>
+<strong>Date created:</strong> 2021/06/23<br>
+<strong>Last modified:</strong> 2024/04/05<br>
+<strong>Description:</strong> NER using the Transformers and data from CoNLL 2003 shared task.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/nlp/ipynb/ner_transformers.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/nlp/ner_transformers.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Named Entity Recognition (NER) is the process of identifying named entities in text.
+Example of named entities are: "Person", "Location", "Organization", "Dates" etc. NER is
+essentially a token classification task where every token is classified into one or more
+predetermined categories.</p>
+<p>In this exercise, we will train a simple Transformer based model to perform NER. We will
+be using the data from CoNLL 2003 shared task. For more information about the dataset,
+please visit <a href="https://www.clips.uantwerpen.be/conll2003/ner/">the dataset website</a>.
+However, since obtaining this data requires an additional step of getting a free license, we will be using
+HuggingFace's datasets library which contains a processed version of this dataset.</p>
+<hr />
+<h2 id="install-the-open-source-datasets-library-from-huggingface">Install the open source datasets library from HuggingFace</h2>
+<p>We also download the script used to evaluate NER models.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip3</span> <span class="n">install</span> <span class="n">datasets</span>
+<span class="err">!</span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">sighsmile</span><span class="o">/</span><span class="n">conlleval</span><span class="o">/</span><span class="n">master</span><span class="o">/</span><span class="n">conlleval</span><span class="o">.</span><span class="n">py</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.108.133, 185.199.110.133, 185.199.111.133, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.108.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 7502 (7.3K) [text/plain]
+Saving to: ‘conlleval.py’
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>conlleval.py        100%[===================&gt;]   7.33K  --.-KB/s    in 0s      
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>2023-11-10 16:58:25 (217 MB/s) - ‘conlleval.py’ saved [7502/7502]
+</code></pre></div>
+
+
+</div>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">conlleval</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate</span>
+</code></pre></div>
+
+<p>We will be using the transformer implementation from this fantastic
+<a href="text_classification_with_transformer.html">example</a>.</p>
+<p>Let's start by defining a <code>TransformerBlock</code> layer:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TransformerBlock</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">ff_dim</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">att</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="n">num_heads</span><span class="p">,</span> <span class="n">key_dim</span><span class="o">=</span><span class="n">embed_dim</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">ff_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+                <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layernorm1</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layernorm2</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout1</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout2</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">attn_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">att</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+        <span class="n">attn_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout1</span><span class="p">(</span><span class="n">attn_output</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">out1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layernorm1</span><span class="p">(</span><span class="n">inputs</span> <span class="o">+</span> <span class="n">attn_output</span><span class="p">)</span>
+        <span class="n">ffn_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">(</span><span class="n">out1</span><span class="p">)</span>
+        <span class="n">ffn_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout2</span><span class="p">(</span><span class="n">ffn_output</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layernorm2</span><span class="p">(</span><span class="n">out1</span> <span class="o">+</span> <span class="n">ffn_output</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Next, let's define a <code>TokenAndPositionEmbedding</code> layer:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenAndPositionEmbedding</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxlen</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token_emb</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">input_dim</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="n">embed_dim</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_emb</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">input_dim</span><span class="o">=</span><span class="n">maxlen</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="n">embed_dim</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">maxlen</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">maxlen</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">position_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_emb</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_emb</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">token_embeddings</span> <span class="o">+</span> <span class="n">position_embeddings</span>
+</code></pre></div>
+
+<hr />
+<h2 id="kerasmodel">Build the NER model class as a <a href="https://keras.io/api/models/model#model-class"><code>keras.Model</code></a> subclass</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NERModel</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">num_tags</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">embed_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_heads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ff_dim</span><span class="o">=</span><span class="mi">32</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_layer</span> <span class="o">=</span> <span class="n">TokenAndPositionEmbedding</span><span class="p">(</span><span class="n">maxlen</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_block</span> <span class="o">=</span> <span class="n">TransformerBlock</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">ff_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout1</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ff</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">ff_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout2</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ff_final</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_tags</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;softmax&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_block</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff_final</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-the-conll-2003-dataset-from-the-datasets-library-and-process-it">Load the CoNLL 2003 dataset from the datasets library and process it</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">conll_data</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;conll2003&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We will export this data to a tab-separated file format which will be easy to read as a
+<a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset"><code>tf.data.Dataset</code></a> object.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_to_file</span><span class="p">(</span><span class="n">export_file_path</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">export_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">ner_tags</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;ner_tags&quot;</span><span class="p">]</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ner_tags</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+
+<span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">export_to_file</span><span class="p">(</span><span class="s2">&quot;./data/conll_train.txt&quot;</span><span class="p">,</span> <span class="n">conll_data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">])</span>
+<span class="n">export_to_file</span><span class="p">(</span><span class="s2">&quot;./data/conll_val.txt&quot;</span><span class="p">,</span> <span class="n">conll_data</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">])</span>
+</code></pre></div>
+
+<hr />
+<h2 id="make-the-ner-label-lookup-table">Make the NER label lookup table</h2>
+<p>NER labels are usually provided in IOB, IOB2 or IOBES formats. Checkout this link for
+more information:
+<a href="https://en.wikipedia.org/wiki/Inside%E2%80%93outside%E2%80%93beginning_(tagging)">Wikipedia</a></p>
+<p>Note that we start our label numbering from 1 since 0 will be reserved for padding. We
+have a total of 10 labels: 9 from the NER dataset and one for padding.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">make_tag_lookup_table</span><span class="p">():</span>
+    <span class="n">iob_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span>
+    <span class="n">ner_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PER&quot;</span><span class="p">,</span> <span class="s2">&quot;ORG&quot;</span><span class="p">,</span> <span class="s2">&quot;LOC&quot;</span><span class="p">,</span> <span class="s2">&quot;MISC&quot;</span><span class="p">]</span>
+    <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[(</span><span class="n">label1</span><span class="p">,</span> <span class="n">label2</span><span class="p">)</span> <span class="k">for</span> <span class="n">label2</span> <span class="ow">in</span> <span class="n">ner_labels</span> <span class="k">for</span> <span class="n">label1</span> <span class="ow">in</span> <span class="n">iob_labels</span><span class="p">]</span>
+    <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">all_labels</span><span class="p">]</span>
+    <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[PAD]&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">all_labels</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_labels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">all_labels</span><span class="p">))</span>
+
+
+<span class="n">mapping</span> <span class="o">=</span> <span class="n">make_tag_lookup_table</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>{0: &#39;[PAD]&#39;, 1: &#39;O&#39;, 2: &#39;B-PER&#39;, 3: &#39;I-PER&#39;, 4: &#39;B-ORG&#39;, 5: &#39;I-ORG&#39;, 6: &#39;B-LOC&#39;, 7: &#39;I-LOC&#39;, 8: &#39;B-MISC&#39;, 9: &#39;I-MISC&#39;}
+</code></pre></div>
+
+
+</div>
+<p>Get a list of all tokens in the training dataset. This will be used to create the
+vocabulary.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">all_tokens</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">conll_data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span> <span class="p">[])</span>
+<span class="n">all_tokens_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">)))</span>
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">all_tokens_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">counter</span><span class="p">))</span>
+
+<span class="n">num_tags</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+<span class="n">vocab_size</span> <span class="o">=</span> <span class="mi">20000</span>
+
+<span class="c1"># We only take (vocab_size - 2) most commons words from the training data since</span>
+<span class="c1"># the `StringLookup` class uses 2 additional tokens - one denoting an unknown</span>
+<span class="c1"># token and another one denoting a masking token</span>
+<span class="n">vocabulary</span> <span class="o">=</span> <span class="p">[</span><span class="n">token</span> <span class="k">for</span> <span class="n">token</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counter</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="n">vocab_size</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)]</span>
+
+<span class="c1"># The StringLook class will convert tokens to token IDs</span>
+<span class="n">lookup_layer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">StringLookup</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>21009
+</code></pre></div>
+
+
+</div>
+<p>Create 2 new <code>Dataset</code> objects from the training and validation data</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="s2">&quot;./data/conll_train.txt&quot;</span><span class="p">)</span>
+<span class="n">val_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="s2">&quot;./data/conll_val.txt&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Print out one line to make sure it looks good. The first record in the line is the number of tokens.
+After that we will have all the tokens followed by all the ner tags.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">()))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>[b&#39;9\tEU\trejects\tGerman\tcall\tto\tboycott\tBritish\tlamb\t.\t3\t0\t7\t0\t0\t0\t7\t0\t0&#39;]
+</code></pre></div>
+
+
+</div>
+<p>We will be using the following map function to transform the data in the dataset:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">map_record_to_training_data</span><span class="p">(</span><span class="n">record</span><span class="p">):</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">to_number</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="n">length</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">to_number</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">tags</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">tags</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">lowercase_and_convert_to_ids</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lookup_layer</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+
+<span class="c1"># We use `padded_batch` here because each record in the dataset has a</span>
+<span class="c1"># different length.</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">train_data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">map_record_to_training_data</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">lowercase_and_convert_to_ids</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">padded_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">val_dataset</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">val_data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">map_record_to_training_data</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">lowercase_and_convert_to_ids</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">padded_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">ner_model</span> <span class="o">=</span> <span class="n">NERModel</span><span class="p">(</span><span class="n">num_tags</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_heads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ff_dim</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We will be using a custom loss function that will ignore the loss from padded tokens.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CustomNonPaddingTokenLoss</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;custom_ner_loss&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span>
+            <span class="n">from_logits</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">((</span><span class="n">y_true</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">*</span> <span class="n">mask</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span> <span class="o">/</span> <span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+
+<span class="n">loss</span> <span class="o">=</span> <span class="n">CustomNonPaddingTokenLoss</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="compile-and-fit-the-model">Compile and fit the model</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">run_functions_eagerly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ner_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">ner_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tokenize_and_convert_to_ids</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">lowercase_and_convert_to_ids</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+
+<span class="c1"># Sample inference using the trained model</span>
+<span class="n">sample_input</span> <span class="o">=</span> <span class="n">tokenize_and_convert_to_ids</span><span class="p">(</span>
+    <span class="s2">&quot;eu rejects german call to boycott british lamb&quot;</span>
+<span class="p">)</span>
+<span class="n">sample_input</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sample_input</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample_input</span><span class="p">)</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">ner_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sample_input</span><span class="p">)</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="p">[</span><span class="n">mapping</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">]</span>
+
+<span class="c1"># eu -&gt; B-ORG, german -&gt; B-MISC, british -&gt; B-MISC</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 300s 671ms/step - loss: 0.9260
+Epoch 2/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.2909
+Epoch 3/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.1589
+Epoch 4/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.1176
+Epoch 5/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0941
+Epoch 6/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0747
+Epoch 7/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0597
+Epoch 8/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0534
+Epoch 9/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0459
+Epoch 10/10
+ 439/439 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.0408
+tf.Tensor([[  988 10950   204   628     6  3938   215  5773]], shape=(1, 8), dtype=int64)
+ 1/1 ━━━━━━━━━━━━━━━━━━━━ 1s 600ms/step
+[&#39;B-ORG&#39;, &#39;O&#39;, &#39;B-MISC&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;B-MISC&#39;, &#39;O&#39;]
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="metrics-calculation">Metrics calculation</h2>
+<p>Here is a function to calculate the metrics. The function calculates F1 score for the
+overall NER dataset as well as individual scores for each NER tag.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_metrics</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">all_true_tag_ids</span><span class="p">,</span> <span class="n">all_predicted_tag_ids</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">ner_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">true_tag_ids</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_tag_ids</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">predictions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">true_tag_ids</span> <span class="o">=</span> <span class="n">true_tag_ids</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">predicted_tag_ids</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="n">all_true_tag_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_tag_ids</span><span class="p">)</span>
+        <span class="n">all_predicted_tag_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">predicted_tag_ids</span><span class="p">)</span>
+
+    <span class="n">all_true_tag_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">all_true_tag_ids</span><span class="p">)</span>
+    <span class="n">all_predicted_tag_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">all_predicted_tag_ids</span><span class="p">)</span>
+
+    <span class="n">predicted_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">mapping</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">all_predicted_tag_ids</span><span class="p">]</span>
+    <span class="n">real_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">mapping</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">all_true_tag_ids</span><span class="p">]</span>
+
+    <span class="n">evaluate</span><span class="p">(</span><span class="n">real_tags</span><span class="p">,</span> <span class="n">predicted_tags</span><span class="p">)</span>
+
+
+<span class="n">calculate_metrics</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>processed 51362 tokens with 5942 phrases; found: 5659 phrases; correct: 3941.
+accuracy:  64.49%; (non-O)
+accuracy:  93.23%; precision:  69.64%; recall:  66.32%; FB1:  67.94
+              LOC: precision:  82.77%; recall:  79.26%; FB1:  80.98  1759
+             MISC: precision:  74.94%; recall:  68.11%; FB1:  71.36  838
+              ORG: precision:  55.94%; recall:  65.32%; FB1:  60.27  1566
+              PER: precision:  65.57%; recall:  53.26%; FB1:  58.78  1496
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="conclusions">Conclusions</h2>
+<p>In this exercise, we created a simple transformer based named entity recognition model.
+We trained it on the CoNLL 2003 shared task data and got an overall F1 score of around 70%.
+State of the art NER models fine-tuned on pretrained models such as BERT or ELECTRA can easily
+get much higher F1 score -between 90-95% on this dataset owing to the inherent knowledge
+of words as part of the pretraining process and the usage of subword tokenization.</p>
+<p>You can use the trained model hosted on <a href="https://huggingface.co/keras-io/ner-with-transformers">Hugging Face Hub</a>
+and try the demo on <a href="https://huggingface.co/spaces/keras-io/ner_with_transformers">Hugging Face Spaces</a>."""</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter14_text-classification">Chapter 14: Text classification</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter15_language-models-and-the-transformer">Chapter 15: Language models and the Transformer</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='ner_transformers.html#named-entity-recognition-using-transformers'>Named Entity Recognition using Transformers</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#install-the-open-source-datasets-library-from-huggingface'>Install the open source datasets library from HuggingFace</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#build-the-ner-model-class-as-a-kerasmodel-subclass'>Build the NER model class as a <code>keras.Model</code> subclass</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#load-the-conll-2003-dataset-from-the-datasets-library-and-process-it'>Load the CoNLL 2003 dataset from the datasets library and process it</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#make-the-ner-label-lookup-table'>Make the NER label lookup table</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#compile-and-fit-the-model'>Compile and fit the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#metrics-calculation'>Metrics calculation</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#conclusions'>Conclusions</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ner_transformers.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

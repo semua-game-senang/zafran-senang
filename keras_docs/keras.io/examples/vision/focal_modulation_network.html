@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Focal Modulation: A replacement for Self-Attention">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="focal_modulation_network.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Focal Modulation: A replacement for Self-Attention">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Focal Modulation: A replacement for Self-Attention">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Focal Modulation: A replacement for Self-Attention</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2 active" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2 active" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='../vision.html'>Computer Vision</a> /
+         Focal Modulation: A replacement for Self-Attention
+    </div>
+    <h1 id="focal-modulation-a-replacement-for-selfattention">Focal Modulation: A replacement for Self-Attention</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/ariG23498">Aritra Roy Gosthipaty</a>, <a href="https://twitter.com/ritwik_raha">Ritwik Raha</a><br>
+<strong>Date created:</strong> 2023/01/25<br>
+<strong>Last modified:</strong> 2026/01/27<br>
+<strong>Description:</strong> Image classification with Focal Modulation Networks.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/focal_modulation_network.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/vision/focal_modulation_network.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This tutorial aims to provide a comprehensive guide to the implementation of
+Focal Modulation Networks, as presented in
+<a href="https://arxiv.org/abs/2203.11926">Yang et al.</a>.</p>
+<p>This tutorial will provide a formal, minimalistic approach to implementing Focal
+Modulation Networks and explore its potential applications in the field of Deep Learning.</p>
+<p><strong>Problem statement</strong></p>
+<p>The Transformer architecture (<a href="https://arxiv.org/abs/1706.03762">Vaswani et al.</a>),
+which has become the de facto standard in most Natural Language Processing tasks, has
+also been applied to the field of computer vision, e.g. Vision
+Transformers (<a href="https://arxiv.org/abs/2010.11929v2">Dosovitskiy et al.</a>).</p>
+<blockquote>
+<p>In Transformers, the self-attention (SA) is arguably the key to its success which
+enables input-dependent global interactions, in contrast to convolution operation which
+constraints interactions in a local region with a shared kernel.</p>
+</blockquote>
+<p>The <strong>Attention</strong> module is mathematically written as shown in <strong>Equation 1</strong>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Attention Equation" src="https://i.imgur.com/thdHvQx.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Equation 1: The mathematical equation of attention (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>Where:</p>
+<ul>
+<li><code>Q</code> is the query</li>
+<li><code>K</code> is the key</li>
+<li><code>V</code> is the value</li>
+<li><code>d_k</code> is the dimension of the key</li>
+</ul>
+<p>With <strong>self-attention</strong>, the query, key, and value are all sourced from the input
+sequence. Let us rewrite the attention equation for self-attention as shown in <strong>Equation
+2</strong>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Self-Attention Equation" src="https://i.imgur.com/OFsmVdP.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Equation 2: The mathematical equation of self-attention (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>Upon looking at the equation of self-attention, we see that it is a quadratic equation.
+Therefore, as the number of tokens increase, so does the computation time (cost too). To
+mitigate this problem and make Transformers more interpretable, Yang et al.
+have tried to replace the Self-Attention module with better components.</p>
+<p><strong>The Solution</strong></p>
+<p>Yang et al. introduce the Focal Modulation layer to serve as a
+seamless replacement for the Self-Attention Layer. The layer boasts high
+interpretability, making it a valuable tool for Deep Learning practitioners.</p>
+<p>In this tutorial, we will delve into the practical application of this layer by training
+the entire model on the CIFAR-10 dataset and visually interpreting the layer's
+performance.</p>
+<p>Note: We try to align our implementation with the
+<a href="https://github.com/microsoft/FocalNet">official implementation</a>.</p>
+<hr />
+<h2 id="setup-and-imports">Setup and Imports</h2>
+<p>Keras 3 allows this model to run on JAX, PyTorch, or TensorFlow. We use keras.ops for all mathematical operations to ensure the code remains backend-agnostic.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="c1"># Set backend before importing keras</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>  <span class="c1"># or &quot;torch&quot; or &quot;jax&quot;</span>
+<span class="c1"># Suppress TensorFlow C++ logging (XLA messages)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">randint</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="c1"># Suppress warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;.*build.*method.*&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;.*tf.function.*retracing.*&quot;</span><span class="p">)</span>
+
+<span class="c1"># Suppress TensorFlow logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+<span class="c1"># Set seed for reproducibility using Keras 3 utility.</span>
+<span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_random_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="global-configuration">Global Configuration</h2>
+<p>We do not have any strong rationale behind choosing these hyperparameters. Please feel
+free to change the configuration and train the model.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># --- GLOBAL CONFIGURATION ---</span>
+<span class="n">TRAIN_SLICE</span> <span class="o">=</span> <span class="mi">40000</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">128</span>  <span class="c1"># 1024</span>
+<span class="n">INPUT_SHAPE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">IMAGE_SIZE</span> <span class="o">=</span> <span class="mi">48</span>
+<span class="n">NUM_CLASSES</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">LEARNING_RATE</span> <span class="o">=</span> <span class="mf">1e-4</span>
+<span class="n">WEIGHT_DECAY</span> <span class="o">=</span> <span class="mf">1e-4</span>
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">20</span>
+</code></pre></div>
+
+<hr />
+<h2 id="data-loading-with-pydataset">Data Loading with PyDataset</h2>
+<p>Keras 3 introduces PyDataset as a standardized way to handle data.
+It works identically across all backends and avoids the "Symbolic Tensor" issues often found
+when using tf.data with JAX or PyTorch.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">cifar10</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">x_train</span><span class="p">[:</span><span class="n">TRAIN_SLICE</span><span class="p">],</span> <span class="n">y_train</span><span class="p">[:</span><span class="n">TRAIN_SLICE</span><span class="p">]),</span>
+    <span class="p">(</span><span class="n">x_train</span><span class="p">[</span><span class="n">TRAIN_SLICE</span><span class="p">:],</span> <span class="n">y_train</span><span class="p">[</span><span class="n">TRAIN_SLICE</span><span class="p">:]),</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FocalDataset</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">PyDataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span> <span class="o">=</span> <span class="n">x_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span> <span class="o">=</span> <span class="n">y_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">))</span>
+        <span class="n">batch_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+
+        <span class="n">x_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">]</span>
+        <span class="n">y_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">]</span>
+
+        <span class="c1"># Convert to backend-native tensors</span>
+        <span class="n">x_batch</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">y_batch</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">y_batch</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
+
+
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">FocalDataset</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">FocalDataset</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">FocalDataset</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="architecture">Architecture</h2>
+<p>We pause here to take a quick look at the Architecture of the Focal Modulation Network.
+<strong>Figure 1</strong> shows how every individual layer is compiled into a single model. This gives
+us a bird's eye view of the entire architecture.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Diagram of the model" src="https://i.imgur.com/v5HYV5R.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Figure 1: A diagram of the Focal Modulation model (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>We dive deep into each of these layers in the following sections. This is the order we
+will follow:</p>
+<ul>
+<li>Patch Embedding Layer</li>
+<li>Focal Modulation Block<ul>
+<li>Multi-Layer Perceptron</li>
+<li>Focal Modulation Layer<ul>
+<li>Hierarchical Contextualization</li>
+<li>Gated Aggregation</li>
+</ul>
+</li>
+<li>Building Focal Modulation Block</li>
+</ul>
+</li>
+<li>Building the Basic Layer</li>
+</ul>
+<p>To better understand the architecture in a format we are well versed in, let us see how
+the Focal Modulation Network would look when drawn like a Transformer architecture.</p>
+<p><strong>Figure 2</strong> shows the encoder layer of a traditional Transformer architecture where Self
+Attention is replaced with the Focal Modulation layer.</p>
+<p>The <font color="blue">blue</font> blocks represent the Focal Modulation block. A stack
+of these blocks builds a single Basic Layer. The <font color="green">green</font> blocks
+represent the Focal Modulation layer.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="The Entire Architecture" src="https://i.imgur.com/PduYD6m.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Figure 2: The Entire Architecture (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="patch-embedding-layer">Patch Embedding Layer</h2>
+<p>The patch embedding layer is used to patchify the input images and project them into a
+latent space. This layer is also used as the down-sampling layer in the architecture.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PatchEmbed</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Image patch embedding layer, also acts as the down-sampling layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image_size (Tuple[int]): Input image resolution.</span>
+<span class="sd">        patch_size (Tuple[int]): Patch spatial resolution.</span>
+<span class="sd">        embed_dim (int): Embedding dimension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span> <span class="n">patch_size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">embed_dim</span><span class="o">=</span><span class="mi">96</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patch_resolution</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">patch_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="n">patch_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">embed_dim</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">patch_size</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">(</span><span class="n">target_shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Patchifies the image and converts into tokens.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor of shape (B, H, W, C)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple of the processed tensor, height of the projected</span>
+<span class="sd">            feature map, width of the projected feature map, number</span>
+<span class="sd">            of channels of the projected feature map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span>
+</code></pre></div>
+
+<hr />
+<h2 id="focal-modulation-block">Focal Modulation block</h2>
+<p>A Focal Modulation block can be considered as a single Transformer Block with the Self
+Attention (SA) module being replaced with Focal Modulation module, as we saw in <strong>Figure
+2</strong>.</p>
+<p>Let us recall how a focal modulation block is supposed to look like with the aid of the
+<strong>Figure 3</strong>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Focal Modulation Block" src="https://i.imgur.com/bPYTSiB.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Figure 3: The isolated view of the Focal Modulation Block (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>The Focal Modulation Block consists of:
+- Multilayer Perceptron
+- Focal Modulation layer</p>
+<h3 id="multilayer-perceptron">Multilayer Perceptron</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">MLP</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">hidden_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mlp_drop_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">hidden_features</span> <span class="o">=</span> <span class="n">hidden_features</span> <span class="ow">or</span> <span class="n">in_features</span>
+    <span class="n">out_features</span> <span class="o">=</span> <span class="n">out_features</span> <span class="ow">or</span> <span class="n">in_features</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">hidden_features</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;gelu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">out_features</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">mlp_drop_rate</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<h3 id="focal-modulation-layer">Focal Modulation layer</h3>
+<p>In a typical Transformer architecture, for each visual token (<strong>query</strong>) <code>x_i in R^C</code> in
+an input feature map <code>X in R^{HxWxC}</code> a <strong>generic encoding process</strong> produces a feature
+representation <code>y_i in R^C</code>.</p>
+<p>The encoding process consists of <strong>interaction</strong> (with its surroundings for e.g. a dot
+product), and <strong>aggregation</strong> (over the contexts for e.g weighted mean).</p>
+<p>We will talk about two types of encoding here:
+- Interaction and then Aggregation in <strong>Self-Attention</strong>
+- Aggregation and then Interaction in <strong>Focal Modulation</strong></p>
+<p><strong>Self-Attention</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Self-Attention Expression" src="https://i.imgur.com/heBYp0F.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Figure 4</strong>: Self-Attention module. (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Aggregation and Interaction for Self-Attention" src="https://i.imgur.com/j1k8Xmy.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Equation 3:</strong> Aggregation and Interaction in Self-Attention(Surce: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>As shown in <strong>Figure 4</strong> the query and the key interact (in the interaction step) with
+each other to output the attention scores. The weighted aggregation of the value comes
+next, known as the aggregation step.</p>
+<p><strong>Focal Modulation</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Focal Modulation module" src="https://i.imgur.com/tmbLgQl.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Figure 5</strong>: Focal Modulation module. (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Aggregation and Interaction in Focal Modulation" src="https://i.imgur.com/gsvJfWp.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Equation 4:</strong> Aggregation and Interaction in Focal Modulation (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure 5</strong> depicts the Focal Modulation layer. <code>q()</code> is the query projection
+function. It is a <strong>linear layer</strong> that projects the query into a latent space. <code>m ()</code> is
+the context aggregation function. Unlike self-attention, the
+aggregation step takes place in focal modulation before the interaction step.</p>
+<p>While <code>q()</code> is pretty straightforward to understand, the context aggregation function
+<code>m()</code> is more complex. Therefore, this section will focus on <code>m()</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Context Aggregation" src="https://i.imgur.com/uqIRXI7.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Figure 6</strong>: Context Aggregation function <code>m()</code>. (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>The context aggregation function <code>m()</code> consists of two parts as shown in <strong>Figure 6</strong>:
+- Hierarchical Contextualization
+- Gated Aggregation</p>
+<h4 id="hierarchical-contextualization">Hierarchical Contextualization</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Hierarchical Contextualization" src="https://i.imgur.com/q875c83.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Figure 7</strong>: Hierarchical Contextualization (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>In <strong>Figure 7</strong>, we see that the input is first projected linearly. This linear projection
+produces <code>Z^0</code>. Where <code>Z^0</code> can be expressed as follows:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Linear projection of z_not" src="https://i.imgur.com/pd0Z2Of.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Equation 5: Linear projection of <code>Z^0</code> (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p><code>Z^0</code> is then passed on to a series of Depth-Wise (DWConv) Conv and
+<a href="https://keras.io/api/layers/activations/#gelu-function">GeLU</a> layers. The
+authors term each block of DWConv and GeLU as levels denoted by <code>l</code>. In <strong>Figure 6</strong> we
+have two levels. Mathematically this is represented as:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Levels of modulation" src="https://i.imgur.com/ijGD1Df.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Equation 6: Levels of the modulation layer (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>where <code>l in {1, ... , L}</code></p>
+<p>The final feature map goes through a Global Average Pooling Layer. This can be expressed
+as follows:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Avg Pool" src="https://i.imgur.com/MQzQhbo.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Equation 7: Average Pooling of the final feature (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="gated-aggregation">Gated Aggregation</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Gated Aggregation" src="https://i.imgur.com/LwrdDKo.png[/img" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Figure 8</strong>: Gated Aggregation (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>Now that we have <code>L+1</code> intermediate feature maps by virtue of the Hierarchical
+Contextualization step, we need a gating mechanism that lets some features pass and
+prohibits others. This can be implemented with the attention module.
+Later in the tutorial, we will visualize these gates to better understand their
+usefulness.</p>
+<p>First, we build the weights for aggregation. Here we apply a <strong>linear layer</strong> on the input
+feature map that projects it into <code>L+1</code> dimensions.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Gates" src="https://i.imgur.com/1CgEo1G.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Eqation 8: Gates (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>Next we perform the weighted aggregation over the contexts.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="z out" src="https://i.imgur.com/mpJ712R.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Eqation 9: Final feature map (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>To enable communication across different channels, we use another linear layer <code>h()</code>
+to obtain the modulator</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Modulator" src="https://i.imgur.com/0EpT3Ti.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Eqation 10: Modulator (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>To sum up the Focal Modulation layer we have:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Focal Modulation Layer" src="https://i.imgur.com/1QIhvYA.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Eqation 11: Focal Modulation Layer (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FocalModulationLayer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The Focal Modulation layer includes query projection &amp; context aggregation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dim (int): Projection dimension.</span>
+<span class="sd">        focal_window (int): Window size for focal modulation.</span>
+<span class="sd">        focal_level (int): The current focal level.</span>
+<span class="sd">        focal_factor (int): Factor of focal modulation.</span>
+<span class="sd">        proj_drop_rate (float): Rate of dropout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">,</span>
+        <span class="n">focal_window</span><span class="p">,</span>
+        <span class="n">focal_level</span><span class="p">,</span>
+        <span class="n">focal_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">proj_drop_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">focal_level</span> <span class="o">=</span> <span class="n">dim</span><span class="p">,</span> <span class="n">focal_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_proj</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dim</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">focal_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">focal_layers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">ZeroPadding2D</span><span class="p">(</span>
+                        <span class="n">padding</span><span class="o">=</span><span class="p">((</span><span class="n">focal_factor</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">focal_window</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+                        <span class="n">filters</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+                        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">focal_factor</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">focal_window</span><span class="p">),</span>
+                        <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;gelu&quot;</span><span class="p">,</span>
+                        <span class="n">groups</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+                        <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">focal_level</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gap</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">GlobalAveragePooling2D</span><span class="p">(</span><span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mod_proj</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_drop</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">proj_drop_rate</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward pass of the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor of shape (B, H, W, C)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_proj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_proj</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">query</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">gates</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">x_proj</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Apply Softmax for numerical stability</span>
+        <span class="n">gates</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">gates</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">=</span> <span class="n">gates</span>
+
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">focal_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">context_all</span> <span class="o">=</span> <span class="n">context</span> <span class="o">*</span> <span class="n">gates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">focal_level</span><span class="p">):</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">focal_layers</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">context</span><span class="p">)</span>
+            <span class="n">context_all</span> <span class="o">=</span> <span class="n">context_all</span> <span class="o">+</span> <span class="p">(</span><span class="n">context</span> <span class="o">*</span> <span class="n">gates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">context_global</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">gelu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gap</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
+        <span class="n">context_all</span> <span class="o">=</span> <span class="n">context_all</span> <span class="o">+</span> <span class="p">(</span><span class="n">context_global</span> <span class="o">*</span> <span class="n">gates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">focal_level</span> <span class="p">:])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">modulator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod_proj</span><span class="p">(</span><span class="n">context_all</span><span class="p">)</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">query</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">modulator</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="the-focal-modulation-block">The Focal Modulation block</h3>
+<p>Finally, we have all the components we need to build the Focal Modulation block. Here we
+take the MLP and Focal Modulation layer together and build the Focal Modulation block.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FocalModulationBlock</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine FFN and Focal Modulation Layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dim (int): Number of input channels.</span>
+<span class="sd">        mlp_ratio (float): Ratio of mlp hidden dim to embedding dim.</span>
+<span class="sd">        drop (float): Dropout rate.</span>
+<span class="sd">        focal_level (int): Number of focal levels.</span>
+<span class="sd">        focal_window (int): Focal window size at first focal level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">mlp_ratio</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">focal_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">focal_window</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm1</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modulation</span> <span class="o">=</span> <span class="n">FocalModulationLayer</span><span class="p">(</span>
+            <span class="n">dim</span><span class="p">,</span> <span class="n">focal_window</span><span class="p">,</span> <span class="n">focal_level</span><span class="p">,</span> <span class="n">proj_drop_rate</span><span class="o">=</span><span class="n">drop</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm2</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">dim</span> <span class="o">*</span> <span class="n">mlp_ratio</span><span class="p">),</span> <span class="n">mlp_drop_rate</span><span class="o">=</span><span class="n">drop</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Processes the input tensor through the focal modulation block.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x : Inputs of the shape (B, L, C)</span>
+<span class="sd">            height (int): The height of the feature map</span>
+<span class="sd">            width (int): The width of the feature map</span>
+<span class="sd">            channels (int): The number of channels of the feature map</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The processed tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modulation</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">res</span> <span class="o">+</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm2</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="the-basic-layer">The Basic Layer</h2>
+<p>The basic layer consists of a collection of Focal Modulation blocks. This is
+illustrated in <strong>Figure 9</strong>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img alt="Basic Layer" src="https://i.imgur.com/UcZV0K6.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Figure 9</strong>: Basic Layer, a collection of focal modulation blocks. (Source: Aritra and Ritwik)</td>
+</tr>
+</tbody>
+</table>
+<p>Notice how in <strong>Fig. 9</strong> there are more than one focal modulation blocks denoted by <code>Nx</code>.
+This shows how the Basic Layer is a collection of Focal Modulation blocks.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BasicLayer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collection of Focal Modulation Blocks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dim (int): Dimensions of the model.</span>
+<span class="sd">        out_dim (int): Dimension used by the Patch Embedding Layer.</span>
+<span class="sd">        input_res (Tuple[int]): Input image resolution.</span>
+<span class="sd">        depth (int): The number of Focal Modulation Blocks.</span>
+<span class="sd">        mlp_ratio (float): Ratio of mlp hidden dim to embedding dim.</span>
+<span class="sd">        drop (float): Dropout rate.</span>
+<span class="sd">        downsample (keras.layers.Layer): Downsampling layer at the end of the layer.</span>
+<span class="sd">        focal_level (int): The current focal level.</span>
+<span class="sd">        focal_window (int): Focal window used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">,</span>
+        <span class="n">out_dim</span><span class="p">,</span>
+        <span class="n">input_res</span><span class="p">,</span>
+        <span class="n">depth</span><span class="p">,</span>
+        <span class="n">mlp_ratio</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+        <span class="n">drop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">downsample</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">focal_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">focal_window</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">FocalModulationBlock</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">mlp_ratio</span><span class="p">,</span> <span class="n">drop</span><span class="p">,</span> <span class="n">focal_level</span><span class="p">,</span> <span class="n">focal_window</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">downsample</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">downsample</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="n">input_res</span><span class="p">,</span> <span class="n">patch_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">embed_dim</span><span class="o">=</span><span class="n">out_dim</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">downsample</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward pass of the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x : Tensor of shape (B, L, C)</span>
+<span class="sd">            height (int): Height of feature map</span>
+<span class="sd">            width (int): Width of feature map</span>
+<span class="sd">            channels (int): Embed Dim of feature map</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple of the processed tensor, changed height, width, and</span>
+<span class="sd">            dim of the tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">block</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downsample</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span><span class="p">))</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span>
+</code></pre></div>
+
+<hr />
+<h2 id="the-focal-modulation-network-model">The Focal Modulation Network model</h2>
+<p>This is the model that ties everything together.
+It consists of a collection of Basic Layers with a classification head.
+For a recap of how this is structured refer to <strong>Figure 1</strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FocalModulationNetwork</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The Focal Modulation Network.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        image_size (Tuple[int]): Spatial size of images used.</span>
+<span class="sd">        patch_size (Tuple[int]): Patch size of each patch.</span>
+<span class="sd">        num_classes (int): Number of classes used for classification.</span>
+<span class="sd">        embed_dim (int): Patch embedding dimension.</span>
+<span class="sd">        depths (List[int]): Depth of each Focal Transformer block.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">48</span><span class="p">),</span>
+        <span class="n">patch_size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">embed_dim</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="n">depths</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Preprocessing integrated in model for backend-agnostic behavior</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rescaling</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Rescaling</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resizing_larger</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Resizing</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_crop</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resizing_target</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Resizing</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_flip</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="s2">&quot;horizontal&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">patch_embed</span> <span class="o">=</span> <span class="n">PatchEmbed</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basic_layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">embed_dim</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">basic_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">BasicLayer</span><span class="p">(</span>
+                    <span class="n">dim</span><span class="o">=</span><span class="n">d</span><span class="p">,</span>
+                    <span class="n">out_dim</span><span class="o">=</span><span class="n">d</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">input_res</span><span class="o">=</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">),</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)),</span>
+                    <span class="n">depth</span><span class="o">=</span><span class="n">depths</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">downsample</span><span class="o">=</span><span class="n">PatchEmbed</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avgpool</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">GlobalAveragePooling1D</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;softmax&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward pass of the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor of shape (B, H, W, C)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The logits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rescaling</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resizing_larger</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_crop</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_flip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resizing_target</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch_embed</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">basic_layers</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avgpool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-the-model">Train the model</h2>
+<p>Now with all the components in place and the architecture actually built, we are ready to
+put it to good use.</p>
+<p>In this section, we train our Focal Modulation model on the CIFAR-10 dataset.</p>
+<h3 id="visualization-callback">Visualization Callback</h3>
+<p>A key feature of the Focal Modulation Network is explicit input-dependency. This means
+the modulator is calculated by looking at the local features around the target location,
+so it depends on the input. In very simple terms, this makes interpretation easy. We can
+simply lay down the gating values and the original image, next to each other to see how
+the gating mechanism works.</p>
+<p>The authors of the paper visualize the gates and the modulator in order to focus on the
+interpretability of the Focal Modulation layer. Below is a visualization
+callback that shows the gates and modulator of a specific layer in the model while the
+model trains.</p>
+<p>We will notice later that as the model trains, the visualizations get better.</p>
+<p>The gates appear to selectively permit certain aspects of the input image to pass
+through, while gently disregarding others, ultimately leading to improved classification
+accuracy.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">display_grid</span><span class="p">(</span><span class="n">test_images</span><span class="p">,</span> <span class="n">gates</span><span class="p">,</span> <span class="n">modulator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Displays the image with the gates and modulator overlayed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        test_images: A batch of test images.</span>
+<span class="sd">        gates: The gates of the Focal Modualtion Layer.</span>
+<span class="sd">        modulator: The modulator of the Focal Modulation Layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">test_images_np</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">test_images</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+    <span class="n">gates_np</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span>
+    <span class="n">mod_np</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">modulator</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">num_gates</span> <span class="o">=</span> <span class="n">gates_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">test_images_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_gates</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">((</span><span class="n">num_gates</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">test_images_np</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Original&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_gates</span><span class="p">):</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">test_images_np</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">gates_np</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gate </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">test_images_np</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mod_np</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Modulator&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="learning-rate-scheduler">Learning Rate scheduler</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WarmUpCosine</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">LearningRateSchedule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lr_base</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">lr_base</span><span class="p">,</span>
+            <span class="n">total_steps</span><span class="p">,</span>
+            <span class="n">warmup_steps</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">cos_lr</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">0.5</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_base</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="mi">1</span>
+                <span class="o">+</span> <span class="n">ops</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+                    <span class="o">*</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">)</span>
+                    <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">warmup_lr</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_base</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">step</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">,</span>
+            <span class="n">warmup_lr</span><span class="p">,</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">step</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">cos_lr</span><span class="p">),</span>
+        <span class="p">)</span>
+
+
+<span class="n">total_steps</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span> <span class="o">//</span> <span class="n">BATCH_SIZE</span><span class="p">)</span> <span class="o">*</span> <span class="n">EPOCHS</span>
+<span class="n">scheduled_lrs</span> <span class="o">=</span> <span class="n">WarmUpCosine</span><span class="p">(</span><span class="n">LEARNING_RATE</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_steps</span> <span class="o">*</span> <span class="mf">0.15</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="initialize-compile-and-train-the-model">Initialize, compile and train the model</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">FocalModulationNetwork</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="n">IMAGE_SIZE</span><span class="p">,</span> <span class="n">IMAGE_SIZE</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">scheduled_lrs</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">WEIGHT_DECAY</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;sparse_categorical_crossentropy&quot;</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_ds</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">val_ds</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/20
+
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1777027663.829105 8722813 service.cc:152] XLA service 0x35911d0b0 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+I0000 00:00:1777027663.829121 8722813 service.cc:160]   StreamExecutor device (0): Host, Default Version
+I0000 00:00:1777027663.878984 8722813 device_compiler.h:188] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 309s 954ms/step - accuracy: 0.1826 - loss: 2.1990 - val_accuracy: 0.2426 - val_loss: 2.0434
+
+Epoch 2/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 309s 986ms/step - accuracy: 0.2891 - loss: 1.8906 - val_accuracy: 0.3191 - val_loss: 1.8333
+
+Epoch 3/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 308s 983ms/step - accuracy: 0.3669 - loss: 1.7095 - val_accuracy: 0.3869 - val_loss: 1.6693
+
+Epoch 4/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 310s 989ms/step - accuracy: 0.4221 - loss: 1.5685 - val_accuracy: 0.4188 - val_loss: 1.5894
+
+Epoch 5/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 301s 960ms/step - accuracy: 0.4618 - loss: 1.4759 - val_accuracy: 0.4519 - val_loss: 1.5107
+
+Epoch 6/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 311s 993ms/step - accuracy: 0.4943 - loss: 1.3977 - val_accuracy: 0.4743 - val_loss: 1.5007
+
+Epoch 7/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 305s 973ms/step - accuracy: 0.5185 - loss: 1.3445 - val_accuracy: 0.5042 - val_loss: 1.3920
+
+Epoch 8/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 302s 966ms/step - accuracy: 0.5350 - loss: 1.3001 - val_accuracy: 0.5192 - val_loss: 1.3544
+
+Epoch 9/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 302s 965ms/step - accuracy: 0.5451 - loss: 1.2637 - val_accuracy: 0.5247 - val_loss: 1.3289
+
+Epoch 10/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 305s 974ms/step - accuracy: 0.5607 - loss: 1.2300 - val_accuracy: 0.5312 - val_loss: 1.3112
+
+Epoch 11/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 298s 953ms/step - accuracy: 0.5730 - loss: 1.1985 - val_accuracy: 0.5354 - val_loss: 1.3262
+
+Epoch 12/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 300s 959ms/step - accuracy: 0.5802 - loss: 1.1739 - val_accuracy: 0.5484 - val_loss: 1.2850
+
+Epoch 13/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 303s 966ms/step - accuracy: 0.5905 - loss: 1.1494 - val_accuracy: 0.5640 - val_loss: 1.2334
+
+Epoch 14/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 305s 973ms/step - accuracy: 0.5973 - loss: 1.1309 - val_accuracy: 0.5641 - val_loss: 1.2307
+
+Epoch 15/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 298s 952ms/step - accuracy: 0.6072 - loss: 1.1127 - val_accuracy: 0.5740 - val_loss: 1.2129
+
+Epoch 16/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 300s 957ms/step - accuracy: 0.6120 - loss: 1.0956 - val_accuracy: 0.5734 - val_loss: 1.2059
+
+Epoch 17/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 301s 961ms/step - accuracy: 0.6145 - loss: 1.0874 - val_accuracy: 0.5788 - val_loss: 1.1996
+
+Epoch 18/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 304s 970ms/step - accuracy: 0.6164 - loss: 1.0800 - val_accuracy: 0.5797 - val_loss: 1.1991
+
+Epoch 19/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 299s 956ms/step - accuracy: 0.6212 - loss: 1.0737 - val_accuracy: 0.5828 - val_loss: 1.1924
+
+Epoch 20/20
+
+313/313 ━━━━━━━━━━━━━━━━━━━━ 298s 954ms/step - accuracy: 0.6204 - loss: 1.0702 - val_accuracy: 0.5822 - val_loss: 1.1950
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="plot-loss-and-accuracy">Plot loss and accuracy</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Train Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;val_loss&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Val Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Train Acc&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;val_accuracy&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Val Acc&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/vision/focal_modulation_network/focal_modulation_network_33_0.png" /></p>
+<hr />
+<h2 id="test-visualizations">Test visualizations</h2>
+<p>Let's test our model on some test images and see how the gates look like.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">test_images</span><span class="p">,</span> <span class="n">test_labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">test_ds</span><span class="p">))</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">test_images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">target_layer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">basic_layers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">modulation</span>
+<span class="n">gates</span> <span class="o">=</span> <span class="n">target_layer</span><span class="o">.</span><span class="n">gates</span>
+<span class="n">modulator</span> <span class="o">=</span> <span class="n">target_layer</span><span class="o">.</span><span class="n">modulator</span>
+
+<span class="n">upsampler</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">)</span>
+<span class="n">gates_upsampled</span> <span class="o">=</span> <span class="n">upsampler</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span>
+<span class="n">modulator_upsampled</span> <span class="o">=</span> <span class="n">upsampler</span><span class="p">(</span><span class="n">modulator</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">display_grid</span><span class="p">(</span>
+        <span class="n">test_images</span><span class="o">=</span><span class="n">test_images</span><span class="p">,</span>
+        <span class="n">gates</span><span class="o">=</span><span class="n">gates_upsampled</span><span class="p">,</span>
+        <span class="n">modulator</span><span class="o">=</span><span class="n">modulator_upsampled</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/vision/focal_modulation_network/focal_modulation_network_35_0.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/focal_modulation_network/focal_modulation_network_35_1.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/focal_modulation_network/focal_modulation_network_35_2.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/focal_modulation_network/focal_modulation_network_35_3.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/focal_modulation_network/focal_modulation_network_35_4.png" /></p>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>The proposed architecture, the Focal Modulation Network
+architecture is a mechanism that allows different
+parts of an image to interact with each other in a way that depends on the image itself.
+It works by first gathering different levels of context information around each part of
+the image (the "query token"), then using a gate to decide which context information is
+most relevant, and finally combining the chosen information in a simple but effective
+way.</p>
+<p>This is meant as a replacement of Self-Attention mechanism from the Transformer
+architecture. The key feature that makes this research notable is not the conception of
+attention-less networks, but rather the introduction of a equally powerful architecture
+that is interpretable.</p>
+<p>The authors also mention that they created a series of Focal Modulation Networks
+(FocalNets) that significantly outperform Self-Attention counterparts and with a fraction
+of parameters and pretraining data.</p>
+<p>The FocalNets architecture has the potential to deliver impressive results and offers a
+simple implementation. Its promising performance and ease of use make it an attractive
+alternative to Self-Attention for researchers to explore in their own projects. It could
+potentially become widely adopted by the Deep Learning community in the near future.</p>
+<hr />
+<h2 id="acknowledgement">Acknowledgement</h2>
+<p>We would like to thank <a href="https://pyimagesearch.com/">PyImageSearch</a> for providing with a
+Colab Pro account, <a href="https://cloud.jarvislabs.ai/">JarvisLabs.ai</a> for GPU credits,
+and also Microsoft Research for providing an
+<a href="https://github.com/microsoft/FocalNet">official implementation</a> of their paper.
+We would also like to extend our gratitude to the first author of the
+paper <a href="https://twitter.com/jw2yang4ai">Jianwei Yang</a> who reviewed this tutorial
+extensively.</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter08_image-classification">Chapter 8: Image classification</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='focal_modulation_network.html#focal-modulation-a-replacement-for-selfattention'>Focal Modulation: A replacement for Self-Attention</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#setup-and-imports'>Setup and Imports</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#global-configuration'>Global Configuration</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#data-loading-with-pydataset'>Data Loading with PyDataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#architecture'>Architecture</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#patch-embedding-layer'>Patch Embedding Layer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#focal-modulation-block'>Focal Modulation block</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='focal_modulation_network.html#multilayer-perceptron'>Multilayer Perceptron</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='focal_modulation_network.html#focal-modulation-layer'>Focal Modulation layer</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='focal_modulation_network.html#the-focal-modulation-block'>The Focal Modulation block</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#the-basic-layer'>The Basic Layer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#the-focal-modulation-network-model'>The Focal Modulation Network model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#train-the-model'>Train the model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='focal_modulation_network.html#visualization-callback'>Visualization Callback</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='focal_modulation_network.html#learning-rate-scheduler'>Learning Rate scheduler</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='focal_modulation_network.html#initialize-compile-and-train-the-model'>Initialize, compile and train the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#plot-loss-and-accuracy'>Plot loss and accuracy</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#test-visualizations'>Test visualizations</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#conclusion'>Conclusion</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#acknowledgement'>Acknowledgement</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='focal_modulation_network.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

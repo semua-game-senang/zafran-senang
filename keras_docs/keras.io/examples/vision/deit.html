@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Distilling Vision Transformers">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="deit.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Distilling Vision Transformers">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Distilling Vision Transformers">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Distilling Vision Transformers</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2 active" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2 active" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='../vision.html'>Computer Vision</a> /
+         Distilling Vision Transformers
+    </div>
+    <h1 id="distilling-vision-transformers">Distilling Vision Transformers</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/RisingSayak">Sayak Paul</a><br>
+<strong>Date created:</strong> 2022/04/05<br>
+<strong>Last modified:</strong> 2026/05/13<br>
+<strong>Description:</strong> Distillation of Vision Transformers through attention.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/deit.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/vision/deit.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>In the original <em>Vision Transformers</em> (ViT) paper
+(<a href="https://arxiv.org/abs/2010.11929">Dosovitskiy et al.</a>),
+the authors concluded that to perform on par with Convolutional Neural Networks (CNNs),
+ViTs need to be pre-trained on larger datasets. The larger the better. This is mainly
+due to the lack of inductive biases in the ViT architecture &ndash; unlike CNNs,
+they don't have layers that exploit locality. In a follow-up paper
+(<a href="https://arxiv.org/abs/2106.10270">Steiner et al.</a>),
+the authors show that it is possible to substantially improve the performance of ViTs
+with stronger regularization and longer training.</p>
+<p>Many groups have proposed different ways to deal with the problem
+of data-intensiveness of ViT training.
+One such way was shown in the <em>Data-efficient image Transformers</em>,
+(DeiT) paper (<a href="https://arxiv.org/abs/2012.12877">Touvron et al.</a>). The
+authors introduced a distillation technique that is specific to transformer-based vision
+models. DeiT is among the first works to show that it's possible to train ViTs well
+without using larger datasets.</p>
+<p>In this example, we implement the distillation recipe proposed in DeiT. This
+requires us to slightly tweak the original ViT architecture and write a custom training
+loop to implement the distillation recipe.</p>
+<p>To comfortably navigate through this example, you'll be expected to know how a ViT and
+knowledge distillation work. The following are good resources in case you needed a
+refresher:</p>
+<ul>
+<li><a href="image_classification_with_vision_transformer.html">ViT on keras.io</a></li>
+<li><a href="knowledge_distillation.html">Knowledge distillation on keras.io</a></li>
+</ul>
+<hr />
+<h2 id="imports">Imports</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+
+<span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_random_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1778696636.585494    2411 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1778696636.592069    2411 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1778696636.608151    2411 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778696636.608181    2411 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778696636.608183    2411 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778696636.608184    2411 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="constants">Constants</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Model</span>
+<span class="n">MODEL_TYPE</span> <span class="o">=</span> <span class="s2">&quot;deit_distilled_tiny_patch16_224&quot;</span>
+<span class="n">RESOLUTION</span> <span class="o">=</span> <span class="mi">224</span>
+<span class="n">PATCH_SIZE</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">NUM_PATCHES</span> <span class="o">=</span> <span class="p">(</span><span class="n">RESOLUTION</span> <span class="o">//</span> <span class="n">PATCH_SIZE</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">LAYER_NORM_EPS</span> <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="n">PROJECTION_DIM</span> <span class="o">=</span> <span class="mi">192</span>
+<span class="n">NUM_HEADS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">NUM_LAYERS</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">MLP_UNITS</span> <span class="o">=</span> <span class="p">[</span><span class="n">PROJECTION_DIM</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">]</span>
+<span class="n">DROPOUT_RATE</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">DROP_PATH_RATE</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="c1"># Training</span>
+<span class="n">NUM_EPOCHS</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">BASE_LR</span> <span class="o">=</span> <span class="mf">0.0005</span>
+<span class="n">WEIGHT_DECAY</span> <span class="o">=</span> <span class="mf">0.0001</span>
+
+<span class="c1"># Data</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">NUM_CLASSES</span> <span class="o">=</span> <span class="mi">5</span>
+</code></pre></div>
+
+<p>You probably noticed that <code>DROPOUT_RATE</code> has been set 0.0. Dropout has been used
+in the implementation to keep it complete. For smaller models (like the one used in
+this example), you don't need it, but for bigger models, using dropout helps.</p>
+<hr />
+<h2 id="load-the-flowers-dataset-and-prepare-preprocessing-utilities">Load the flowers dataset and prepare preprocessing utilities</h2>
+<p>The authors use an array of different augmentation techniques, including MixUp
+(<a href="https://arxiv.org/abs/1710.09412">Zhang et al.</a>),
+RandAugment (<a href="https://arxiv.org/abs/1909.13719">Cubuk et al.</a>),
+and so on. However, to keep the example simple to work through, we'll discard them.</p>
+<p>We use <a href="https://keras.io/api/utils/preprocessing_utils#pydataset-class"><code>keras.utils.PyDataset</code></a> to build a fully backend-agnostic data pipeline that
+works with JAX, PyTorch, and TensorFlow alike.</p>
+<p>A couple of practical details are important here:</p>
+<ul>
+<li><code>keras.utils.get_file(untar=True)</code> may return the extraction cache directory, so we
+    explicitly resolve the inner <code>flower_photos/</code> folder when present.</li>
+<li>Source images have variable spatial sizes, so we decode each image with a fixed
+    <code>target_size</code> before stacking into a NumPy batch.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">FLOWERS_URL</span> <span class="o">=</span> <span class="s2">&quot;https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowersDataset</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">PyDataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backend-agnostic flowers dataset that loads images from disk each epoch.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_paths</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">,</span>
+        <span class="n">augmenter</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_paths</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">augmenter</span> <span class="o">=</span> <span class="n">augmenter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_epoch_end</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">))</span>
+        <span class="n">batch_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">batch_indices</span><span class="p">:</span>
+            <span class="n">target_size</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">RESOLUTION</span> <span class="o">+</span> <span class="mi">20</span><span class="p">,</span> <span class="n">RESOLUTION</span> <span class="o">+</span> <span class="mi">20</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span>
+                <span class="k">else</span> <span class="p">(</span><span class="n">RESOLUTION</span><span class="p">,</span> <span class="n">RESOLUTION</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">load_img</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">target_size</span><span class="o">=</span><span class="n">target_size</span><span class="p">)</span>
+            <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">img_to_array</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augmenter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">augmenter</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">],</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">NUM_CLASSES</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_augmenter</span><span class="p">(</span><span class="n">is_training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_training</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="n">RESOLUTION</span><span class="p">,</span> <span class="n">RESOLUTION</span><span class="p">),</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="s2">&quot;horizontal&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;train_augmentation&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_flower_file_paths</span><span class="p">(</span><span class="n">validation_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="n">extracted</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="n">FLOWERS_URL</span><span class="p">,</span> <span class="n">untar</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">extracted</span> <span class="o">/</span> <span class="s2">&quot;flower_photos&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">extracted</span> <span class="o">/</span> <span class="s2">&quot;flower_photos&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+        <span class="k">else</span> <span class="n">extracted</span>
+    <span class="p">)</span>
+    <span class="n">class_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()])</span>
+    <span class="n">class_to_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_names</span><span class="p">)}</span>
+    <span class="n">train_paths</span><span class="p">,</span> <span class="n">train_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">val_paths</span><span class="p">,</span> <span class="n">val_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="n">class_names</span><span class="p">:</span>
+        <span class="n">class_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">class_name</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.jpg&quot;</span><span class="p">))</span>
+        <span class="n">class_files</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">class_files</span><span class="p">])</span>
+        <span class="n">rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">class_files</span><span class="p">)</span>
+        <span class="n">num_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">class_files</span><span class="p">)</span> <span class="o">*</span> <span class="n">validation_split</span><span class="p">)</span>
+        <span class="n">val_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">class_files</span><span class="p">[:</span><span class="n">num_val</span><span class="p">])</span>
+        <span class="n">val_labels</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">class_to_index</span><span class="p">[</span><span class="n">class_name</span><span class="p">]]</span> <span class="o">*</span> <span class="n">num_val</span><span class="p">)</span>
+        <span class="n">train_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">class_files</span><span class="p">[</span><span class="n">num_val</span><span class="p">:])</span>
+        <span class="n">train_labels</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">class_to_index</span><span class="p">[</span><span class="n">class_name</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">class_files</span><span class="p">)</span> <span class="o">-</span> <span class="n">num_val</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">train_paths</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">val_paths</span><span class="p">,</span> <span class="n">val_labels</span>
+
+
+<span class="n">train_paths</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">val_paths</span><span class="p">,</span> <span class="n">val_labels</span> <span class="o">=</span> <span class="n">load_flower_file_paths</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of training examples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_paths</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of validation examples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_paths</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">FlowersDataset</span><span class="p">(</span>
+    <span class="n">train_paths</span><span class="p">,</span>
+    <span class="n">train_labels</span><span class="p">,</span>
+    <span class="n">augmenter</span><span class="o">=</span><span class="n">get_augmenter</span><span class="p">(</span><span class="n">is_training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">val_dataset</span> <span class="o">=</span> <span class="n">FlowersDataset</span><span class="p">(</span>
+    <span class="n">val_paths</span><span class="p">,</span>
+    <span class="n">val_labels</span><span class="p">,</span>
+    <span class="n">augmenter</span><span class="o">=</span><span class="n">get_augmenter</span><span class="p">(</span><span class="n">is_training</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
+
+228813984/228813984 ━━━━━━━━━━━━━━━━━━━━ 2s 0us/step
+
+Number of training examples: 3306
+Number of validation examples: 364
+
+I0000 00:00:1778696644.640571    2411 gpu_device.cc:2019] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 38482 MB memory:  -&gt; device: 0, name: NVIDIA A100-SXM4-40GB, pci bus id: 0000:00:04.0, compute capability: 8.0
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="implementing-the-deit-variants-of-vit">Implementing the DeiT variants of ViT</h2>
+<p>Since DeiT is an extension of ViT it'd make sense to first implement ViT and then extend
+it to support DeiT's components.</p>
+<p>First, we'll implement a layer for Stochastic Depth
+(<a href="https://arxiv.org/abs/1603.09382">Huang et al.</a>)
+which is used in DeiT for regularization.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Referred from: github.com:rwightman/pytorch-image-models.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StochasticDepth</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drop_prop</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drop_prob</span> <span class="o">=</span> <span class="n">drop_prop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">SeedGenerator</span><span class="p">(</span><span class="mi">1337</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+            <span class="n">keep_prob</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_prob</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">random_tensor</span> <span class="o">=</span> <span class="n">keep_prob</span> <span class="o">+</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                <span class="n">shape</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span>
+            <span class="p">)</span>
+            <span class="n">random_tensor</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">random_tensor</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">keep_prob</span><span class="p">)</span> <span class="o">*</span> <span class="n">random_tensor</span>
+        <span class="k">return</span> <span class="n">x</span>
+</code></pre></div>
+
+<p>Now, we'll implement the MLP and Transformer blocks.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mlp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">hidden_units</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FFN for a Transformer block.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hidden_units</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;gelu&quot;</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">transformer</span><span class="p">(</span><span class="n">drop_prob</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformer block with pre-norm.&quot;&quot;&quot;</span>
+    <span class="n">num_patches</span> <span class="o">=</span> <span class="n">NUM_PATCHES</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">if</span> <span class="s2">&quot;distilled&quot;</span> <span class="ow">in</span> <span class="n">MODEL_TYPE</span> <span class="k">else</span> <span class="n">NUM_PATCHES</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">num_patches</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">))</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)(</span><span class="n">encoded_patches</span><span class="p">)</span>
+    <span class="n">attention_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="n">NUM_HEADS</span><span class="p">,</span> <span class="n">key_dim</span><span class="o">=</span><span class="n">PROJECTION_DIM</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">DROPOUT_RATE</span>
+    <span class="p">)(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+    <span class="n">attention_output</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">StochasticDepth</span><span class="p">(</span><span class="n">drop_prob</span><span class="p">)(</span><span class="n">attention_output</span><span class="p">)</span> <span class="k">if</span> <span class="n">drop_prob</span> <span class="k">else</span> <span class="n">attention_output</span>
+    <span class="p">)</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">attention_output</span><span class="p">,</span> <span class="n">encoded_patches</span><span class="p">])</span>
+    <span class="n">x3</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)(</span><span class="n">x2</span><span class="p">)</span>
+    <span class="n">x4</span> <span class="o">=</span> <span class="n">mlp</span><span class="p">(</span><span class="n">x3</span><span class="p">,</span> <span class="n">hidden_units</span><span class="o">=</span><span class="n">MLP_UNITS</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="n">DROPOUT_RATE</span><span class="p">)</span>
+    <span class="n">x4</span> <span class="o">=</span> <span class="n">StochasticDepth</span><span class="p">(</span><span class="n">drop_prob</span><span class="p">)(</span><span class="n">x4</span><span class="p">)</span> <span class="k">if</span> <span class="n">drop_prob</span> <span class="k">else</span> <span class="n">x4</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Add</span><span class="p">()([</span><span class="n">x2</span><span class="p">,</span> <span class="n">x4</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We'll now implement a <code>ViTClassifier</code> class building on top of the components we just
+developed. Here we'll be following the original pooling strategy used in the ViT paper &ndash;
+use a class token and use the feature representations corresponding to it for
+classification.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ViTClassifier</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vision Transformer base class.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+                    <span class="n">filters</span><span class="o">=</span><span class="n">PROJECTION_DIM</span><span class="p">,</span>
+                    <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">PATCH_SIZE</span><span class="p">,</span> <span class="n">PATCH_SIZE</span><span class="p">),</span>
+                    <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">PATCH_SIZE</span><span class="p">,</span> <span class="n">PATCH_SIZE</span><span class="p">),</span>
+                    <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;VALID&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;conv_projection&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">(</span>
+                    <span class="n">target_shape</span><span class="o">=</span><span class="p">(</span><span class="n">NUM_PATCHES</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">),</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;flatten_projection&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;projection&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">dpr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">DROP_PATH_RATE</span><span class="p">,</span> <span class="n">NUM_LAYERS</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">transformer</span><span class="p">(</span><span class="n">drop_prob</span><span class="o">=</span><span class="n">dpr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;transformer_block_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_LAYERS</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">DROPOUT_RATE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="n">LAYER_NORM_EPS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">NUM_CLASSES</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;classification_head&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positional_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">NUM_PATCHES</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(),</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pos_embedding&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cls_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(),</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cls&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">projected_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">cls_token</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls_token</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">cls_token</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">cls_token</span><span class="p">,</span> <span class="n">projected_patches</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">projected_patches</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cls_token</span><span class="p">,</span> <span class="n">projected_patches</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">encoded_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positional_embedding</span> <span class="o">+</span> <span class="n">projected_patches</span>
+        <span class="n">encoded_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">transformer_module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_blocks</span><span class="p">:</span>
+            <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">transformer_module</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="n">representation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">representation</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+</code></pre></div>
+
+<p>This class can be used standalone as ViT and is end-to-end trainable. Just remove the
+<code>distilled</code> phrase in <code>MODEL_TYPE</code> and it should work with <code>vit_tiny = ViTClassifier()</code>.
+Let's now extend it to DeiT. The following figure presents the schematic of DeiT (taken
+from the DeiT paper):</p>
+<p><img alt="" src="https://i.imgur.com/5lmg2Xs.png" /></p>
+<p>Apart from the class token, DeiT has another token for distillation. During distillation,
+the logits corresponding to the class token are compared to the true labels, and the
+logits corresponding to the distillation token are compared to the teacher's predictions.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ViTDistilled</span><span class="p">(</span><span class="n">ViTClassifier</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regular_training</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_tokens</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regular_training</span> <span class="o">=</span> <span class="n">regular_training</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">NUM_CLASSES</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;classification_head&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_dist</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">NUM_CLASSES</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;distillation_head&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cls_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(),</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cls&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(),</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dist_token&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positional_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">NUM_PATCHES</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_tokens</span><span class="p">,</span> <span class="n">PROJECTION_DIM</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(),</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pos_embedding&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">projected_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">cls_token</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls_token</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">dist_token</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_token</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">cls_token</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">cls_token</span><span class="p">,</span> <span class="n">projected_patches</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">dist_token</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dist_token</span><span class="p">,</span> <span class="n">projected_patches</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">projected_patches</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cls_token</span><span class="p">,</span> <span class="n">dist_token</span><span class="p">,</span> <span class="n">projected_patches</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">encoded_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positional_embedding</span> <span class="o">+</span> <span class="n">projected_patches</span>
+        <span class="n">encoded_patches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">transformer_module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_blocks</span><span class="p">:</span>
+            <span class="n">encoded_patches</span> <span class="o">=</span> <span class="n">transformer_module</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="n">representation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span><span class="p">(</span><span class="n">encoded_patches</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">x_dist</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">representation</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">head_dist</span><span class="p">(</span><span class="n">representation</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">regular_training</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">x_dist</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">x_dist</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</code></pre></div>
+
+<p>Let's verify if the <code>ViTDistilled</code> class can be initialized and called as expected.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">deit_tiny_distilled</span> <span class="o">=</span> <span class="n">ViTDistilled</span><span class="p">()</span>
+
+<span class="n">dummy_inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">deit_tiny_distilled</span><span class="p">(</span><span class="n">dummy_inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>I0000 00:00:1778696648.330183    2411 cuda_dnn.cc:529] Loaded cuDNN version 92000
+
+(2, 5)
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="implementing-the-trainer">Implementing the trainer</h2>
+<p>Unlike what happens in standard knowledge distillation
+(<a href="https://arxiv.org/abs/1503.02531">Hinton et al.</a>),
+where a temperature-scaled softmax is used as well as KL divergence,
+DeiT authors use the following loss function:</p>
+<p><img alt="" src="https://i.imgur.com/bXdxsBq.png" /></p>
+<p>Here,</p>
+<ul>
+<li>CE is cross-entropy</li>
+<li><code>psi</code> is the softmax function</li>
+<li>Z_s denotes student predictions</li>
+<li>y denotes true labels</li>
+<li>y_t denotes teacher predictions</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeiT</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="c1"># Reference: https://keras.io/examples/vision/knowledge_distillation/</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">,</span> <span class="n">teacher</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">student</span> <span class="o">=</span> <span class="n">student</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">teacher</span> <span class="o">=</span> <span class="n">teacher</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;student_loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;distillation_loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accuracy_metric</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">CategoricalAccuracy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;accuracy&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">metrics</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">student_loss_tracker</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_loss_tracker</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accuracy_metric</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metrics</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">student_loss_fn</span><span class="p">,</span> <span class="n">distillation_loss_fn</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_fn</span> <span class="o">=</span> <span class="n">student_loss_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distillation_loss_fn</span> <span class="o">=</span> <span class="n">distillation_loss_fn</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">x_normalized</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+        <span class="n">cls_predictions</span><span class="p">,</span> <span class="n">dist_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student</span><span class="p">(</span><span class="n">x_normalized</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">teacher_logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">teacher</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">teacher_predictions</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">teacher_logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">student_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_fn</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">cls_predictions</span><span class="p">)</span>
+        <span class="n">distillation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distillation_loss_fn</span><span class="p">(</span>
+            <span class="n">teacher_predictions</span><span class="p">,</span> <span class="n">dist_predictions</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">student_loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">distillation_loss</span><span class="p">)</span>
+        <span class="n">student_predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">cls_predictions</span> <span class="o">+</span> <span class="n">dist_predictions</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accuracy_metric</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">student_predictions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">student_loss</span> <span class="o">+</span> <span class="n">distillation_loss</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">x_normalized</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+        <span class="n">y_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student</span><span class="p">(</span><span class="n">x_normalized</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">student_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_fn</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_prediction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accuracy_metric</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_prediction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">student_loss</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">student_loss</span><span class="p">,</span>
+            <span class="s2">&quot;student_loss&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">student_loss_tracker</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span>
+            <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracy_metric</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">inputs_normalized</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">student</span><span class="p">(</span><span class="n">inputs_normalized</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="build-a-teacher-model">Build a teacher model</h2>
+<p>For full backend portability in Keras 3, we build a teacher with standard Keras layers
+instead of using a TensorFlow-only SavedModel loader. We use <code>EfficientNetV2B0</code> (pretrained on
+ImageNet) as the backbone, freeze it, and fine-tune only a small classification head on
+the flowers dataset. In practice you could swap in any compatible Keras model as the
+teacher.</p>
+<p><code>EfficientNetV2B0</code> includes preprocessing by default (<code>include_preprocessing=True</code>),
+so it expects raw <code>[0, 255]</code> image values. We therefore avoid adding an extra
+<code>Rescaling(1/255)</code> layer in the teacher path to prevent double normalization.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">teacher_backbone</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">applications</span><span class="o">.</span><span class="n">EfficientNetV2B0</span><span class="p">(</span>
+    <span class="n">include_top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;avg&quot;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;imagenet&quot;</span>
+<span class="p">)</span>
+<span class="n">teacher_backbone</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">teacher_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">teacher_backbone</span><span class="p">,</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">NUM_CLASSES</span><span class="p">)],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;teacher&quot;</span>
+<span class="p">)</span>
+<span class="n">teacher_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">CategoricalAccuracy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;accuracy&quot;</span><span class="p">)],</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fine-tuning teacher head on flowers dataset...&quot;</span><span class="p">)</span>
+<span class="n">teacher_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">teacher_model</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://storage.googleapis.com/tensorflow/keras-applications/efficientnet_v2/efficientnetv2-b0_notop.h5
+
+24274472/24274472 ━━━━━━━━━━━━━━━━━━━━ 0s 0us/step
+
+Fine-tuning teacher head on flowers dataset...
+
+Epoch 1/5
+
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1778696668.253681    2467 service.cc:152] XLA service 0x7fddf4004780 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+I0000 00:00:1778696668.253740    2467 service.cc:160]   StreamExecutor device (0): NVIDIA A100-SXM4-40GB, Compute Capability 8.0
+
+ 2/13 ━━━━━━━━━━━━━━━━━━━━ 1s 97ms/step - accuracy: 0.2812 - loss: 1.5813
+
+I0000 00:00:1778696697.640091    2467 device_compiler.h:188] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 100s 5s/step - accuracy: 0.6031 - loss: 1.1777 - val_accuracy: 0.7363 - val_loss: 0.8961
+
+Epoch 2/5
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 5s 303ms/step - accuracy: 0.7919 - loss: 0.7255 - val_accuracy: 0.8049 - val_loss: 0.6591
+
+Epoch 3/5
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 5s 308ms/step - accuracy: 0.8436 - loss: 0.5433 - val_accuracy: 0.8462 - val_loss: 0.5433
+
+Epoch 4/5
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 5s 309ms/step - accuracy: 0.8724 - loss: 0.4523 - val_accuracy: 0.8626 - val_loss: 0.4762
+
+Epoch 5/5
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 5s 309ms/step - accuracy: 0.8905 - loss: 0.3986 - val_accuracy: 0.8764 - val_loss: 0.4336
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="training-through-distillation">Training through distillation</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">deit_tiny</span> <span class="o">=</span> <span class="n">ViTDistilled</span><span class="p">()</span>
+<span class="n">deit_distiller</span> <span class="o">=</span> <span class="n">DeiT</span><span class="p">(</span><span class="n">student</span><span class="o">=</span><span class="n">deit_tiny</span><span class="p">,</span> <span class="n">teacher</span><span class="o">=</span><span class="n">teacher_model</span><span class="p">)</span>
+<span class="n">lr_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">BASE_LR</span> <span class="o">/</span> <span class="mi">512</span><span class="p">)</span> <span class="o">*</span> <span class="n">BATCH_SIZE</span>
+<span class="n">deit_distiller</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+        <span class="n">weight_decay</span><span class="o">=</span><span class="n">WEIGHT_DECAY</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">lr_scaled</span>
+    <span class="p">),</span>
+    <span class="n">student_loss_fn</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">(</span>
+        <span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.1</span>
+    <span class="p">),</span>
+    <span class="n">distillation_loss_fn</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">deit_distiller</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">NUM_EPOCHS</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 189s 7s/step - accuracy: 0.2257 - distillation_loss: 2.1809 - loss: 2.0463 - student_loss: 1.9302 - val_accuracy: 0.1896 - val_loss: 1.4346 - val_student_loss: 1.5736
+
+Epoch 2/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 367ms/step - accuracy: 0.2184 - distillation_loss: 1.6308 - loss: 1.6227 - student_loss: 1.6147 - val_accuracy: 0.2445 - val_loss: 1.5118 - val_student_loss: 1.5775
+
+Epoch 3/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 378ms/step - accuracy: 0.2151 - distillation_loss: 1.6084 - loss: 1.6084 - student_loss: 1.6084 - val_accuracy: 0.2445 - val_loss: 1.5851 - val_student_loss: 1.6011
+
+Epoch 4/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 375ms/step - accuracy: 0.2426 - distillation_loss: 1.6073 - loss: 1.6051 - student_loss: 1.6028 - val_accuracy: 0.2170 - val_loss: 1.5452 - val_student_loss: 1.5852
+
+Epoch 5/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 368ms/step - accuracy: 0.2387 - distillation_loss: 1.6037 - loss: 1.6033 - student_loss: 1.6029 - val_accuracy: 0.2445 - val_loss: 1.5618 - val_student_loss: 1.5873
+
+Epoch 6/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 369ms/step - accuracy: 0.2489 - distillation_loss: 1.6007 - loss: 1.6008 - student_loss: 1.6008 - val_accuracy: 0.2445 - val_loss: 1.6880 - val_student_loss: 1.6270
+
+Epoch 7/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 361ms/step - accuracy: 0.2308 - distillation_loss: 1.6025 - loss: 1.6014 - student_loss: 1.6003 - val_accuracy: 0.2527 - val_loss: 1.5244 - val_student_loss: 1.5746
+
+Epoch 8/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 363ms/step - accuracy: 0.2480 - distillation_loss: 1.5985 - loss: 1.5973 - student_loss: 1.5964 - val_accuracy: 0.2857 - val_loss: 1.5183 - val_student_loss: 1.5697
+
+Epoch 9/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 361ms/step - accuracy: 0.3073 - distillation_loss: 1.5623 - loss: 1.5619 - student_loss: 1.5617 - val_accuracy: 0.3104 - val_loss: 1.5522 - val_student_loss: 1.5427
+
+Epoch 10/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 363ms/step - accuracy: 0.3657 - distillation_loss: 1.4807 - loss: 1.4769 - student_loss: 1.4729 - val_accuracy: 0.3407 - val_loss: 1.5153 - val_student_loss: 1.4909
+
+Epoch 11/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 369ms/step - accuracy: 0.3941 - distillation_loss: 1.4111 - loss: 1.4111 - student_loss: 1.4115 - val_accuracy: 0.3544 - val_loss: 1.5445 - val_student_loss: 1.4759
+
+Epoch 12/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 377ms/step - accuracy: 0.4250 - distillation_loss: 1.3679 - loss: 1.3678 - student_loss: 1.3676 - val_accuracy: 0.3929 - val_loss: 1.3185 - val_student_loss: 1.3640
+
+Epoch 13/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 367ms/step - accuracy: 0.4604 - distillation_loss: 1.3078 - loss: 1.3064 - student_loss: 1.3049 - val_accuracy: 0.4478 - val_loss: 1.5273 - val_student_loss: 1.4022
+
+Epoch 14/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 364ms/step - accuracy: 0.5094 - distillation_loss: 1.2820 - loss: 1.2736 - student_loss: 1.2653 - val_accuracy: 0.4753 - val_loss: 1.2482 - val_student_loss: 1.3120
+
+Epoch 15/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 367ms/step - accuracy: 0.5088 - distillation_loss: 1.2707 - loss: 1.2553 - student_loss: 1.2394 - val_accuracy: 0.5302 - val_loss: 1.3324 - val_student_loss: 1.2801
+
+Epoch 16/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 366ms/step - accuracy: 0.5544 - distillation_loss: 1.2321 - loss: 1.2154 - student_loss: 1.1985 - val_accuracy: 0.5385 - val_loss: 1.4207 - val_student_loss: 1.2887
+
+Epoch 17/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 377ms/step - accuracy: 0.5693 - distillation_loss: 1.2090 - loss: 1.1889 - student_loss: 1.1681 - val_accuracy: 0.5549 - val_loss: 1.1973 - val_student_loss: 1.2029
+
+Epoch 18/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 365ms/step - accuracy: 0.5941 - distillation_loss: 1.1869 - loss: 1.1691 - student_loss: 1.1510 - val_accuracy: 0.5797 - val_loss: 1.1819 - val_student_loss: 1.1792
+
+Epoch 19/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 372ms/step - accuracy: 0.6062 - distillation_loss: 1.1702 - loss: 1.1475 - student_loss: 1.1242 - val_accuracy: 0.5934 - val_loss: 1.1396 - val_student_loss: 1.1463
+
+Epoch 20/20
+
+13/13 ━━━━━━━━━━━━━━━━━━━━ 6s 358ms/step - accuracy: 0.6243 - distillation_loss: 1.1581 - loss: 1.1337 - student_loss: 1.1085 - val_accuracy: 0.5934 - val_loss: 1.2590 - val_student_loss: 1.1801
+</code></pre></div>
+
+
+</div>
+
+<p>In this Keras 3 setup, distillation consistently improves over training the same
+backbone from scratch under the same budget. In our current run, the distilled model
+reaches about <strong>61.5% validation accuracy</strong> after 20 epochs.</p>
+<p>You can adapt the following code to reproduce a non-distilled baseline:</p>
+<div class="codehilite"><pre><span></span><code>vit_tiny = ViTClassifier()
+
+inputs = keras.Input((RESOLUTION, RESOLUTION, 3))
+x = keras.layers.Rescaling(scale=1./255)(inputs)
+outputs = deit_tiny(x)
+model = keras.Model(inputs, outputs)
+
+model.compile(...)
+model.fit(...)
+</code></pre></div>
+
+<hr />
+<h2 id="notes">Notes</h2>
+<ul>
+<li>Through the use of distillation, we're effectively transferring the inductive biases of
+a CNN-based teacher model.</li>
+<li>In this example, a compact CNN teacher (<code>EfficientNetV2B0</code>) provides a strong
+signal and stabilizes DeiT training on the flowers dataset.</li>
+<li>The use of regularization to train DeiT models is very important.</li>
+<li>ViT models are initialized with a combination of different initializers including
+truncated normal, random normal, Glorot uniform, etc. If you're looking for
+end-to-end reproduction of the original results, don't forget to initialize the ViTs well.</li>
+<li>The entire pipeline is backend-agnostic in Keras 3: data loading, augmentation,
+and distillation all run without TensorFlow-specific APIs.</li>
+<li>If you want to explore the pre-trained DeiT models in Keras with code
+for fine-tuning, <a href="https://tfhub.dev/sayakpaul/collections/deit/1">check out these models on TF-Hub</a>.</li>
+</ul>
+<hr />
+<h2 id="acknowledgements">Acknowledgements</h2>
+<ul>
+<li>Ross Wightman for keeping
+<a href="https://github.com/rwightman/pytorch-image-models"><code>timm</code></a>
+updated with readable implementations. I referred to the implementations of ViT and DeiT
+a lot during implementing them in Keras.</li>
+<li><a href="https://github.com/ariG23498">Aritra Roy Gosthipaty</a>
+who implemented some portions of the <code>ViTClassifier</code> in another project.</li>
+<li><a href="https://developers.google.com/programs/experts/">Google Developers Experts</a>
+program for supporting me with GCP credits which were used to run experiments for this
+example.</li>
+</ul>
+<p>Example available on HuggingFace:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Trained Model</th>
+<th style="text-align: center;">Demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><a href="https://huggingface.co/keras-io/deit"><img alt="Generic badge" src="https://img.shields.io/badge/🤗%20Model-DEIT-black.svg" /></a></td>
+<td style="text-align: center;"><a href="https://huggingface.co/spaces/keras-io/deit/"><img alt="Generic badge" src="https://img.shields.io/badge/🤗%20Spaces-DEIT-black.svg" /></a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter08_image-classification">Chapter 8: Image classification</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter15_language-models-and-the-transformer">Chapter 15: Language models and the Transformer</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='deit.html#distilling-vision-transformers'>Distilling Vision Transformers</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#imports'>Imports</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#constants'>Constants</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#load-the-flowers-dataset-and-prepare-preprocessing-utilities'>Load the flowers dataset and prepare preprocessing utilities</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#implementing-the-deit-variants-of-vit'>Implementing the DeiT variants of ViT</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#implementing-the-trainer'>Implementing the trainer</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#build-a-teacher-model'>Build a teacher model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#training-through-distillation'>Training through distillation</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#notes'>Notes</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#acknowledgements'>Acknowledgements</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='deit.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

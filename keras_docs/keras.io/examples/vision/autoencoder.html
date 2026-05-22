@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Convolutional autoencoder for image denoising">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="autoencoder.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Convolutional autoencoder for image denoising">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Convolutional autoencoder for image denoising">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Convolutional autoencoder for image denoising</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2 active" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2 active" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='../vision.html'>Computer Vision</a> /
+         Convolutional autoencoder for image denoising
+    </div>
+    <h1 id="convolutional-autoencoder-for-image-denoising">Convolutional autoencoder for image denoising</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/svpino">Santiago L. Valdarrama</a><br>
+<strong>Date created:</strong> 2021/03/01<br>
+<strong>Last modified:</strong> 2021/03/01<br>
+<strong>Description:</strong> How to train a deep convolutional autoencoder for image denoising.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/autoencoder.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/vision/autoencoder.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This example demonstrates how to implement a deep convolutional autoencoder
+for image denoising, mapping noisy digits images from the MNIST dataset to
+clean digits images. This implementation is based on an original blog post
+titled <a href="https://blog.keras.io/building-autoencoders-in-keras.html">Building Autoencoders in Keras</a>
+by <a href="https://twitter.com/fchollet">François Chollet</a>.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">mnist</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalizes the supplied array and reshapes it.&quot;&quot;&quot;</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">),</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">array</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">noise</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds random noise to each image in the supplied array.&quot;&quot;&quot;</span>
+    <span class="n">noise_factor</span> <span class="o">=</span> <span class="mf">0.4</span>
+    <span class="n">noisy_array</span> <span class="o">=</span> <span class="n">array</span> <span class="o">+</span> <span class="n">noise_factor</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+        <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">noisy_array</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">display</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span> <span class="n">array2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Displays ten random images from each array.&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array1</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">images1</span> <span class="o">=</span> <span class="n">array1</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">images2</span> <span class="o">=</span> <span class="n">array2</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">images1</span><span class="p">,</span> <span class="n">images2</span><span class="p">)):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gray</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gray</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="prepare-the-data">Prepare the data</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Since we only need images from the dataset to encode and decode, we</span>
+<span class="c1"># won&#39;t use the labels.</span>
+<span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="c1"># Normalize and reshape the data</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+
+<span class="c1"># Create a copy of the data with added noise</span>
+<span class="n">noisy_train_data</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+<span class="n">noisy_test_data</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+
+<span class="c1"># Display the train data and a version of it with added noise</span>
+<span class="n">display</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">noisy_train_data</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz
+ 11490434/11490434 ━━━━━━━━━━━━━━━━━━━━ 0s 0us/step
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/vision/autoencoder/autoencoder_5_1.png" /></p>
+<hr />
+<h2 id="build-the-autoencoder">Build the autoencoder</h2>
+<p>We are going to use the Functional API to build our convolutional autoencoder.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># Encoder</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="nb">input</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># Decoder</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2DTranspose</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2DTranspose</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># Autoencoder</span>
+<span class="n">autoencoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">autoencoder</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">)</span>
+<span class="n">autoencoder</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "functional_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">    Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ input_layer (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv2d (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)        │        <span style="color: #00af00; text-decoration-color: #00af00">320</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ max_pooling2d (<span style="color: #0087ff; text-decoration-color: #0087ff">MaxPooling2D</span>)    │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)        │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv2d_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)        │      <span style="color: #00af00; text-decoration-color: #00af00">9,248</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ max_pooling2d_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">MaxPooling2D</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">7</span>, <span style="color: #00af00; text-decoration-color: #00af00">7</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)          │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv2d_transpose                │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)        │      <span style="color: #00af00; text-decoration-color: #00af00">9,248</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2DTranspose</span>)               │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv2d_transpose_1              │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)        │      <span style="color: #00af00; text-decoration-color: #00af00">9,248</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2DTranspose</span>)               │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv2d_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │        <span style="color: #00af00; text-decoration-color: #00af00">289</span> │
+└─────────────────────────────────┴───────────────────────────┴────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">28,353</span> (110.75 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">28,353</span> (110.75 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<p>Now we can train our autoencoder using <code>train_data</code> as both our input data
+and target. Notice we are setting up the validation data using the same
+format.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">autoencoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">train_data</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">train_data</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 8s 9ms/step - loss: 0.2537 - val_loss: 0.0723
+Epoch 2/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0718 - val_loss: 0.0691
+Epoch 3/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0695 - val_loss: 0.0677
+Epoch 4/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0682 - val_loss: 0.0669
+Epoch 5/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0673 - val_loss: 0.0664
+Epoch 6/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0668 - val_loss: 0.0660
+Epoch 7/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0664 - val_loss: 0.0657
+Epoch 8/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0661 - val_loss: 0.0654
+Epoch 9/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0657 - val_loss: 0.0651
+Epoch 10/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0655 - val_loss: 0.0648
+Epoch 11/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0653 - val_loss: 0.0646
+Epoch 12/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0651 - val_loss: 0.0644
+Epoch 13/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0649 - val_loss: 0.0643
+Epoch 14/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0647 - val_loss: 0.0641
+Epoch 15/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0646 - val_loss: 0.0640
+Epoch 16/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0645 - val_loss: 0.0639
+Epoch 17/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0642 - val_loss: 0.0638
+Epoch 18/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0641 - val_loss: 0.0638
+Epoch 19/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0640 - val_loss: 0.0636
+Epoch 20/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0639 - val_loss: 0.0637
+Epoch 21/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0639 - val_loss: 0.0634
+Epoch 22/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0637 - val_loss: 0.0634
+Epoch 23/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0636 - val_loss: 0.0633
+Epoch 24/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0637 - val_loss: 0.0632
+Epoch 25/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0635 - val_loss: 0.0632
+Epoch 26/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0635 - val_loss: 0.0631
+Epoch 27/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0635 - val_loss: 0.0630
+Epoch 28/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0635 - val_loss: 0.0629
+Epoch 29/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0634 - val_loss: 0.0630
+Epoch 30/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0633 - val_loss: 0.0629
+Epoch 31/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0633 - val_loss: 0.0628
+Epoch 32/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0632 - val_loss: 0.0628
+Epoch 33/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0631 - val_loss: 0.0627
+Epoch 34/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0631 - val_loss: 0.0627
+Epoch 35/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0630 - val_loss: 0.0627
+Epoch 36/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0631 - val_loss: 0.0626
+Epoch 37/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0629 - val_loss: 0.0626
+Epoch 38/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0630 - val_loss: 0.0627
+Epoch 39/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0630 - val_loss: 0.0625
+Epoch 40/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0629 - val_loss: 0.0625
+Epoch 41/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0628 - val_loss: 0.0625
+Epoch 42/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0629 - val_loss: 0.0625
+Epoch 43/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0629 - val_loss: 0.0624
+Epoch 44/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0628 - val_loss: 0.0624
+Epoch 45/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0628 - val_loss: 0.0624
+Epoch 46/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0627 - val_loss: 0.0625
+Epoch 47/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0628 - val_loss: 0.0623
+Epoch 48/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0627 - val_loss: 0.0623
+Epoch 49/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0626 - val_loss: 0.0623
+Epoch 50/50
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0626 - val_loss: 0.0622
+
+&lt;keras.src.callbacks.history.History at 0x7ff5889d9930&gt;
+</code></pre></div>
+
+
+</div>
+<p>Let's predict on our test dataset and display the original image together with
+the prediction from our autoencoder.</p>
+<p>Notice how the predictions are pretty close to the original images, although
+not quite the same.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">predictions</span> <span class="o">=</span> <span class="n">autoencoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 313/313 ━━━━━━━━━━━━━━━━━━━━ 1s 1ms/step
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/vision/autoencoder/autoencoder_11_1.png" /></p>
+<p>Now that we know that our autoencoder works, let's retrain it using the noisy
+data as our input and the clean data as our target. We want our autoencoder to
+learn how to denoise the images.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">autoencoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">noisy_train_data</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">train_data</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">noisy_test_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.1110 - val_loss: 0.0922
+Epoch 2/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0925 - val_loss: 0.0904
+Epoch 3/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0910 - val_loss: 0.0895
+Epoch 4/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0900 - val_loss: 0.0888
+Epoch 5/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0892 - val_loss: 0.0882
+Epoch 6/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0887 - val_loss: 0.0878
+Epoch 7/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0884 - val_loss: 0.0874
+Epoch 8/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0880 - val_loss: 0.0871
+Epoch 9/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0876 - val_loss: 0.0869
+Epoch 10/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0875 - val_loss: 0.0868
+Epoch 11/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0872 - val_loss: 0.0864
+Epoch 12/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0870 - val_loss: 0.0863
+Epoch 13/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0869 - val_loss: 0.0860
+Epoch 14/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0868 - val_loss: 0.0859
+Epoch 15/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0865 - val_loss: 0.0857
+Epoch 16/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0863 - val_loss: 0.0857
+Epoch 17/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0863 - val_loss: 0.0858
+Epoch 18/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0862 - val_loss: 0.0854
+Epoch 19/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0859 - val_loss: 0.0856
+Epoch 20/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0859 - val_loss: 0.0853
+Epoch 21/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0858 - val_loss: 0.0851
+Epoch 22/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0857 - val_loss: 0.0851
+Epoch 23/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0856 - val_loss: 0.0850
+Epoch 24/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0855 - val_loss: 0.0850
+Epoch 25/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0853 - val_loss: 0.0849
+Epoch 26/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0855 - val_loss: 0.0849
+Epoch 27/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0853 - val_loss: 0.0849
+Epoch 28/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0853 - val_loss: 0.0848
+Epoch 29/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0853 - val_loss: 0.0850
+Epoch 30/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0854 - val_loss: 0.0847
+Epoch 31/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0851 - val_loss: 0.0846
+Epoch 32/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0851 - val_loss: 0.0846
+Epoch 33/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0846
+Epoch 34/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0851 - val_loss: 0.0847
+Epoch 35/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0846
+Epoch 36/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0844
+Epoch 37/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0845
+Epoch 38/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0848 - val_loss: 0.0844
+Epoch 39/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0843
+Epoch 40/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0844
+Epoch 41/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0848 - val_loss: 0.0844
+Epoch 42/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0848 - val_loss: 0.0844
+Epoch 43/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0849 - val_loss: 0.0846
+Epoch 44/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0846 - val_loss: 0.0843
+Epoch 45/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0847 - val_loss: 0.0845
+Epoch 46/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0846 - val_loss: 0.0843
+Epoch 47/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0845 - val_loss: 0.0842
+Epoch 48/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0846 - val_loss: 0.0842
+Epoch 49/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0847 - val_loss: 0.0846
+Epoch 50/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0847 - val_loss: 0.0843
+Epoch 51/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0846 - val_loss: 0.0842
+Epoch 52/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0846 - val_loss: 0.0844
+Epoch 53/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0844 - val_loss: 0.0842
+Epoch 54/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0845 - val_loss: 0.0842
+Epoch 55/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0845 - val_loss: 0.0841
+Epoch 56/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0844
+Epoch 57/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0845 - val_loss: 0.0841
+Epoch 58/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0843
+Epoch 59/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0842
+Epoch 60/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0844 - val_loss: 0.0847
+Epoch 61/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0846 - val_loss: 0.0840
+Epoch 62/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0840
+Epoch 63/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 64/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0844 - val_loss: 0.0841
+Epoch 65/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 66/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 67/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0840
+Epoch 68/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 69/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0840
+Epoch 70/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 71/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0844 - val_loss: 0.0841
+Epoch 72/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0840
+Epoch 73/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 74/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0844 - val_loss: 0.0840
+Epoch 75/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0840
+Epoch 76/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0842
+Epoch 77/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0841
+Epoch 78/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0841
+Epoch 79/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0840
+Epoch 80/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0843 - val_loss: 0.0839
+Epoch 81/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0842
+Epoch 82/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0839
+Epoch 83/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0840
+Epoch 84/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0839
+Epoch 85/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0839
+Epoch 86/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0840 - val_loss: 0.0838
+Epoch 87/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0839
+Epoch 88/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0838
+Epoch 89/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0838
+Epoch 90/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0840
+Epoch 91/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0839
+Epoch 92/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0842 - val_loss: 0.0838
+Epoch 93/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0838
+Epoch 94/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0838
+Epoch 95/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0840 - val_loss: 0.0837
+Epoch 96/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0838
+Epoch 97/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0838
+Epoch 98/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0837
+Epoch 99/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0841 - val_loss: 0.0838
+Epoch 100/100
+ 469/469 ━━━━━━━━━━━━━━━━━━━━ 2s 3ms/step - loss: 0.0839 - val_loss: 0.0839
+
+&lt;keras.src.callbacks.history.History at 0x7ff5889da230&gt;
+</code></pre></div>
+
+
+</div>
+<p>Let's now predict on the noisy data and display the results of our autoencoder.</p>
+<p>Notice how the autoencoder does an amazing job at removing the noise from the
+input images.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">predictions</span> <span class="o">=</span> <span class="n">autoencoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">noisy_test_data</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">noisy_test_data</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 313/313 ━━━━━━━━━━━━━━━━━━━━ 0s 523us/step
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/vision/autoencoder/autoencoder_15_1.png" /></p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter17_image-generation">Chapter 17: Image generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='autoencoder.html#convolutional-autoencoder-for-image-denoising'>Convolutional autoencoder for image denoising</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='autoencoder.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='autoencoder.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='autoencoder.html#prepare-the-data'>Prepare the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='autoencoder.html#build-the-autoencoder'>Build the autoencoder</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='autoencoder.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

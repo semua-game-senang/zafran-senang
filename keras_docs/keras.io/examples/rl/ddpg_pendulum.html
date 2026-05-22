@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Deep Deterministic Policy Gradient (DDPG)">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="ddpg_pendulum.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Deep Deterministic Policy Gradient (DDPG)">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Deep Deterministic Policy Gradient (DDPG)">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Deep Deterministic Policy Gradient (DDPG)</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2 active" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2 active" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Reinforcement Learning</a> /
+         Deep Deterministic Policy Gradient (DDPG)
+    </div>
+    <h1 id="deep-deterministic-policy-gradient-ddpg">Deep Deterministic Policy Gradient (DDPG)</h1>
+<p><strong>Author:</strong> <a href="https://github.com/amifunny">amifunny</a><br>
+<strong>Date created:</strong> 2020/06/04<br>
+<strong>Last modified:</strong> 2024/03/23<br>
+<strong>Description:</strong> Implementing DDPG algorithm on the Inverted Pendulum Problem.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/rl/ipynb/ddpg_pendulum.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/rl/ddpg_pendulum.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p><strong>Deep Deterministic Policy Gradient (DDPG)</strong> is a model-free off-policy algorithm for
+learning continuous actions.</p>
+<p>It combines ideas from DPG (Deterministic Policy Gradient) and DQN (Deep Q-Network).
+It uses Experience Replay and slow-learning target networks from DQN, and it is based on
+DPG, which can operate over continuous action spaces.</p>
+<p>This tutorial closely follow this paper -
+<a href="https://arxiv.org/abs/1509.02971">Continuous control with deep reinforcement learning</a></p>
+<hr />
+<h2 id="problem">Problem</h2>
+<p>We are trying to solve the classic <strong>Inverted Pendulum</strong> control problem.
+In this setting, we can take only two actions: swing left or swing right.</p>
+<p>What make this problem challenging for Q-Learning Algorithms is that actions
+are <strong>continuous</strong> instead of being <strong>discrete</strong>. That is, instead of using two
+discrete actions like <code>-1</code> or <code>+1</code>, we have to select from infinite actions
+ranging from <code>-2</code> to <code>+2</code>.</p>
+<hr />
+<h2 id="quick-theory">Quick theory</h2>
+<p>Just like the Actor-Critic method, we have two networks:</p>
+<ol>
+<li>Actor - It proposes an action given a state.</li>
+<li>Critic - It predicts if the action is good (positive value) or bad (negative value)
+given a state and an action.</li>
+</ol>
+<p>DDPG uses two more techniques not present in the original DQN:</p>
+<p><strong>First, it uses two Target networks.</strong></p>
+<p><strong>Why?</strong> Because it add stability to training. In short, we are learning from estimated
+targets and Target networks are updated slowly, hence keeping our estimated targets
+stable.</p>
+<p>Conceptually, this is like saying, "I have an idea of how to play this well,
+I'm going to try it out for a bit until I find something better",
+as opposed to saying "I'm going to re-learn how to play this entire game after every
+move".
+See this <a href="https://stackoverflow.com/a/54238556/13475679">StackOverflow answer</a>.</p>
+<p><strong>Second, it uses Experience Replay.</strong></p>
+<p>We store list of tuples <code>(state, action, reward, next_state)</code>, and instead of
+learning only from recent experience, we learn from sampling all of our experience
+accumulated so far.</p>
+<p>Now, let's see how is it implemented.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</code></pre></div>
+
+<p>We use <a href="https://gymnasium.farama.org/">Gymnasium</a> to create the environment.
+We will use the <code>upper_bound</code> parameter to scale our actions later.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Specify the `render_mode` parameter to show the attempts of the agent in a pop up window.</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;Pendulum-v1&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
+
+<span class="n">num_states</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Size of State Space -&gt;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_states</span><span class="p">))</span>
+<span class="n">num_actions</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Size of Action Space -&gt;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_actions</span><span class="p">))</span>
+
+<span class="n">upper_bound</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">high</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">lower_bound</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">low</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max Value of Action -&gt;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Min Value of Action -&gt;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Size of State Space -&gt;  3
+Size of Action Space -&gt;  1
+Max Value of Action -&gt;  2.0
+Min Value of Action -&gt;  -2.0
+</code></pre></div>
+
+
+</div>
+<p>To implement better exploration by the Actor network, we use noisy perturbations,
+specifically
+an <strong>Ornstein-Uhlenbeck process</strong> for generating noise, as described in the paper.
+It samples noise from a correlated normal distribution.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OUActionNoise</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std_deviation</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">x_initial</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="n">mean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">std_dev</span> <span class="o">=</span> <span class="n">std_deviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_initial</span> <span class="o">=</span> <span class="n">x_initial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Formula taken from https://www.wikipedia.org/wiki/Ornstein-Uhlenbeck_process</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_prev</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_prev</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_dev</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Store x into x_prev</span>
+        <span class="c1"># Makes next noise dependent on current one</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_prev</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_initial</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_initial</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The <code>Buffer</code> class implements Experience Replay.</p>
+<hr />
+<h2 id=""><img alt="Algorithm" src="https://i.imgur.com/mS6iGyJ.jpg" /></h2>
+<p><strong>Critic loss</strong> - Mean Squared Error of <code>y - Q(s, a)</code>
+where <code>y</code> is the expected return as seen by the Target network,
+and <code>Q(s, a)</code> is action value predicted by the Critic network. <code>y</code> is a moving target
+that the critic model tries to achieve; we make this target
+stable by updating the Target model slowly.</p>
+<p><strong>Actor loss</strong> - This is computed using the mean of the value given by the Critic network
+for the actions taken by the Actor network. We seek to maximize this quantity.</p>
+<p>Hence we update the Actor network so that it produces actions that get
+the maximum predicted value as seen by the Critic, for a given state.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer_capacity</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+        <span class="c1"># Number of &quot;experiences&quot; to store at max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span> <span class="o">=</span> <span class="n">buffer_capacity</span>
+        <span class="c1"># Num of tuples to train on.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+        <span class="c1"># Its tells us num of times record() was called.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Instead of list of tuples as the exp.replay concept go</span>
+        <span class="c1"># We use different np.arrays for each tuple element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span><span class="p">,</span> <span class="n">num_states</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span><span class="p">,</span> <span class="n">num_actions</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_state_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span><span class="p">,</span> <span class="n">num_states</span><span class="p">))</span>
+
+    <span class="c1"># Takes (s,a,r,s&#39;) observation tuple as input</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs_tuple</span><span class="p">):</span>
+        <span class="c1"># Set index to zero if buffer_capacity is exceeded,</span>
+        <span class="c1"># replacing old records</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_counter</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_buffer</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_buffer</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_buffer</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_tuple</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_state_buffer</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_tuple</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Eager execution is turned on by default in TensorFlow 2. Decorating with tf.function allows</span>
+    <span class="c1"># TensorFlow to build a static graph out of the logic and computations in our function.</span>
+    <span class="c1"># This provides a large speed up for blocks of code that contain many small TensorFlow operations such as this one.</span>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state_batch</span><span class="p">,</span>
+        <span class="n">action_batch</span><span class="p">,</span>
+        <span class="n">reward_batch</span><span class="p">,</span>
+        <span class="n">next_state_batch</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Training and updating Actor &amp; Critic networks.</span>
+        <span class="c1"># See Pseudo Code.</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="n">target_actions</span> <span class="o">=</span> <span class="n">target_actor</span><span class="p">(</span><span class="n">next_state_batch</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">reward_batch</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">target_critic</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">next_state_batch</span><span class="p">,</span> <span class="n">target_actions</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">critic_value</span> <span class="o">=</span> <span class="n">critic_model</span><span class="p">([</span><span class="n">state_batch</span><span class="p">,</span> <span class="n">action_batch</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">critic_loss</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">critic_value</span><span class="p">))</span>
+
+        <span class="n">critic_grad</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">critic_loss</span><span class="p">,</span> <span class="n">critic_model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="n">critic_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">critic_grad</span><span class="p">,</span> <span class="n">critic_model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="n">actor_model</span><span class="p">(</span><span class="n">state_batch</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">critic_value</span> <span class="o">=</span> <span class="n">critic_model</span><span class="p">([</span><span class="n">state_batch</span><span class="p">,</span> <span class="n">actions</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Used `-value` as we want to maximize the value given</span>
+            <span class="c1"># by the critic for our actions</span>
+            <span class="n">actor_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">critic_value</span><span class="p">)</span>
+
+        <span class="n">actor_grad</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">actor_loss</span><span class="p">,</span> <span class="n">actor_model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="n">actor_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">actor_grad</span><span class="p">,</span> <span class="n">actor_model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># We compute the loss and update parameters</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Get sampling range</span>
+        <span class="n">record_range</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer_counter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_capacity</span><span class="p">)</span>
+        <span class="c1"># Randomly sample indices</span>
+        <span class="n">batch_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">record_range</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+
+        <span class="c1"># Convert to tensors</span>
+        <span class="n">state_batch</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_buffer</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">])</span>
+        <span class="n">action_batch</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_buffer</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">])</span>
+        <span class="n">reward_batch</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reward_buffer</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">])</span>
+        <span class="n">reward_batch</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">reward_batch</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">next_state_batch</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_state_buffer</span><span class="p">[</span><span class="n">batch_indices</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state_batch</span><span class="p">,</span> <span class="n">action_batch</span><span class="p">,</span> <span class="n">reward_batch</span><span class="p">,</span> <span class="n">next_state_batch</span><span class="p">)</span>
+
+
+<span class="c1"># This update target parameters slowly</span>
+<span class="c1"># Based on rate `tau`, which is much less than one.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_target</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
+    <span class="n">target_weights</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+    <span class="n">original_weights</span> <span class="o">=</span> <span class="n">original</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">target_weights</span><span class="p">)):</span>
+        <span class="n">target_weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">tau</span> <span class="o">+</span> <span class="n">target_weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">tau</span><span class="p">)</span>
+
+    <span class="n">target</span><span class="o">.</span><span class="n">set_weights</span><span class="p">(</span><span class="n">target_weights</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Here we define the Actor and Critic networks. These are basic Dense models
+with <code>ReLU</code> activation.</p>
+<p>Note: We need the initialization for last layer of the Actor to be between
+<code>-0.003</code> and <code>0.003</code> as this prevents us from getting <code>1</code> or <code>-1</code> output values in
+the initial stages, which would squash our gradients to zero,
+as we use the <code>tanh</code> activation.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_actor</span><span class="p">():</span>
+    <span class="c1"># Initialize weights between -3e-3 and 3-e3</span>
+    <span class="n">last_init</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomUniform</span><span class="p">(</span><span class="n">minval</span><span class="o">=-</span><span class="mf">0.003</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">0.003</span><span class="p">)</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_states</span><span class="p">,))</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">last_init</span><span class="p">)(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="c1"># Our upper bound is 2.0 for Pendulum.</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span> <span class="o">*</span> <span class="n">upper_bound</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_critic</span><span class="p">():</span>
+    <span class="c1"># State as input</span>
+    <span class="n">state_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_states</span><span class="p">,))</span>
+    <span class="n">state_out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">state_input</span><span class="p">)</span>
+    <span class="n">state_out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">state_out</span><span class="p">)</span>
+
+    <span class="c1"># Action as input</span>
+    <span class="n">action_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_actions</span><span class="p">,))</span>
+    <span class="n">action_out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">action_input</span><span class="p">)</span>
+
+    <span class="c1"># Both are passed through separate layer before concatenating</span>
+    <span class="n">concat</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">()([</span><span class="n">state_out</span><span class="p">,</span> <span class="n">action_out</span><span class="p">])</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">concat</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="c1"># Outputs single value for give state-action</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">([</span><span class="n">state_input</span><span class="p">,</span> <span class="n">action_input</span><span class="p">],</span> <span class="n">outputs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span>
+</code></pre></div>
+
+<p><code>policy()</code> returns an action sampled from our Actor network plus some noise for
+exploration.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">policy</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">noise_object</span><span class="p">):</span>
+    <span class="n">sampled_actions</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">actor_model</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">noise_object</span><span class="p">()</span>
+    <span class="c1"># Adding noise to action</span>
+    <span class="n">sampled_actions</span> <span class="o">=</span> <span class="n">sampled_actions</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="o">+</span> <span class="n">noise</span>
+
+    <span class="c1"># We make sure action is within bounds</span>
+    <span class="n">legal_action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">sampled_actions</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">legal_action</span><span class="p">)]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="training-hyperparameters">Training hyperparameters</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">std_dev</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">ou_noise</span> <span class="o">=</span> <span class="n">OUActionNoise</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">std_deviation</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">std_dev</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">actor_model</span> <span class="o">=</span> <span class="n">get_actor</span><span class="p">()</span>
+<span class="n">critic_model</span> <span class="o">=</span> <span class="n">get_critic</span><span class="p">()</span>
+
+<span class="n">target_actor</span> <span class="o">=</span> <span class="n">get_actor</span><span class="p">()</span>
+<span class="n">target_critic</span> <span class="o">=</span> <span class="n">get_critic</span><span class="p">()</span>
+
+<span class="c1"># Making the weights equal initially</span>
+<span class="n">target_actor</span><span class="o">.</span><span class="n">set_weights</span><span class="p">(</span><span class="n">actor_model</span><span class="o">.</span><span class="n">get_weights</span><span class="p">())</span>
+<span class="n">target_critic</span><span class="o">.</span><span class="n">set_weights</span><span class="p">(</span><span class="n">critic_model</span><span class="o">.</span><span class="n">get_weights</span><span class="p">())</span>
+
+<span class="c1"># Learning rate for actor-critic models</span>
+<span class="n">critic_lr</span> <span class="o">=</span> <span class="mf">0.002</span>
+<span class="n">actor_lr</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+<span class="n">critic_optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">critic_lr</span><span class="p">)</span>
+<span class="n">actor_optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">actor_lr</span><span class="p">)</span>
+
+<span class="n">total_episodes</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="c1"># Discount factor for future rewards</span>
+<span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.99</span>
+<span class="c1"># Used to update target networks</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="mf">0.005</span>
+
+<span class="n">buffer</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="mi">50000</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Now we implement our main training loop, and iterate over episodes.
+We sample actions using <code>policy()</code> and train with <code>learn()</code> at each time step,
+along with updating the Target networks at a rate <code>tau</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># To store reward history of each episode</span>
+<span class="n">ep_reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="c1"># To store average reward history of last few episodes</span>
+<span class="n">avg_reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Takes about 4 min to train</span>
+<span class="k">for</span> <span class="n">ep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">total_episodes</span><span class="p">):</span>
+    <span class="n">prev_state</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="n">episodic_reward</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">tf_prev_state</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">prev_state</span><span class="p">),</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="n">action</span> <span class="o">=</span> <span class="n">policy</span><span class="p">(</span><span class="n">tf_prev_state</span><span class="p">,</span> <span class="n">ou_noise</span><span class="p">)</span>
+        <span class="c1"># Receive state and reward from environment.</span>
+        <span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="n">buffer</span><span class="o">.</span><span class="n">record</span><span class="p">((</span><span class="n">prev_state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">state</span><span class="p">))</span>
+        <span class="n">episodic_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+
+        <span class="n">buffer</span><span class="o">.</span><span class="n">learn</span><span class="p">()</span>
+
+        <span class="n">update_target</span><span class="p">(</span><span class="n">target_actor</span><span class="p">,</span> <span class="n">actor_model</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+        <span class="n">update_target</span><span class="p">(</span><span class="n">target_critic</span><span class="p">,</span> <span class="n">critic_model</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+
+        <span class="c1"># End this episode when `done` or `truncated` is True</span>
+        <span class="k">if</span> <span class="n">done</span> <span class="ow">or</span> <span class="n">truncated</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="n">prev_state</span> <span class="o">=</span> <span class="n">state</span>
+
+    <span class="n">ep_reward_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">episodic_reward</span><span class="p">)</span>
+
+    <span class="c1"># Mean of last 40 episodes</span>
+    <span class="n">avg_reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ep_reward_list</span><span class="p">[</span><span class="o">-</span><span class="mi">40</span><span class="p">:])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Episode * </span><span class="si">{}</span><span class="s2"> * Avg Reward is ==&gt; </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="p">,</span> <span class="n">avg_reward</span><span class="p">))</span>
+    <span class="n">avg_reward_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avg_reward</span><span class="p">)</span>
+
+<span class="c1"># Plotting graph</span>
+<span class="c1"># Episodes versus Avg. Rewards</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">avg_reward_list</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Episode&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Avg. Episodic Reward&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Episode * 0 * Avg Reward is ==&gt; -1020.8244931732263
+
+Episode * 1 * Avg Reward is ==&gt; -1338.2811167733332
+
+Episode * 2 * Avg Reward is ==&gt; -1450.0427316158366
+
+Episode * 3 * Avg Reward is ==&gt; -1529.0751774957375
+
+Episode * 4 * Avg Reward is ==&gt; -1560.3468658090717
+
+Episode * 5 * Avg Reward is ==&gt; -1525.6201906715812
+
+Episode * 6 * Avg Reward is ==&gt; -1522.0047531836371
+
+Episode * 7 * Avg Reward is ==&gt; -1507.4391205141226
+
+Episode * 8 * Avg Reward is ==&gt; -1443.4147334537984
+
+Episode * 9 * Avg Reward is ==&gt; -1452.0432974943765
+
+Episode * 10 * Avg Reward is ==&gt; -1344.1960761302823
+
+Episode * 11 * Avg Reward is ==&gt; -1327.0472948059835
+
+Episode * 12 * Avg Reward is ==&gt; -1332.4638031402194
+
+Episode * 13 * Avg Reward is ==&gt; -1287.4884456842617
+
+Episode * 14 * Avg Reward is ==&gt; -1257.3643575644046
+
+Episode * 15 * Avg Reward is ==&gt; -1210.9679762262906
+
+Episode * 16 * Avg Reward is ==&gt; -1165.8684037899104
+
+Episode * 17 * Avg Reward is ==&gt; -1107.6228192573426
+
+Episode * 18 * Avg Reward is ==&gt; -1049.4192654959388
+
+Episode * 19 * Avg Reward is ==&gt; -1003.3255480245641
+
+Episode * 20 * Avg Reward is ==&gt; -961.6386918013155
+
+Episode * 21 * Avg Reward is ==&gt; -929.1847739440876
+
+Episode * 22 * Avg Reward is ==&gt; -894.356849609832
+
+Episode * 23 * Avg Reward is ==&gt; -872.3450419603026
+
+Episode * 24 * Avg Reward is ==&gt; -842.5992147531034
+
+Episode * 25 * Avg Reward is ==&gt; -818.8730806655396
+
+Episode * 26 * Avg Reward is ==&gt; -793.3147256249664
+
+Episode * 27 * Avg Reward is ==&gt; -769.6124209263007
+
+Episode * 28 * Avg Reward is ==&gt; -747.5122117563488
+
+Episode * 29 * Avg Reward is ==&gt; -726.8111953151997
+
+Episode * 30 * Avg Reward is ==&gt; -707.3781885286952
+
+Episode * 31 * Avg Reward is ==&gt; -688.9993520703357
+
+Episode * 32 * Avg Reward is ==&gt; -672.0164054875188
+
+Episode * 33 * Avg Reward is ==&gt; -652.3297236089893
+
+Episode * 34 * Avg Reward is ==&gt; -633.7305579653394
+
+Episode * 35 * Avg Reward is ==&gt; -622.6444438529929
+
+Episode * 36 * Avg Reward is ==&gt; -612.2391199605028
+
+Episode * 37 * Avg Reward is ==&gt; -599.2441039477458
+
+Episode * 38 * Avg Reward is ==&gt; -593.713500114108
+
+Episode * 39 * Avg Reward is ==&gt; -582.062487157142
+
+Episode * 40 * Avg Reward is ==&gt; -556.559275313473
+
+Episode * 41 * Avg Reward is ==&gt; -518.053376711216
+
+Episode * 42 * Avg Reward is ==&gt; -482.2191305356082
+
+Episode * 43 * Avg Reward is ==&gt; -441.1561293090619
+
+Episode * 44 * Avg Reward is ==&gt; -402.0403515001418
+
+Episode * 45 * Avg Reward is ==&gt; -371.3376110030464
+
+Episode * 46 * Avg Reward is ==&gt; -336.8145387714556
+
+Episode * 47 * Avg Reward is ==&gt; -301.7732070717081
+
+Episode * 48 * Avg Reward is ==&gt; -281.4823965447058
+
+Episode * 49 * Avg Reward is ==&gt; -243.2750024568545
+
+Episode * 50 * Avg Reward is ==&gt; -236.6512197943394
+
+Episode * 51 * Avg Reward is ==&gt; -211.20860968588096
+
+Episode * 52 * Avg Reward is ==&gt; -176.31339260650844
+
+Episode * 53 * Avg Reward is ==&gt; -158.77021134671222
+
+Episode * 54 * Avg Reward is ==&gt; -146.76749516161257
+
+Episode * 55 * Avg Reward is ==&gt; -133.93793525539664
+
+Episode * 56 * Avg Reward is ==&gt; -129.24881351771964
+
+Episode * 57 * Avg Reward is ==&gt; -129.49219614666802
+
+Episode * 58 * Avg Reward is ==&gt; -132.53205721511375
+
+Episode * 59 * Avg Reward is ==&gt; -132.60389802731262
+
+Episode * 60 * Avg Reward is ==&gt; -132.62344822194035
+
+Episode * 61 * Avg Reward is ==&gt; -133.2372468795715
+
+Episode * 62 * Avg Reward is ==&gt; -133.1046546040286
+
+Episode * 63 * Avg Reward is ==&gt; -127.17488349564069
+
+Episode * 64 * Avg Reward is ==&gt; -130.02349725294775
+
+Episode * 65 * Avg Reward is ==&gt; -127.32475296620544
+
+Episode * 66 * Avg Reward is ==&gt; -126.99528350924034
+
+Episode * 67 * Avg Reward is ==&gt; -126.65903554713267
+
+Episode * 68 * Avg Reward is ==&gt; -126.63950221408372
+
+Episode * 69 * Avg Reward is ==&gt; -129.4066259498526
+
+Episode * 70 * Avg Reward is ==&gt; -129.34372109952105
+
+Episode * 71 * Avg Reward is ==&gt; -132.29705860930432
+
+Episode * 72 * Avg Reward is ==&gt; -132.00732697620566
+
+Episode * 73 * Avg Reward is ==&gt; -138.01483877165032
+
+Episode * 74 * Avg Reward is ==&gt; -145.33430273020608
+
+Episode * 75 * Avg Reward is ==&gt; -145.32777005464345
+
+Episode * 76 * Avg Reward is ==&gt; -142.4835146046417
+
+Episode * 77 * Avg Reward is ==&gt; -139.59338840338395
+
+Episode * 78 * Avg Reward is ==&gt; -133.04552232142163
+
+Episode * 79 * Avg Reward is ==&gt; -132.93288588036899
+
+Episode * 80 * Avg Reward is ==&gt; -136.16012471382237
+
+Episode * 81 * Avg Reward is ==&gt; -139.21305348031393
+
+Episode * 82 * Avg Reward is ==&gt; -133.23691621529298
+
+Episode * 83 * Avg Reward is ==&gt; -135.92990594024982
+
+Episode * 84 * Avg Reward is ==&gt; -136.03027429930435
+
+Episode * 85 * Avg Reward is ==&gt; -135.97360824863455
+
+Episode * 86 * Avg Reward is ==&gt; -136.10527880830494
+
+Episode * 87 * Avg Reward is ==&gt; -139.05391439010512
+
+Episode * 88 * Avg Reward is ==&gt; -142.56133171606365
+
+Episode * 89 * Avg Reward is ==&gt; -161.33989090345662
+
+Episode * 90 * Avg Reward is ==&gt; -170.82788477632195
+
+Episode * 91 * Avg Reward is ==&gt; -170.8558841498521
+
+Episode * 92 * Avg Reward is ==&gt; -173.9910213401168
+
+Episode * 93 * Avg Reward is ==&gt; -176.87631595893498
+
+Episode * 94 * Avg Reward is ==&gt; -170.97863292694336
+
+Episode * 95 * Avg Reward is ==&gt; -173.88549953443538
+
+Episode * 96 * Avg Reward is ==&gt; -170.7028462286189
+
+Episode * 97 * Avg Reward is ==&gt; -173.47564018610032
+
+Episode * 98 * Avg Reward is ==&gt; -173.42104867150212
+
+Episode * 99 * Avg Reward is ==&gt; -173.2394285933109
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="https://keras.io/img/examples/rl/ddpg_pendulum/ddpg_pendulum_16_100.png" /></p>
+<p>If training proceeds correctly, the average episodic reward will increase with time.</p>
+<p>Feel free to try different learning rates, <code>tau</code> values, and architectures for the
+Actor and Critic networks.</p>
+<p>The Inverted Pendulum problem has low complexity, but DDPG work great on many other
+problems.</p>
+<p>Another great environment to try this on is <code>LunarLander-v2</code> continuous, but it will take
+more episodes to obtain good results.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Save the weights</span>
+<span class="n">actor_model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="s2">&quot;pendulum_actor.weights.h5&quot;</span><span class="p">)</span>
+<span class="n">critic_model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="s2">&quot;pendulum_critic.weights.h5&quot;</span><span class="p">)</span>
+
+<span class="n">target_actor</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="s2">&quot;pendulum_target_actor.weights.h5&quot;</span><span class="p">)</span>
+<span class="n">target_critic</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="s2">&quot;pendulum_target_critic.weights.h5&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Before Training:</p>
+<p><img alt="before_img" src="https://i.imgur.com/ox6b9rC.gif" /></p>
+<p>After 100 episodes:</p>
+<p><img alt="after_img" src="https://i.imgur.com/eEH8Cz6.gif" /></p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='ddpg_pendulum.html#deep-deterministic-policy-gradient-ddpg'>Deep Deterministic Policy Gradient (DDPG)</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddpg_pendulum.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddpg_pendulum.html#problem'>Problem</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddpg_pendulum.html#quick-theory'>Quick theory</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ddpg_pendulum.html#training-hyperparameters'>Training hyperparameters</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

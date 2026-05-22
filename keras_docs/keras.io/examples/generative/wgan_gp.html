@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: WGAN-GP overriding `Model.train_step`">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="wgan_gp.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: WGAN-GP overriding `Model.train_step`">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: WGAN-GP overriding `Model.train_step`">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>WGAN-GP overriding `Model.train_step`</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2 active" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2 active" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Generative Deep Learning</a> /
+         WGAN-GP overriding `Model.train_step`
+    </div>
+    <h1 id="wgangp-overriding-modeltrainstep">WGAN-GP overriding <code>Model.train_step</code></h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/A_K_Nain">A_K_Nain</a><br>
+<strong>Date created:</strong> 2020/05/9<br>
+<strong>Last modified:</strong> 2026/05/12<br>
+<strong>Description:</strong> Implementation of Wasserstein GAN with Gradient Penalty.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/generative/ipynb/wgan_gp.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/generative/wgan_gp.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="wasserstein-gan-wgan-with-gradient-penalty-gp">Wasserstein GAN (WGAN) with Gradient Penalty (GP)</h2>
+<p>The original <a href="https://arxiv.org/abs/1701.07875">Wasserstein GAN</a> leverages the
+Wasserstein distance to produce a value function that has better theoretical
+properties than the value function used in the original GAN paper. WGAN requires
+that the discriminator (aka the critic) lie within the space of 1-Lipschitz
+functions. The authors proposed the idea of weight clipping to achieve this
+constraint. Though weight clipping works, it can be a problematic way to enforce
+1-Lipschitz constraint and can cause undesirable behavior, e.g. a very deep WGAN
+discriminator (critic) often fails to converge.</p>
+<p>The <a href="https://arxiv.org/abs/1704.00028">WGAN-GP</a> method proposes an
+alternative to weight clipping to ensure smooth training. Instead of clipping
+the weights, the authors proposed a "gradient penalty" by adding a loss term
+that keeps the L2 norm of the discriminator gradients close to 1.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+</code></pre></div>
+
+<hr />
+<h2 id="prepare-the-fashionmnist-data">Prepare the Fashion-MNIST data</h2>
+<p>To demonstrate how to train WGAN-GP, we will be using the
+<a href="https://github.com/zalandoresearch/fashion-mnist">Fashion-MNIST</a> dataset. Each
+sample in this dataset is a 28x28 grayscale image associated with a label from
+10 classes (e.g. trouser, pullover, sneaker, etc.)</p>
+<div class="codehilite"><pre><span></span><code><span class="n">IMG_SHAPE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
+
+<span class="c1"># Size of the noise vector</span>
+<span class="n">noise_dim</span> <span class="o">=</span> <span class="mi">128</span>
+
+<span class="n">fashion_mnist</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fashion_mnist</span>
+<span class="p">(</span><span class="n">train_images</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">),</span> <span class="p">(</span><span class="n">test_images</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">)</span> <span class="o">=</span> <span class="n">fashion_mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of examples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_images</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shape of the images in the dataset: </span><span class="si">{</span><span class="n">train_images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Reshape each sample to (28, 28, 1) and normalize the pixel values in the [-1, 1] range</span>
+<span class="n">train_images</span> <span class="o">=</span> <span class="n">train_images</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">train_images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">IMG_SHAPE</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+<span class="n">train_images</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_images</span> <span class="o">-</span> <span class="mf">127.5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">127.5</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Number of examples: 60000
+Shape of the images in the dataset: (28, 28)
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="create-the-discriminator-the-critic-in-the-original-wgan">Create the discriminator (the critic in the original WGAN)</h2>
+<p>The samples in the dataset have a (28, 28, 1) shape. Because we will be
+using strided convolutions, this can result in a shape with odd dimensions.
+For example,
+<code>(28, 28) -&gt; Conv_s2 -&gt; (14, 14) -&gt; Conv_s2 -&gt; (7, 7) -&gt; Conv_s2 -&gt;(3, 3)</code>.</p>
+<p>While performing upsampling in the generator part of the network, we won't get
+the same input shape as the original images if we aren't careful. To avoid this,
+we will do something much simpler:
+- In the discriminator: "zero pad" the input to change the shape to <code>(32, 32, 1)</code>
+for each sample; and
+- Ihe generator: crop the final output to match the shape with input shape.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">conv_block</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">,</span>
+    <span class="n">activation</span><span class="p">,</span>
+    <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+    <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_dropout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">drop_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="n">use_bias</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_bn</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">activation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_dropout</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop_value</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_discriminator_model</span><span class="p">():</span>
+    <span class="n">img_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">IMG_SHAPE</span><span class="p">)</span>
+    <span class="c1"># Zero pad the input to make the input images size to (32, 32, 1).</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">ZeroPadding2D</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))(</span><span class="n">img_input</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="mi">64</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">use_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">use_dropout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">drop_value</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="mi">128</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">use_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_dropout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">drop_value</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="mi">256</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">use_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_dropout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">drop_value</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">conv_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="mi">512</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">use_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_dropout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">drop_value</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">d_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">img_input</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;discriminator&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d_model</span>
+
+
+<span class="n">d_model</span> <span class="o">=</span> <span class="n">get_discriminator_model</span><span class="p">()</span>
+<span class="n">d_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "discriminator"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape           </span>┃<span style="font-weight: bold">       Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ input_layer (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ zero_padding2d (<span style="color: #0087ff; text-decoration-color: #0087ff">ZeroPadding2D</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │         <span style="color: #00af00; text-decoration-color: #00af00">1,664</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)         │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)      │       <span style="color: #00af00; text-decoration-color: #00af00">204,928</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)      │       <span style="color: #00af00; text-decoration-color: #00af00">819,456</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_3 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2</span>, <span style="color: #00af00; text-decoration-color: #00af00">2</span>, <span style="color: #00af00; text-decoration-color: #00af00">512</span>)      │     <span style="color: #00af00; text-decoration-color: #00af00">3,277,312</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu_3 (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2</span>, <span style="color: #00af00; text-decoration-color: #00af00">2</span>, <span style="color: #00af00; text-decoration-color: #00af00">512</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (<span style="color: #0087ff; text-decoration-color: #0087ff">Flatten</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2048</span>)           │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">2048</span>)           │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                   │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)              │         <span style="color: #00af00; text-decoration-color: #00af00">2,049</span> │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">4,305,409</span> (16.42 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">4,305,409</span> (16.42 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<hr />
+<h2 id="create-the-generator">Create the generator</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upsample_block</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">,</span>
+    <span class="n">activation</span><span class="p">,</span>
+    <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">up_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+    <span class="n">use_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_dropout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">drop_value</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">UpSampling2D</span><span class="p">(</span><span class="n">up_size</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">filters</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="n">use_bias</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_bn</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">activation</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">activation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_dropout</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop_value</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_generator_model</span><span class="p">():</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">noise_dim</span><span class="p">,))</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">256</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">noise</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">256</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">upsample_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="mi">128</span><span class="p">,</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_bn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+        <span class="n">use_dropout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">upsample_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="mi">64</span><span class="p">,</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_bn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+        <span class="n">use_dropout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">upsample_block</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&quot;tanh&quot;</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_bn</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="c1"># At this point, we have an output which has the same shape as the input, (32, 32, 1).</span>
+    <span class="c1"># We will use a Cropping2D layer to make it (28, 28, 1).</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Cropping2D</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">g_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generator&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">g_model</span>
+
+
+<span class="n">g_model</span> <span class="o">=</span> <span class="n">get_generator_model</span><span class="p">()</span>
+<span class="n">g_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "generator"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape           </span>┃<span style="font-weight: bold">       Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ input_layer_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)            │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4096</span>)           │       <span style="color: #00af00; text-decoration-color: #00af00">524,288</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4096</span>)           │        <span style="color: #00af00; text-decoration-color: #00af00">16,384</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">BatchNormalization</span>)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu_4 (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4096</span>)           │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ reshape (<span style="color: #0087ff; text-decoration-color: #0087ff">Reshape</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">4</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ up_sampling2d (<span style="color: #0087ff; text-decoration-color: #0087ff">UpSampling2D</span>)    │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_4 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)      │       <span style="color: #00af00; text-decoration-color: #00af00">294,912</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_1           │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)      │           <span style="color: #00af00; text-decoration-color: #00af00">512</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">BatchNormalization</span>)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu_5 (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">8</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ up_sampling2d_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">UpSampling2D</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)    │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_5 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │        <span style="color: #00af00; text-decoration-color: #00af00">73,728</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_2           │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │           <span style="color: #00af00; text-decoration-color: #00af00">256</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">BatchNormalization</span>)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ leaky_re_lu_6 (<span style="color: #0087ff; text-decoration-color: #0087ff">LeakyReLU</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ up_sampling2d_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">UpSampling2D</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_6 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)      │           <span style="color: #00af00; text-decoration-color: #00af00">576</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_3           │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">4</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">BatchNormalization</span>)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ activation (<span style="color: #0087ff; text-decoration-color: #0087ff">Activation</span>)         │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ cropping2d (<span style="color: #0087ff; text-decoration-color: #0087ff">Cropping2D</span>)         │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)      │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">910,660</span> (3.47 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">902,082</span> (3.44 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">8,578</span> (33.51 KB)
+</pre>
+
+<hr />
+<h2 id="create-the-wgangp-model">Create the WGAN-GP model</h2>
+<p>Now that we have defined our generator and discriminator, it's time to implement
+the WGAN-GP model. We will also override the <code>train_step</code> for training.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WGAN</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">discriminator</span><span class="p">,</span>
+        <span class="n">generator</span><span class="p">,</span>
+        <span class="n">latent_dim</span><span class="p">,</span>
+        <span class="n">discriminator_extra_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">gp_weight</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span> <span class="o">=</span> <span class="n">discriminator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span> <span class="o">=</span> <span class="n">latent_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_steps</span> <span class="o">=</span> <span class="n">discriminator_extra_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gp_weight</span> <span class="o">=</span> <span class="n">gp_weight</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_optimizer</span><span class="p">,</span> <span class="n">g_optimizer</span><span class="p">,</span> <span class="n">d_loss_fn</span><span class="p">,</span> <span class="n">g_loss_fn</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_optimizer</span> <span class="o">=</span> <span class="n">d_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_optimizer</span> <span class="o">=</span> <span class="n">g_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_loss_fn</span> <span class="o">=</span> <span class="n">d_loss_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_loss_fn</span> <span class="o">=</span> <span class="n">g_loss_fn</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">gradient_penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">real_images</span><span class="p">,</span> <span class="n">fake_images</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the gradient penalty.</span>
+
+<span class="sd">        This loss is calculated on an interpolated image</span>
+<span class="sd">        and added to the discriminator loss.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the interpolated image</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">fake_images</span> <span class="o">-</span> <span class="n">real_images</span>
+        <span class="n">interpolated</span> <span class="o">=</span> <span class="n">real_images</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">diff</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">gp_tape</span><span class="p">:</span>
+            <span class="n">gp_tape</span><span class="o">.</span><span class="n">watch</span><span class="p">(</span><span class="n">interpolated</span><span class="p">)</span>
+            <span class="c1"># 1. Get the discriminator output for this interpolated image.</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">interpolated</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># 2. Calculate the gradients w.r.t to this interpolated image.</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">gp_tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="p">[</span><span class="n">interpolated</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># 3. Calculate the norm of the gradients.</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">grads</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">epsilon</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">gp</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">((</span><span class="n">norm</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gp</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real_images</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">real_images</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">real_images</span> <span class="o">=</span> <span class="n">real_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Get the batch size</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">real_images</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># For each batch, we are going to perform the</span>
+        <span class="c1"># following steps as laid out in the original paper:</span>
+        <span class="c1"># 1. Train the generator and get the generator loss</span>
+        <span class="c1"># 2. Train the discriminator and get the discriminator loss</span>
+        <span class="c1"># 3. Calculate the gradient penalty</span>
+        <span class="c1"># 4. Multiply this gradient penalty with a constant weight factor</span>
+        <span class="c1"># 5. Add the gradient penalty to the discriminator loss</span>
+        <span class="c1"># 6. Return the generator and discriminator losses as a loss dictionary</span>
+
+        <span class="c1"># Train the discriminator first. The original paper recommends training</span>
+        <span class="c1"># the discriminator for `x` more steps (typically 5) as compared to</span>
+        <span class="c1"># one step of the generator. Here we will train it for 3 extra steps</span>
+        <span class="c1"># as compared to 5 to reduce the training time.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_steps</span><span class="p">):</span>
+            <span class="c1"># Get the latent vector</span>
+            <span class="n">random_latent_vectors</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+                <span class="c1"># Generate fake images from the latent vector</span>
+                <span class="n">fake_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">random_latent_vectors</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># Get the logits for the fake images</span>
+                <span class="n">fake_logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">fake_images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># Get the logits for the real images</span>
+                <span class="n">real_logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">real_images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Calculate the discriminator loss using the fake and real image logits</span>
+                <span class="n">d_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_loss_fn</span><span class="p">(</span><span class="n">real_img</span><span class="o">=</span><span class="n">real_logits</span><span class="p">,</span> <span class="n">fake_img</span><span class="o">=</span><span class="n">fake_logits</span><span class="p">)</span>
+                <span class="c1"># Calculate the gradient penalty</span>
+                <span class="n">gp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">real_images</span><span class="p">,</span> <span class="n">fake_images</span><span class="p">)</span>
+                <span class="c1"># Add the gradient penalty to the original discriminator loss</span>
+                <span class="n">d_loss</span> <span class="o">=</span> <span class="n">d_cost</span> <span class="o">+</span> <span class="n">gp</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gp_weight</span>
+
+            <span class="c1"># Get the gradients w.r.t the discriminator loss</span>
+            <span class="n">d_gradient</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">d_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+            <span class="c1"># Update the weights of the discriminator using the discriminator optimizer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+                <span class="nb">zip</span><span class="p">(</span><span class="n">d_gradient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Train the generator</span>
+        <span class="c1"># Get the latent vector</span>
+        <span class="n">random_latent_vectors</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># Generate fake images using the generator</span>
+            <span class="n">generated_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">random_latent_vectors</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Get the discriminator logits for fake images</span>
+            <span class="n">gen_img_logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">generated_images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Calculate the generator loss</span>
+            <span class="n">g_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_loss_fn</span><span class="p">(</span><span class="n">gen_img_logits</span><span class="p">)</span>
+
+        <span class="c1"># Get the gradients w.r.t the generator loss</span>
+        <span class="n">gen_gradient</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">g_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="c1"># Update the weights of the generator using the generator optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">gen_gradient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;d_loss&quot;</span><span class="p">:</span> <span class="n">d_loss</span><span class="p">,</span> <span class="s2">&quot;g_loss&quot;</span><span class="p">:</span> <span class="n">g_loss</span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="create-a-keras-callback-that-periodically-saves-generated-images">Create a Keras callback that periodically saves generated images</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GANMonitor</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_img</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_img</span> <span class="o">=</span> <span class="n">num_img</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span> <span class="o">=</span> <span class="n">latent_dim</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">random_latent_vectors</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">))</span>
+        <span class="n">generated_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">random_latent_vectors</span><span class="p">)</span>
+        <span class="n">generated_images</span> <span class="o">=</span> <span class="p">(</span><span class="n">generated_images</span> <span class="o">*</span> <span class="mf">127.5</span><span class="p">)</span> <span class="o">+</span> <span class="mf">127.5</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_img</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">generated_images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">array_to_img</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;generated_img_</span><span class="si">{i}</span><span class="s2">_</span><span class="si">{epoch}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">))</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-the-endtoend-model">Train the end-to-end model</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Instantiate the optimizer for both networks</span>
+<span class="c1"># (learning_rate=0.0002, beta_1=0.5 are recommended)</span>
+<span class="n">generator_optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.0002</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">beta_2</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="p">)</span>
+<span class="n">discriminator_optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.0002</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">beta_2</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="p">)</span>
+
+
+<span class="c1"># Define the loss functions for the discriminator,</span>
+<span class="c1"># which should be (fake_loss - real_loss).</span>
+<span class="c1"># We will add the gradient penalty later to this loss function.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">discriminator_loss</span><span class="p">(</span><span class="n">real_img</span><span class="p">,</span> <span class="n">fake_img</span><span class="p">):</span>
+    <span class="n">real_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">real_img</span><span class="p">)</span>
+    <span class="n">fake_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">fake_img</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fake_loss</span> <span class="o">-</span> <span class="n">real_loss</span>
+
+
+<span class="c1"># Define the loss functions for the generator.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generator_loss</span><span class="p">(</span><span class="n">fake_img</span><span class="p">):</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">fake_img</span><span class="p">)</span>
+
+
+<span class="c1"># Set the number of epochs for training.</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># Instantiate the customer `GANMonitor` Keras callback.</span>
+<span class="n">cbk</span> <span class="o">=</span> <span class="n">GANMonitor</span><span class="p">(</span><span class="n">num_img</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="n">noise_dim</span><span class="p">)</span>
+
+<span class="c1"># Get the wgan model</span>
+<span class="n">wgan</span> <span class="o">=</span> <span class="n">WGAN</span><span class="p">(</span>
+    <span class="n">discriminator</span><span class="o">=</span><span class="n">d_model</span><span class="p">,</span>
+    <span class="n">generator</span><span class="o">=</span><span class="n">g_model</span><span class="p">,</span>
+    <span class="n">latent_dim</span><span class="o">=</span><span class="n">noise_dim</span><span class="p">,</span>
+    <span class="n">discriminator_extra_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Compile the wgan model</span>
+<span class="n">wgan</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">d_optimizer</span><span class="o">=</span><span class="n">discriminator_optimizer</span><span class="p">,</span>
+    <span class="n">g_optimizer</span><span class="o">=</span><span class="n">generator_optimizer</span><span class="p">,</span>
+    <span class="n">g_loss_fn</span><span class="o">=</span><span class="n">generator_loss</span><span class="p">,</span>
+    <span class="n">d_loss_fn</span><span class="o">=</span><span class="n">discriminator_loss</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Start training</span>
+<span class="n">wgan</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_images</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">cbk</span><span class="p">])</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1193s 10s/step - d_loss: -7.9513 - g_loss: -15.1636
+
+Epoch 2/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1151s 10s/step - d_loss: -6.5045 - g_loss: -12.4259
+
+Epoch 3/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1199s 10s/step - d_loss: -5.7718 - g_loss: -13.2736
+
+Epoch 4/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1261s 11s/step - d_loss: -4.9928 - g_loss: -15.8792
+
+Epoch 5/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1532s 13s/step - d_loss: -4.7681 - g_loss: -10.9200
+
+Epoch 6/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1355s 11s/step - d_loss: -4.4067 - g_loss: -14.2685
+
+Epoch 7/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1200s 10s/step - d_loss: -4.7728 - g_loss: -6.4940
+
+Epoch 8/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1273s 11s/step - d_loss: -5.0244 - g_loss: -12.6093
+
+Epoch 9/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1386s 12s/step - d_loss: -3.9809 - g_loss: -8.4483
+
+Epoch 10/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1326s 11s/step - d_loss: -3.5291 - g_loss: -9.4523
+
+Epoch 11/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1379s 12s/step - d_loss: -3.7796 - g_loss: -7.0504
+
+Epoch 12/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1669s 14s/step - d_loss: -3.0553 - g_loss: -7.8258
+
+Epoch 13/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1395s 12s/step - d_loss: -3.3355 - g_loss: -6.1509
+
+Epoch 14/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1305s 11s/step - d_loss: -3.7391 - g_loss: -9.3586
+
+Epoch 15/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1337s 11s/step - d_loss: -2.8381 - g_loss: -8.0551
+
+Epoch 16/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 2035s 17s/step - d_loss: -3.2722 - g_loss: -8.0528
+
+Epoch 17/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 2247s 19s/step - d_loss: -3.4859 - g_loss: -5.4908
+
+Epoch 18/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1953s 17s/step - d_loss: -2.6428 - g_loss: -6.6256
+
+Epoch 19/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1595s 14s/step - d_loss: -2.2567 - g_loss: -6.1179
+
+Epoch 20/20
+
+118/118 ━━━━━━━━━━━━━━━━━━━━ 1424s 12s/step - d_loss: -2.7902 - g_loss: -2.9462
+
+&lt;keras.src.callbacks.history.History at 0x15ce5bc10&gt;
+</code></pre></div>
+
+
+</div>
+
+<p>Display the last generated images:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="s2">&quot;generated_img_0_19.png&quot;</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="s2">&quot;generated_img_1_19.png&quot;</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="s2">&quot;generated_img_2_19.png&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/generative/wgan_gp/wgan_gp_17_0.png" /></p>
+<p><img alt="png" src="../../img/examples/generative/wgan_gp/wgan_gp_17_1.png" /></p>
+<p><img alt="png" src="../../img/examples/generative/wgan_gp/wgan_gp_17_2.png" /></p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter17_image-generation">Chapter 17: Image generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='wgan_gp.html#wgangp-overriding-modeltrainstep'>WGAN-GP overriding <code>Model.train_step</code></a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#wasserstein-gan-wgan-with-gradient-penalty-gp'>Wasserstein GAN (WGAN) with Gradient Penalty (GP)</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#prepare-the-fashionmnist-data'>Prepare the Fashion-MNIST data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#create-the-discriminator-the-critic-in-the-original-wgan'>Create the discriminator (the critic in the original WGAN)</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#create-the-generator'>Create the generator</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#create-the-wgangp-model'>Create the WGAN-GP model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#create-a-keras-callback-that-periodically-saves-generated-images'>Create a Keras callback that periodically saves generated images</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#train-the-endtoend-model'>Train the end-to-end model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='wgan_gp.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Fine-tuning Stable Diffusion">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../../img/favicon.ico">
+  
+  <link rel="canonical" href="index.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Fine-tuning Stable Diffusion">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Fine-tuning Stable Diffusion">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Fine-tuning Stable Diffusion</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink active" href="../index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="../ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="../dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="../ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="../fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2 active" href="index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="../dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="../cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="../deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="../gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="../pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="../stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="../adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="../gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="../lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="../midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="../molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="../real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="../wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink active" href="../index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="../ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="../dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="../ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="../fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2 active" href="index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="../dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="../cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="../deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="../gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="../pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="../stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="../adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="../gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="../lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="../midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="../molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="../real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="../wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../../index.html'>Code examples</a> /
+        
+          <a href='../index.html'>Generative Deep Learning</a> /
+         Fine-tuning Stable Diffusion
+    </div>
+    <h1 id="finetuning-stable-diffusion">Fine-tuning Stable Diffusion</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/RisingSayak">Sayak Paul</a>, <a href="https://twitter.com/algo_diver">Chansung Park</a><br>
+<strong>Date created:</strong> 2022/12/28<br>
+<strong>Last modified:</strong> 2023/01/13<br>
+<strong>Description:</strong> Fine-tuning Stable Diffusion using a custom image-caption dataset.</p>
+<div class='example_version_banner keras_2'>ⓘ This example uses Keras 2. This example may not be compatible with the latest version of Keras. Please check out all of our <a href="../../index.html">Keras 3 examples here</a>.</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/generative/ipynb/finetune_stable_diffusion.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/generative/finetune_stable_diffusion.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This tutorial shows how to fine-tune a
+<a href="https://keras.io/guides/keras_cv/generate_images_with_stable_diffusion/">Stable Diffusion model</a>
+on a custom dataset of <code>{image, caption}</code> pairs. We build on top of the fine-tuning
+script provided by Hugging Face
+<a href="https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py">here</a>.</p>
+<p>We assume that you have a high-level understanding of the Stable Diffusion model.
+The following resources can be helpful if you're looking for more information in that regard:</p>
+<ul>
+<li><a href="https://keras.io/guides/keras_cv/generate_images_with_stable_diffusion/">High-performance image generation using Stable Diffusion in KerasCV</a></li>
+<li><a href="https://huggingface.co/blog/stable_diffusion">Stable Diffusion with Diffusers</a></li>
+</ul>
+<p>It's highly recommended that you use a GPU with at least 30GB of memory to execute
+the code.</p>
+<p>By the end of the guide, you'll be able to generate images of interesting Pokémon:</p>
+<p><img alt="custom-pokemons" src="https://i.imgur.com/X4m614M.png" /></p>
+<p>The tutorial relies on KerasCV 0.4.0. Additionally, we need
+at least TensorFlow 2.11 in order to use AdamW with mixed precision.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">keras</span><span class="o">-</span><span class="n">cv</span><span class="o">==</span><span class="mf">0.6.0</span> <span class="o">-</span><span class="n">q</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">tensorflow</span> <span class="o">-</span><span class="n">q</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">keras</span><span class="o">-</span><span class="n">core</span> <span class="o">-</span><span class="n">q</span>
+</code></pre></div>
+
+<hr />
+<h2 id="what-are-we-finetuning">What are we fine-tuning?</h2>
+<p>A Stable Diffusion model can be decomposed into several key models:</p>
+<ul>
+<li>A text encoder that projects the input prompt to a latent space. (The caption
+associated with an image is referred to as the "prompt".)</li>
+<li>A variational autoencoder (VAE) that projects an input image to a latent space acting
+as an image vector space.</li>
+<li>A diffusion model that refines a latent vector and produces another latent vector, conditioned
+on the encoded text prompt</li>
+<li>A decoder that generates images given a latent vector from the diffusion model.</li>
+</ul>
+<p>It's worth noting that during the process of generating an image from a text prompt, the
+image encoder is not typically employed.</p>
+<p>However, during the process of fine-tuning, the workflow goes like the following:</p>
+<ol>
+<li>An input text prompt is projected to a latent space by the text encoder.</li>
+<li>An input image is projected to a latent space by the image encoder portion of the VAE.</li>
+<li>A small amount of noise is added to the image latent vector for a given timestep.</li>
+<li>The diffusion model uses latent vectors from these two spaces along with a timestep embedding
+to predict the noise that was added to the image latent.</li>
+<li>A reconstruction loss is calculated between the predicted noise and the original noise
+added in step 3.</li>
+<li>Finally, the diffusion model parameters are optimized w.r.t this loss using
+gradient descent.</li>
+</ol>
+<p>Note that only the diffusion model parameters are updated during fine-tuning, while the
+(pre-trained) text and the image encoders are kept frozen.</p>
+<p>Don't worry if this sounds complicated. The code is much simpler than this!</p>
+<hr />
+<h2 id="imports">Imports</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">wrap</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_cv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow.experimental.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras_cv.models.stable_diffusion.clip_tokenizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleTokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras_cv.models.stable_diffusion.diffusion_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiffusionModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras_cv.models.stable_diffusion.image_encoder</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageEncoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras_cv.models.stable_diffusion.noise_scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseScheduler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras_cv.models.stable_diffusion.text_encoder</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextEncoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">keras</span>
+</code></pre></div>
+
+<hr />
+<h2 id="data-loading">Data loading</h2>
+<p>We use the dataset
+<a href="https://huggingface.co/datasets/lambdalabs/pokemon-blip-captions">Pokémon BLIP captions</a>.
+However, we'll use a slightly different version which was derived from the original
+dataset to fit better with <a href="https://www.tensorflow.org/api_docs/python/tf/data"><code>tf.data</code></a>. Refer to
+<a href="https://huggingface.co/datasets/sayakpaul/pokemon-blip-original-version">the documentation</a>
+for more details.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">data_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://huggingface.co/datasets/sayakpaul/pokemon-blip-original-version/resolve/main/pokemon_dataset.tar.gz&quot;</span><span class="p">,</span>
+    <span class="n">untar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">data_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;data.csv&quot;</span><span class="p">))</span>
+
+<span class="n">data_frame</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">data_frame</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre></div>
+
+
+</div>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>image_path</th>
+      <th>caption</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>/home/jupyter/.keras/datasets/pokemon_dataset/...</td>
+      <td>a drawing of a green pokemon with red eyes</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>/home/jupyter/.keras/datasets/pokemon_dataset/...</td>
+      <td>a green and yellow toy with a red nose</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>/home/jupyter/.keras/datasets/pokemon_dataset/...</td>
+      <td>a red and white ball with an angry look on its...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>/home/jupyter/.keras/datasets/pokemon_dataset/...</td>
+      <td>a cartoon ball with a smile on it's face</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>/home/jupyter/.keras/datasets/pokemon_dataset/...</td>
+      <td>a bunch of balls with faces drawn on them</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Since we have only 833 <code>{image, caption}</code> pairs, we can precompute the text embeddings from
+the captions. Moreover, the text encoder will be kept frozen during the course of
+fine-tuning, so we can save some compute by doing this.</p>
+<p>Before we use the text encoder, we need to tokenize the captions.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># The padding token and maximum prompt length are specific to the text encoder.</span>
+<span class="c1"># If you&#39;re using a different text encoder be sure to change them accordingly.</span>
+<span class="n">PADDING_TOKEN</span> <span class="o">=</span> <span class="mi">49407</span>
+<span class="n">MAX_PROMPT_LENGTH</span> <span class="o">=</span> <span class="mi">77</span>
+
+<span class="c1"># Load the tokenizer.</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SimpleTokenizer</span><span class="p">()</span>
+
+<span class="c1">#  Method to tokenize and pad the tokens.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_text</span><span class="p">(</span><span class="n">caption</span><span class="p">):</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span> <span class="o">+</span> <span class="p">[</span><span class="n">PADDING_TOKEN</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">MAX_PROMPT_LENGTH</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+
+<span class="c1"># Collate the tokenized captions into an array.</span>
+<span class="n">tokenized_texts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">data_frame</span><span class="p">),</span> <span class="n">MAX_PROMPT_LENGTH</span><span class="p">))</span>
+
+<span class="n">all_captions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_frame</span><span class="p">[</span><span class="s2">&quot;caption&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">caption</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_captions</span><span class="p">):</span>
+    <span class="n">tokenized_texts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="tfdatadataset">Prepare a <a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset"><code>tf.data.Dataset</code></a></h2>
+<p>In this section, we'll prepare a <a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset"><code>tf.data.Dataset</code></a> object from the input image file paths
+and their corresponding caption tokens. The section will include the following:</p>
+<ul>
+<li>Pre-computation of the text embeddings from the tokenized captions.</li>
+<li>Loading and augmentation of the input images.</li>
+<li>Shuffling and batching of the dataset.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">RESOLUTION</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">AUTO</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+<span class="n">POS_IDS</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">MAX_PROMPT_LENGTH</span><span class="p">))],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+<span class="n">augmenter</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">layers</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">keras_cv</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="n">RESOLUTION</span><span class="p">,</span> <span class="n">RESOLUTION</span><span class="p">),</span>
+        <span class="n">keras_cv</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(),</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Rescaling</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">127.5</span><span class="p">,</span> <span class="n">offset</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">text_encoder</span> <span class="o">=</span> <span class="n">TextEncoder</span><span class="p">(</span><span class="n">MAX_PROMPT_LENGTH</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">tokenized_text</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">decode_png</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">RESOLUTION</span><span class="p">,</span> <span class="n">RESOLUTION</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">tokenized_text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_augmentation</span><span class="p">(</span><span class="n">image_batch</span><span class="p">,</span> <span class="n">token_batch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">augmenter</span><span class="p">(</span><span class="n">image_batch</span><span class="p">),</span> <span class="n">token_batch</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_text_encoder</span><span class="p">(</span><span class="n">image_batch</span><span class="p">,</span> <span class="n">token_batch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">image_batch</span><span class="p">,</span>
+        <span class="n">token_batch</span><span class="p">,</span>
+        <span class="n">text_encoder</span><span class="p">([</span><span class="n">token_batch</span><span class="p">,</span> <span class="n">POS_IDS</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare_dict</span><span class="p">(</span><span class="n">image_batch</span><span class="p">,</span> <span class="n">token_batch</span><span class="p">,</span> <span class="n">encoded_text_batch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">image_batch</span><span class="p">,</span>
+        <span class="s2">&quot;tokens&quot;</span><span class="p">:</span> <span class="n">token_batch</span><span class="p">,</span>
+        <span class="s2">&quot;encoded_text&quot;</span><span class="p">:</span> <span class="n">encoded_text_batch</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare_dataset</span><span class="p">(</span><span class="n">image_paths</span><span class="p">,</span> <span class="n">tokenized_texts</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">image_paths</span><span class="p">,</span> <span class="n">tokenized_texts</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span><span class="p">)</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">apply_augmentation</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">run_text_encoder</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">prepare_dict</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">AUTO</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTO</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The baseline Stable Diffusion model was trained using images with 512x512 resolution. It's
+unlikely for a model that's trained using higher-resolution images to transfer well to
+lower-resolution images. However, the current model will lead to OOM if we keep the
+resolution to 512x512 (without enabling mixed-precision). Therefore, in the interest of
+interactive demonstrations, we kept the input resolution to 256x256.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Prepare the dataset.</span>
+<span class="n">training_dataset</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_frame</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">]),</span> <span class="n">tokenized_texts</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">)</span>
+
+<span class="c1"># Take a sample batch and investigate.</span>
+<span class="n">sample_batch</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">training_dataset</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">sample_batch</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>images (4, 256, 256, 3)
+tokens (4, 77)
+encoded_text (4, 77, 768)
+</code></pre></div>
+
+
+</div>
+<p>We can also take a look at the training images and their corresponding captions.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">((</span><span class="n">sample_batch</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">sample_batch</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;|startoftext|&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;|endoftext|&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../../img/examples/generative/finetune_stable_diffusion/finetune_stable_diffusion_15_0.png" /></p>
+<hr />
+<h2 id="a-trainer-class-for-the-finetuning-loop">A trainer class for the fine-tuning loop</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Trainer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="c1"># Reference:</span>
+    <span class="c1"># https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">diffusion_model</span><span class="p">,</span>
+        <span class="n">vae</span><span class="p">,</span>
+        <span class="n">noise_scheduler</span><span class="p">,</span>
+        <span class="n">use_mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_grad_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_model</span> <span class="o">=</span> <span class="n">diffusion_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vae</span> <span class="o">=</span> <span class="n">vae</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_scheduler</span> <span class="o">=</span> <span class="n">noise_scheduler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_grad_norm</span> <span class="o">=</span> <span class="n">max_grad_norm</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_mixed_precision</span> <span class="o">=</span> <span class="n">use_mixed_precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vae</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
+        <span class="n">encoded_text</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;encoded_text&quot;</span><span class="p">]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">images</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># Project image into the latent space and sample from it.</span>
+            <span class="n">latents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_from_encoder_outputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vae</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="c1"># Know more about the magic number here:</span>
+            <span class="c1"># https://keras.io/examples/generative/fine_tune_via_textual_inversion/</span>
+            <span class="n">latents</span> <span class="o">=</span> <span class="n">latents</span> <span class="o">*</span> <span class="mf">0.18215</span>
+
+            <span class="c1"># Sample noise that we&#39;ll add to the latents.</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">latents</span><span class="p">))</span>
+
+            <span class="c1"># Sample a random timestep for each image.</span>
+            <span class="n">timesteps</span> <span class="o">=</span> <span class="n">tnp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_scheduler</span><span class="o">.</span><span class="n">train_timesteps</span><span class="p">,</span> <span class="p">(</span><span class="n">batch_size</span><span class="p">,)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Add noise to the latents according to the noise magnitude at each timestep</span>
+            <span class="c1"># (this is the forward diffusion process).</span>
+            <span class="n">noisy_latents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_scheduler</span><span class="o">.</span><span class="n">add_noise</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">latents</span><span class="p">,</span> <span class="n">noise</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">noise</span><span class="p">,</span> <span class="n">timesteps</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Get the target for loss depending on the prediction type</span>
+            <span class="c1"># just the sampled noise for now.</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">noise</span>  <span class="c1"># noise_schedule.predict_epsilon == True</span>
+
+            <span class="c1"># Predict the noise residual and compute loss.</span>
+            <span class="n">timestep_embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_timestep_embedding</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+            <span class="p">)</span>
+            <span class="n">timestep_embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">timestep_embedding</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">model_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_model</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">noisy_latents</span><span class="p">,</span> <span class="n">timestep_embedding</span><span class="p">,</span> <span class="n">encoded_text</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiled_loss</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">model_pred</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mixed_precision</span><span class="p">:</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">get_scaled_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+        <span class="c1"># Update parameters of the diffusion model.</span>
+        <span class="n">trainable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_model</span><span class="o">.</span><span class="n">trainable_variables</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">trainable_vars</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mixed_precision</span><span class="p">:</span>
+            <span class="n">gradients</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">get_unscaled_gradients</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_norm</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_grad_norm</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">trainable_vars</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_timestep_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">log_max_period</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">max_period</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+        <span class="n">freqs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="o">-</span><span class="n">log_max_period</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">half</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="n">half</span>
+        <span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([</span><span class="n">timestep</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="n">freqs</span>
+        <span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">args</span><span class="p">)],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">embedding</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_from_encoder_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">logvar</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="n">logvar</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">logvar</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">mean</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">std</span> <span class="o">*</span> <span class="n">sample</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Overriding this method will allow us to use the `ModelCheckpoint`</span>
+        <span class="c1"># callback directly with this trainer class. In this case, it will</span>
+        <span class="c1"># only checkpoint the `diffusion_model` since that&#39;s what we&#39;re training</span>
+        <span class="c1"># during fine-tuning.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span>
+            <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">save_format</span><span class="o">=</span><span class="n">save_format</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<p>One important implementation detail to note here: Instead of directly taking
+the latent vector produced by the image encoder (which is a VAE), we sample from the
+mean and log-variance predicted by it. This way, we can achieve better sample
+quality and diversity.</p>
+<p>It's common to add support for mixed-precision training along with exponential
+moving averaging of model weights for fine-tuning these models. However, in the interest
+of brevity, we discard those elements. More on this later in the tutorial.</p>
+<hr />
+<h2 id="initialize-the-trainer-and-compile-it">Initialize the trainer and compile it</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable mixed-precision training if the underlying GPU has tensor cores.</span>
+<span class="n">USE_MP</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">if</span> <span class="n">USE_MP</span><span class="p">:</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">set_global_policy</span><span class="p">(</span><span class="s2">&quot;mixed_float16&quot;</span><span class="p">)</span>
+
+<span class="n">image_encoder</span> <span class="o">=</span> <span class="n">ImageEncoder</span><span class="p">()</span>
+<span class="n">diffusion_ft_trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+    <span class="n">diffusion_model</span><span class="o">=</span><span class="n">DiffusionModel</span><span class="p">(</span><span class="n">RESOLUTION</span><span class="p">,</span> <span class="n">RESOLUTION</span><span class="p">,</span> <span class="n">MAX_PROMPT_LENGTH</span><span class="p">),</span>
+    <span class="c1"># Remove the top layer from the encoder, which cuts off the variance and only</span>
+    <span class="c1"># returns the mean.</span>
+    <span class="n">vae</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+        <span class="n">image_encoder</span><span class="o">.</span><span class="n">input</span><span class="p">,</span>
+        <span class="n">image_encoder</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">noise_scheduler</span><span class="o">=</span><span class="n">NoiseScheduler</span><span class="p">(),</span>
+    <span class="n">use_mixed_precision</span><span class="o">=</span><span class="n">USE_MP</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># These hyperparameters come from this tutorial by Hugging Face:</span>
+<span class="c1"># https://huggingface.co/docs/diffusers/training/text2image</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-5</span>
+<span class="n">beta_1</span><span class="p">,</span> <span class="n">beta_2</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.999</span>
+<span class="n">weight_decay</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-2</span><span class="p">,)</span>
+<span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-08</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">,</span>
+    <span class="n">beta_1</span><span class="o">=</span><span class="n">beta_1</span><span class="p">,</span>
+    <span class="n">beta_2</span><span class="o">=</span><span class="n">beta_2</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">diffusion_ft_trainer</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="finetuning">Fine-tuning</h2>
+<p>To keep the runtime of this tutorial short, we just fine-tune for an epoch.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">epochs</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">ckpt_path</span> <span class="o">=</span> <span class="s2">&quot;finetuned_stable_diffusion.h5&quot;</span>
+<span class="n">ckpt_callback</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+    <span class="n">ckpt_path</span><span class="p">,</span>
+    <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">diffusion_ft_trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">ckpt_callback</span><span class="p">])</span>
+</code></pre></div>
+
+<hr />
+<h2 id="inference">Inference</h2>
+<p>We fine-tuned the model for 60 epochs on an image resolution of 512x512. To allow
+training with this resolution, we incorporated mixed-precision support. You can
+check out
+<a href="https://github.com/sayakpaul/stabe-diffusion-keras-ft">this repository</a>
+for more details. It additionally provides support for exponential moving averaging of
+the fine-tuned model parameters and model checkpointing.</p>
+<p>For this section, we'll use the checkpoint derived after 60 epochs of fine-tuning.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">weights_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://huggingface.co/sayakpaul/kerascv_sd_pokemon_finetuned/resolve/main/ckpt_epochs_72_res_512_mp_True.h5&quot;</span>
+<span class="p">)</span>
+
+<span class="n">img_height</span> <span class="o">=</span> <span class="n">img_width</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">pokemon_model</span> <span class="o">=</span> <span class="n">keras_cv</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">StableDiffusion</span><span class="p">(</span>
+    <span class="n">img_width</span><span class="o">=</span><span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="o">=</span><span class="n">img_height</span>
+<span class="p">)</span>
+<span class="c1"># We just reload the weights of the fine-tuned diffusion model.</span>
+<span class="n">pokemon_model</span><span class="o">.</span><span class="n">diffusion_model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">weights_path</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>By using this model checkpoint, you acknowledge that its usage is subject to the terms of the CreativeML Open RAIL-M license at https://raw.githubusercontent.com/CompVis/stable-diffusion/main/LICENSE
+</code></pre></div>
+
+
+</div>
+<p>Now, we can take this model for a test-drive.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Yoda&quot;</span><span class="p">,</span> <span class="s2">&quot;Hello Kitty&quot;</span><span class="p">,</span> <span class="s2">&quot;A pokemon with red eyes&quot;</span><span class="p">]</span>
+<span class="n">images_to_generate</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+    <span class="n">generated_images</span> <span class="o">=</span> <span class="n">pokemon_model</span><span class="o">.</span><span class="n">text_to_image</span><span class="p">(</span>
+        <span class="n">prompt</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">images_to_generate</span><span class="p">,</span> <span class="n">unconditional_guidance_scale</span><span class="o">=</span><span class="mi">40</span>
+    <span class="p">)</span>
+    <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">prompt</span><span class="p">:</span> <span class="n">generated_images</span><span class="p">})</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>25/25 [==============================] - 17s 231ms/step
+25/25 [==============================] - 6s 229ms/step
+25/25 [==============================] - 6s 229ms/step
+</code></pre></div>
+
+
+</div>
+<p>With 60 epochs of fine-tuning (a good number is about 70), the generated images were not
+up to the mark. So, we experimented with the number of steps Stable Diffusion takes
+during the inference time and the <code>unconditional_guidance_scale</code> parameter.</p>
+<p>We found the best results with this checkpoint with <code>unconditional_guidance_scale</code> set to
+40.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+    <span class="n">plot_images</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="n">prompt</span><span class="p">],</span> <span class="n">prompt</span><span class="p">)</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../../img/examples/generative/finetune_stable_diffusion/finetune_stable_diffusion_28_0.png" /></p>
+<p><img alt="png" src="../../../img/examples/generative/finetune_stable_diffusion/finetune_stable_diffusion_28_1.png" /></p>
+<p><img alt="png" src="../../../img/examples/generative/finetune_stable_diffusion/finetune_stable_diffusion_28_2.png" /></p>
+<p>We can notice that the model has started adapting to the style of our dataset. You can
+check the
+<a href="https://github.com/sayakpaul/stable-diffusion-keras-ft#results">accompanying repository</a>
+for more comparisons and commentary. If you're feeling adventurous to try out a demo,
+you can check out
+<a href="https://huggingface.co/spaces/sayakpaul/pokemon-sd-kerascv">this resource</a>.</p>
+<hr />
+<h2 id="conclusion-and-acknowledgements">Conclusion and acknowledgements</h2>
+<p>We demonstrated how to fine-tune the Stable Diffusion model on a custom dataset. While
+the results are far from aesthetically pleasing, we believe with more epochs of
+fine-tuning, they will likely improve. To enable that, having support for gradient
+accumulation and distributed training is crucial. This can be thought of as the next step
+in this tutorial.</p>
+<p>There is another interesting way in which Stable Diffusion models can be fine-tuned,
+called textual inversion. You can refer to
+<a href="../fine_tune_via_textual_inversion/index.html">this tutorial</a>
+to know more about it.</p>
+<p>We'd like to acknowledge the GCP Credit support from ML Developer Programs' team at
+Google. We'd like to thank the Hugging Face team for providing the
+<a href="https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py">fine-tuning script</a>
+. It's very readable and easy to understand.</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter17_image-generation">Chapter 17: Image generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='index.html#finetuning-stable-diffusion'>Fine-tuning Stable Diffusion</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#what-are-we-finetuning'>What are we fine-tuning?</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#imports'>Imports</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#data-loading'>Data loading</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#prepare-a-tfdatadataset'>Prepare a <code>tf.data.Dataset</code></a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#a-trainer-class-for-the-finetuning-loop'>A trainer class for the fine-tuning loop</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#initialize-the-trainer-and-compile-it'>Initialize the trainer and compile it</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#finetuning'>Fine-tuning</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#inference'>Inference</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#conclusion-and-acknowledgements'>Conclusion and acknowledgements</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../../js/index.js"></script>
+</body>
+
+</html>

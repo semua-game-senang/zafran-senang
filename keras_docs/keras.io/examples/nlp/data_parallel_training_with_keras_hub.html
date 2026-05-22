@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Data Parallel Training with KerasHub and tf.distribute">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="data_parallel_training_with_keras_hub.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Data Parallel Training with KerasHub and tf.distribute">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Data Parallel Training with KerasHub and tf.distribute">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Data Parallel Training with KerasHub and tf.distribute</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2 active" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2 active" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Natural Language Processing</a> /
+         Data Parallel Training with KerasHub and tf.distribute
+    </div>
+    <h1 id="data-parallel-training-with-kerashub-and-tfdistribute">Data Parallel Training with KerasHub and tf.distribute</h1>
+<p><strong>Author:</strong> Anshuman Mishra<br>
+<strong>Date created:</strong> 2023/07/07<br>
+<strong>Last modified:</strong> 2023/07/07<br>
+<strong>Description:</strong> Data Parallel training with KerasHub and tf.distribute.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/nlp/ipynb/data_parallel_training_with_keras_hub.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/nlp/data_parallel_training_with_keras_hub.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Distributed training is a technique used to train deep learning models on multiple devices
+or machines simultaneously. It helps to reduce training time and allows for training larger
+models with more data. KerasHub is a library that provides tools and utilities for natural
+language processing tasks, including distributed training.</p>
+<p>In this tutorial, we will use KerasHub to train a BERT-based masked language model (MLM)
+on the wikitext-2 dataset (a 2 million word dataset of wikipedia articles). The MLM task
+involves predicting the masked words in a sentence, which helps the model learn contextual
+representations of words.</p>
+<p>This guide focuses on data parallelism, in particular synchronous data parallelism, where
+each accelerator (a GPU or TPU) holds a complete replica of the model, and sees a
+different partial batch of the input data. Partial gradients are computed on each device,
+aggregated, and used to compute a global gradient update.</p>
+<p>Specifically, this guide teaches you how to use the <a href="https://www.tensorflow.org/api_docs/python/tf/distribute"><code>tf.distribute</code></a> API to train Keras
+models on multiple GPUs, with minimal changes to your code, in the following two setups:</p>
+<ul>
+<li>On multiple GPUs (typically 2 to 8) installed on a single machine (single host,
+multi-device training). This is the most common setup for researchers and small-scale
+industry workflows.</li>
+<li>On a cluster of many machines, each hosting one or multiple GPUs (multi-worker
+distributed training). This is a good setup for large-scale industry workflows, e.g.
+training high-resolution text summarization models on billion word datasets on 20-100 GPUs.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span><span class="o">-</span><span class="n">hub</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span>  <span class="c1"># Upgrade to Keras 3.</span>
+</code></pre></div>
+
+<hr />
+<h2 id="imports">Imports</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+</code></pre></div>
+
+<p>Before we start any training, let's configure our single GPU to show up as two logical
+devices.</p>
+<p>When you are training with two or more physical GPUs, this is totally uncessary. This
+is just a trick to show real distributed training on the default colab GPU runtime,
+which has only one GPU available.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span> <span class="o">--</span><span class="n">query</span><span class="o">-</span><span class="n">gpu</span><span class="o">=</span><span class="n">memory</span><span class="o">.</span><span class="n">total</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="n">csv</span><span class="p">,</span><span class="n">noheader</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">physical_devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">list_physical_devices</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set_logical_device_configuration</span><span class="p">(</span>
+    <span class="n">physical_devices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">LogicalDeviceConfiguration</span><span class="p">(</span><span class="n">memory_limit</span><span class="o">=</span><span class="mi">15360</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">LogicalDeviceConfiguration</span><span class="p">(</span><span class="n">memory_limit</span><span class="o">=</span><span class="mi">15360</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">logical_devices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">list_logical_devices</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">)</span>
+<span class="n">logical_devices</span>
+
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">3</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>24576 MiB
+</code></pre></div>
+
+
+</div>
+<p>To do single-host, multi-device synchronous training with a Keras model, you would use
+the <a href="https://www.tensorflow.org/api_docs/python/tf/distribute/MirroredStrategy"><code>tf.distribute.MirroredStrategy</code></a> API. Here's how it works:</p>
+<ul>
+<li>Instantiate a <code>MirroredStrategy</code>, optionally configuring which specific devices you
+want to use (by default the strategy will use all GPUs available).</li>
+<li>Use the strategy object to open a scope, and within this scope, create all the Keras
+objects you need that contain variables. Typically, that means <strong>creating &amp; compiling the
+model</strong> inside the distribution scope.</li>
+<li>Train the model via <code>fit()</code> as usual.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">strategy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MirroredStrategy</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of devices: </span><span class="si">{</span><span class="n">strategy</span><span class="o">.</span><span class="n">num_replicas_in_sync</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>INFO:tensorflow:Using MirroredStrategy with devices (&#39;/job:localhost/replica:0/task:0/device:GPU:0&#39;, &#39;/job:localhost/replica:0/task:0/device:GPU:1&#39;)
+Number of devices: 2
+</code></pre></div>
+
+
+</div>
+<p>Base batch size and learning rate</p>
+<div class="codehilite"><pre><span></span><code><span class="n">base_batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">base_learning_rate</span> <span class="o">=</span> <span class="mf">1e-4</span>
+</code></pre></div>
+
+<p>Calculate scaled batch size and learning rate</p>
+<div class="codehilite"><pre><span></span><code><span class="n">scaled_batch_size</span> <span class="o">=</span> <span class="n">base_batch_size</span> <span class="o">*</span> <span class="n">strategy</span><span class="o">.</span><span class="n">num_replicas_in_sync</span>
+<span class="n">scaled_learning_rate</span> <span class="o">=</span> <span class="n">base_learning_rate</span> <span class="o">*</span> <span class="n">strategy</span><span class="o">.</span><span class="n">num_replicas_in_sync</span>
+</code></pre></div>
+
+<p>Now, we need to download and preprocess the wikitext-2 dataset. This dataset will be
+used for pretraining the BERT model. We will filter out short lines to ensure that the
+data has enough context for training.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip&quot;</span><span class="p">,</span>
+    <span class="n">extract</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">wiki_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.keras/datasets/wikitext-2/&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load wikitext-103 and filter out short lines.</span>
+<span class="n">wiki_train_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span>
+        <span class="n">wiki_dir</span> <span class="o">+</span> <span class="s2">&quot;wiki.train.tokens&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">scaled_batch_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">wiki_val_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="n">wiki_dir</span> <span class="o">+</span> <span class="s2">&quot;wiki.valid.tokens&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">scaled_batch_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">wiki_test_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">(</span><span class="n">wiki_dir</span> <span class="o">+</span> <span class="s2">&quot;wiki.test.tokens&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">scaled_batch_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>In the above code, we download the wikitext-2 dataset and extract it. Then, we define
+three datasets: wiki_train_ds, wiki_val_ds, and wiki_test_ds. These datasets are
+filtered to remove short lines and are batched for efficient training.</p>
+<p>It's a common practice to use a decayed learning rate in NLP training/tuning. We'll
+use <code>PolynomialDecay</code> schedule here.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">total_training_steps</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">wiki_train_ds</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">())</span> <span class="o">*</span> <span class="n">EPOCHS</span>
+<span class="n">lr_schedule</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">PolynomialDecay</span><span class="p">(</span>
+    <span class="n">initial_learning_rate</span><span class="o">=</span><span class="n">scaled_learning_rate</span><span class="p">,</span>
+    <span class="n">decay_steps</span><span class="o">=</span><span class="n">total_training_steps</span><span class="p">,</span>
+    <span class="n">end_learning_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PrintLR</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Learning rate for epoch </span><span class="si">{</span><span class="n">epoch</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">model_dist</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">learning_rate</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<p>Let's also make a callback to TensorBoard, this will enable visualization of different
+metrics while we train the model in later part of this tutorial. We put all the callbacks
+together as follows:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">TensorBoard</span><span class="p">(</span><span class="n">log_dir</span><span class="o">=</span><span class="s2">&quot;./logs&quot;</span><span class="p">),</span>
+    <span class="n">PrintLR</span><span class="p">(),</span>
+<span class="p">]</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">list_physical_devices</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>[PhysicalDevice(name=&#39;/physical_device:GPU:0&#39;, device_type=&#39;GPU&#39;)]
+</code></pre></div>
+
+
+</div>
+<p>With the datasets prepared, we now initialize and compile our model and optimizer within
+the <code>strategy.scope()</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">with</span> <span class="n">strategy</span><span class="o">.</span><span class="n">scope</span><span class="p">():</span>
+    <span class="c1"># Everything that creates variables should be under the strategy scope.</span>
+    <span class="c1"># In general this is only model construction &amp; `compile()`.</span>
+    <span class="n">model_dist</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">BertMaskedLM</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span><span class="s2">&quot;bert_tiny_en_uncased&quot;</span><span class="p">)</span>
+
+    <span class="c1"># This line just sets pooled_dense layer as non-trainiable, we do this to avoid</span>
+    <span class="c1"># warnings of this layer being unused</span>
+    <span class="n">model_dist</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="s2">&quot;bert_backbone&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="s2">&quot;pooled_dense&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">model_dist</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">scaled_learning_rate</span><span class="p">),</span>
+        <span class="n">weighted_metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+        <span class="n">jit_compile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">model_dist</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">wiki_train_ds</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">wiki_val_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/3
+Learning rate for epoch 1 is 0.00019999999494757503
+ 239/239 ━━━━━━━━━━━━━━━━━━━━ 43s 136ms/step - loss: 3.7009 - sparse_categorical_accuracy: 0.1499 - val_loss: 1.1509 - val_sparse_categorical_accuracy: 0.3485
+Epoch 2/3
+ 239/239 ━━━━━━━━━━━━━━━━━━━━ 0s 122ms/step - loss: 2.6094 - sparse_categorical_accuracy: 0.5284
+Learning rate for epoch 2 is 0.00019999999494757503
+ 239/239 ━━━━━━━━━━━━━━━━━━━━ 32s 133ms/step - loss: 2.6038 - sparse_categorical_accuracy: 0.5274 - val_loss: 0.9812 - val_sparse_categorical_accuracy: 0.4006
+Epoch 3/3
+ 239/239 ━━━━━━━━━━━━━━━━━━━━ 0s 123ms/step - loss: 2.3564 - sparse_categorical_accuracy: 0.6053
+Learning rate for epoch 3 is 0.00019999999494757503
+ 239/239 ━━━━━━━━━━━━━━━━━━━━ 32s 134ms/step - loss: 2.3514 - sparse_categorical_accuracy: 0.6040 - val_loss: 0.9213 - val_sparse_categorical_accuracy: 0.4230
+</code></pre></div>
+
+
+</div>
+<p>After fitting our model under the scope, we evaluate it normally!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model_dist</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">wiki_test_ds</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 29/29 ━━━━━━━━━━━━━━━━━━━━ 3s 60ms/step - loss: 1.9197 - sparse_categorical_accuracy: 0.8527
+
+[0.9470901489257812, 0.4373602867126465]
+</code></pre></div>
+
+
+</div>
+<p>For distributed training across multiple machines (as opposed to training that only leverages
+multiple devices on a single machine), there are two distribution strategies you
+could use: <code>MultiWorkerMirroredStrategy</code> and <code>ParameterServerStrategy</code>:</p>
+<ul>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/distribute/MultiWorkerMirroredStrategy"><code>tf.distribute.MultiWorkerMirroredStrategy</code></a> implements a synchronous CPU/GPU
+multi-worker solution to work with Keras-style model building and training loop,
+using synchronous reduction of gradients across the replicas.</li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/distribute/experimental/ParameterServerStrategy"><code>tf.distribute.experimental.ParameterServerStrategy</code></a> implements an asynchronous CPU/GPU
+multi-worker solution, where the parameters are stored on parameter servers, and
+workers update the gradients to parameter servers asynchronously.</li>
+</ul>
+<h3 id="further-reading">Further reading</h3>
+<ol>
+<li><a href="https://www.tensorflow.org/guide/distributed_training">TensorFlow distributed training guide</a></li>
+<li><a href="https://www.tensorflow.org/tutorials/distribute/multi_worker_with_keras">Tutorial on multi-worker training with Keras</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/distribute/MirroredStrategy">MirroredStrategy docs</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/distribute/experimental/MultiWorkerMirroredStrategy">MultiWorkerMirroredStrategy docs</a></li>
+<li><a href="https://towardsdatascience.com/distributed-training-in-tf-keras-with-w-b-ccf021f9322e">Distributed training in tf.keras with Weights &amp; Biases</a></li>
+</ol>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter07_deep-dive-keras">Chapter 7: A deep dive on Keras</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter18_best-practices-for-the-real-world">Chapter 18: Best practices for the real world</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='data_parallel_training_with_keras_hub.html#data-parallel-training-with-kerashub-and-tfdistribute'>Data Parallel Training with KerasHub and tf.distribute</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='data_parallel_training_with_keras_hub.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='data_parallel_training_with_keras_hub.html#imports'>Imports</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='data_parallel_training_with_keras_hub.html#further-reading'>Further reading</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='data_parallel_training_with_keras_hub.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

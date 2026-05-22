@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Parameter-efficient fine-tuning of GPT-2 with LoRA">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="parameter_efficient_finetuning_of_gpt2_with_lora.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Parameter-efficient fine-tuning of GPT-2 with LoRA">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Parameter-efficient fine-tuning of GPT-2 with LoRA">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Parameter-efficient fine-tuning of GPT-2 with LoRA</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2 active" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2 active" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Natural Language Processing</a> /
+         Parameter-efficient fine-tuning of GPT-2 with LoRA
+    </div>
+    <h1 id="parameterefficient-finetuning-of-gpt2-with-lora">Parameter-efficient fine-tuning of GPT-2 with LoRA</h1>
+<p><strong>Author:</strong> <a href="https://github.com/abheesht17/">Abheesht Sharma</a>, <a href="https://github.com/mattdangerw/">Matthew Watson</a><br>
+<strong>Date created:</strong> 2023/05/27<br>
+<strong>Last modified:</strong> 2023/05/27<br>
+<strong>Description:</strong> Use KerasHub to fine-tune a GPT-2 LLM with LoRA.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/nlp/ipynb/parameter_efficient_finetuning_of_gpt2_with_lora.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/nlp/parameter_efficient_finetuning_of_gpt2_with_lora.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Large Language Models (LLMs) have been shown to be effective at a variety of NLP
+tasks. An LLM is first pre-trained on a large corpus of text in a
+self-supervised fashion. Pre-training helps LLMs learn general-purpose knowledge,
+such as statistical relationships between words. An LLM can then be fine-tuned
+on a downstream task of interest (such as sentiment analysis).</p>
+<p>However, LLMs are extremely large in size, and we don't need to train all the
+parameters in the model while fine-tuning, especially because datasets on which
+the model is fine-tuned are relatively small. Another way of saying this is
+that LLMs are over-parametrized for fine-tuning. This is where
+<a href="https://arxiv.org/abs/2106.09685">Low-Rank Adaptation (LoRA)</a> comes in; it
+significantly reduces the number of trainable parameters. This results in a
+decrease in training time and GPU memory usage, while maintaining the quality
+of the outputs.</p>
+<p>In this example, we will explain LoRA in technical terms, show how the technical
+explanation translates to code, hack KerasHub's
+<a href="https://keras.io/api/keras_hub/models/gpt2/">GPT-2 model</a> and fine-tune
+it on the next token prediction task using LoRA. We will compare LoRA GPT-2
+with a fully fine-tuned GPT-2 in terms of the quality of the generated text,
+training time and GPU memory usage.</p>
+<p>Note: This example runs on the TensorFlow backend purely for the
+<a href="https://www.tensorflow.org/api_docs/python/tf/config/experimental/get_memory_info"><code>tf.config.experimental.get_memory_info</code></a> API to easily plot memory usage.
+Outside of the memory usage callback, this example will run on <code>jax</code> and <code>torch</code>
+backends.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<p>Before we start implementing the pipeline, let's install and import all the
+libraries we need. We'll be using the KerasHub library.</p>
+<p>Secondly, let's enable mixed precision training. This will help us reduce the
+training time.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span><span class="o">-</span><span class="n">hub</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">q</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">keras</span>  <span class="c1"># Upgrade to Keras 3.</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">set_global_policy</span><span class="p">(</span><span class="s2">&quot;mixed_float16&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Let's also define our hyperparameters.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># General hyperparameters</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">NUM_BATCHES</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Can be set to a higher value for better results</span>
+<span class="n">MAX_SEQUENCE_LENGTH</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">MAX_GENERATION_LENGTH</span> <span class="o">=</span> <span class="mi">200</span>
+
+<span class="n">GPT2_PRESET</span> <span class="o">=</span> <span class="s2">&quot;gpt2_base_en&quot;</span>
+
+<span class="c1"># LoRA-specific hyperparameters</span>
+<span class="n">RANK</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">ALPHA</span> <span class="o">=</span> <span class="mf">32.0</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dataset">Dataset</h2>
+<p>Let's load a Reddit dataset. We will fine-tune both the GPT-2 model and the
+LoRA GPT-2 model on a subset of this dataset. The aim is to produce text similar
+in style to Reddit posts.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">reddit_ds</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;reddit_tifu&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The dataset has two fields: <code>document</code> and <code>title</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">document</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">reddit_ds</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">title</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="k">break</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>b&quot;me and a friend decided to go to the beach last sunday. we loaded up and headed out. we were about half way there when i decided that i was not leaving till i had seafood. \n\nnow i&#39;m not talking about red lobster. no friends i&#39;m talking about a low country boil. i found the restaurant and got directions. i don&#39;t know if any of you have heard about the crab shack on tybee island but let me tell you it&#39;s worth it. \n\nwe arrived and was seated quickly. we decided to get a seafood sampler for two and split it. the waitress bought it out on separate platters for us. the amount of food was staggering. two types of crab, shrimp, mussels, crawfish, andouille sausage, red potatoes, and corn on the cob. i managed to finish it and some of my friends crawfish and mussels. it was a day to be a fat ass. we finished paid for our food and headed to the beach. \n\nfunny thing about seafood. it runs through me faster than a kenyan \n\nwe arrived and walked around a bit. it was about 45min since we arrived at the beach when i felt a rumble from the depths of my stomach. i ignored it i didn&#39;t want my stomach to ruin our fun. i pushed down the feeling and continued. about 15min later the feeling was back and stronger than before. again i ignored it and continued. 5min later it felt like a nuclear reactor had just exploded in my stomach. i started running. i yelled to my friend to hurry the fuck up. \n\nrunning in sand is extremely hard if you did not know this. we got in his car and i yelled at him to floor it. my stomach was screaming and if he didn&#39;t hurry i was gonna have this baby in his car and it wasn&#39;t gonna be pretty. after a few red lights and me screaming like a woman in labor we made it to the store. \n\ni practically tore his car door open and ran inside. i ran to the bathroom opened the door and barely got my pants down before the dam burst and a flood of shit poured from my ass. \n\ni finished up when i felt something wet on my ass. i rubbed it thinking it was back splash. no, mass was covered in the after math of me abusing the toilet. i grabbed all the paper towels i could and gave my self a whores bath right there. \n\ni sprayed the bathroom down with the air freshener and left. an elderly lady walked in quickly and closed the door. i was just about to walk away when i heard gag. instead of walking i ran. i got to the car and told him to get the hell out of there.&quot;
+b&#39;liking seafood&#39;
+</code></pre></div>
+
+
+</div>
+<p>We'll now batch the dataset and retain only the <code>document</code> field because we are
+fine-tuning the model on the next word prediction task. Take a subset
+of the dataset for the purpose of this example.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">reddit_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">document</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">document</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">NUM_BATCHES</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="helper-functions">Helper functions</h2>
+<p>Before we begin fine-tuning the models, let's define a few helper functions and
+classes.</p>
+<h3 id="callback-for-tracking-gpu-memory-usage">Callback for tracking GPU memory usage</h3>
+<p>We'll define a custom callback function which tracks GPU memory usage. The
+callback function uses TensorFlow's <a href="https://www.tensorflow.org/api_docs/python/tf/config/experimental/get_memory_info"><code>tf.config.experimental.get_memory_info</code></a>
+API.</p>
+<p>Here, we assume that we are using a single GPU, <code>GPU:0</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GPUMemoryCallback</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_batches</span><span class="p">,</span>
+        <span class="n">print_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_batches</span> <span class="o">=</span> <span class="n">target_batches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_stats</span> <span class="o">=</span> <span class="n">print_stats</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">memory_stats</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">get_memory_info</span><span class="p">(</span><span class="s2">&quot;GPU:0&quot;</span><span class="p">)</span>
+        <span class="c1"># Convert bytes to GB and store in list.</span>
+        <span class="n">peak_usage</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">memory_stats</span><span class="p">[</span><span class="s2">&quot;peak&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">30</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">peak_usage</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_memory_usage</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2"> start&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_train_batch_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">batch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_batches</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_memory_usage</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;batch </span><span class="si">{</span><span class="n">batch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_memory_usage</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2"> end&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="function-for-text-generation">Function for text generation</h3>
+<p>Here is a helper function to generate text.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_text</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_text</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">input_text</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Output:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total Time Elapsed: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="define-optimizer-and-loss">Define optimizer and loss</h3>
+<p>We will use AdamW optimizer and cross-entropy loss for training both models.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_optimizer_and_loss</span><span class="p">():</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">5e-5</span><span class="p">,</span>
+        <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+        <span class="n">global_clipnorm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Gradient clipping.</span>
+    <span class="p">)</span>
+    <span class="c1"># Exclude layernorm and bias terms from weight decay.</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">exclude_from_weight_decay</span><span class="p">(</span><span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">])</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">exclude_from_weight_decay</span><span class="p">(</span><span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">])</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">exclude_from_weight_decay</span><span class="p">(</span><span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">])</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span>
+</code></pre></div>
+
+<hr />
+<h2 id="finetune-gpt2">Fine-tune GPT-2</h2>
+<p>Let's load the model and preprocessor first. We use a sequence length of 128
+instead of 1024 (which is the default sequence length). This will limit our
+ability to predict long sequences, but will allow us to run this example quickly
+on Colab.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GPT2CausalLMPreprocessor</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gpt2_base_en&quot;</span><span class="p">,</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="n">MAX_SEQUENCE_LENGTH</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">gpt2_lm</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GPT2CausalLM</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gpt2_base_en&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span>
+<span class="p">)</span>
+
+<span class="n">gpt2_lm</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Preprocessor: "gpt2_causal_lm_preprocessor"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Tokenizer (type)                                   </span>┃<span style="font-weight: bold">                                             Vocab # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gpt2_tokenizer (<span style="color: #0087ff; text-decoration-color: #0087ff">GPT2Tokenizer</span>)                     │                                              <span style="color: #00af00; text-decoration-color: #00af00">50,257</span> │
+└────────────────────────────────────────────────────┴─────────────────────────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "gpt2_causal_lm"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                  </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">     Param # </span>┃<span style="font-weight: bold"> Connected to                   </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ padding_mask (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ token_ids (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ gpt2_backbone (<span style="color: #0087ff; text-decoration-color: #0087ff">GPT2Backbone</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">768</span>)         │ <span style="color: #00af00; text-decoration-color: #00af00">124,439,808</span> │ padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],            │
+│                               │                           │             │ token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]                │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ token_embedding               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">50257</span>)       │  <span style="color: #00af00; text-decoration-color: #00af00">38,597,376</span> │ gpt2_backbone[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]            │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">ReversibleEmbedding</span>)         │                           │             │                                │
+└───────────────────────────────┴───────────────────────────┴─────────────┴────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">124,439,808</span> (474.70 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">124,439,808</span> (474.70 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<p>Initialize the GPU memory tracker callback object, and compile the model. We
+use the Adam optimizer with a linearly decaying learning rate.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">gpu_memory_callback</span> <span class="o">=</span> <span class="n">GPUMemoryCallback</span><span class="p">(</span>
+    <span class="n">target_batches</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+    <span class="n">print_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="n">get_optimizer_and_loss</span><span class="p">()</span>
+
+<span class="n">gpt2_lm</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+    <span class="n">weighted_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>We are all set to train the model!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">gpt2_lm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">gpu_memory_callback</span><span class="p">])</span>
+<span class="n">gpt2_lm_memory_usage</span> <span class="o">=</span> <span class="n">gpu_memory_callback</span><span class="o">.</span><span class="n">memory_usage</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1701128462.076856   38706 device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+W0000 00:00:1701128462.146837   38706 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+
+ 500/500 ━━━━━━━━━━━━━━━━━━━━ 114s 128ms/step - accuracy: 0.3183 - loss: 3.3682
+</code></pre></div>
+
+
+</div>
+<p>As a final step, let's generate some text. We will harness the power of XLA. The
+first call to <code>generate()</code> will be slow because of XLA compilation, but
+subsequent calls will be super-fast. :)</p>
+<div class="codehilite"><pre><span></span><code><span class="n">generate_text</span><span class="p">(</span><span class="n">gpt2_lm</span><span class="p">,</span> <span class="s2">&quot;I like basketball&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_GENERATION_LENGTH</span><span class="p">)</span>
+<span class="n">generate_text</span><span class="p">(</span><span class="n">gpt2_lm</span><span class="p">,</span> <span class="s2">&quot;That Italian restaurant is&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_GENERATION_LENGTH</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Output:
+I like basketball, but this one actually happened a few months ago.
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>i was on my way to a party in the city when i noticed a group of guys were playing basketball. one of my friends, a guy named &quot;jenny,&quot; was playing. jenny&#39;s mom, a very nice girl, was sitting on her couch.
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>jenny and jenny were sitting in a circle around her, and i started to play some of my favorite basketball games. i got to the end of the circle and jenny started to run. i didn&#39;t know how jenny was doing. she ran, but it
+Total Time Elapsed: 6.66s
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Output:
+That Italian restaurant is a bit of a mystery, because the place is closed. 
+so i was at my friends house and i went to grab some food, so i got the usual pizza and some chicken, but it wasn&#39;t really the pizza, so i just grabbed my friend&#39;s pizza.
+i had a lot of chicken, but i was hungry, so i decided to grab a few of the other pizza&#39;s that were already in there.
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>i was eating the pizza with some friends and i was eating the pizza and then i got a knock on the door. 
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>the guy in front of me is
+Total Time Elapsed: 0.22s
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="lora-gpt2">LoRA GPT-2</h2>
+<p>In this section, we discuss the technical details of LoRA, build a LoRA GPT-2
+model, fine-tune it and generate text.</p>
+<h3 id="what-exactly-is-lora">What exactly is LoRA?</h3>
+<p>LoRA is a parameter-efficient fine-tuning technique for LLMs. It freezes the
+weights of the LLM, and injects trainable rank-decomposition matrices. Let's
+understand this more clearly.</p>
+<p>Assume we have an <code>n x n</code> pre-trained dense layer (or weight matrix), <code>W0</code>. We
+initialize two dense layers, <code>A</code> and <code>B</code>, of shapes <code>n x rank</code>, and <code>rank x n</code>,
+respectively. <code>rank</code> is much smaller than <code>n</code>. In the paper, values between 1
+and 4 are shown to work well.</p>
+<h4 id="lora-equation">LoRA equation</h4>
+<p>The original equation is <code>output = W0x + b0</code>, where <code>x</code> is the input, <code>W0</code> and
+<code>b0</code> are the weight matrix and bias terms of the original dense layer (frozen).
+The LoRA equation is: <code>output = W0x + b0 + BAx</code>, where <code>A</code> and <code>B</code> are the
+rank-decomposition matrices.</p>
+<p>LoRA is based on the idea that updates to the weights of the pre-trained
+language model have a low "intrinsic rank" since pre-trained language models are
+over-parametrized. Predictive performance of full fine-tuning can be replicated
+even by constraining <code>W0</code>'s updates to low-rank decomposition matrices.</p>
+<p align="center">
+  <img src="https://i.imgur.com/f4TFqMi.png" alt="lora_diagram" height="250"/>
+</p>
+<p><br></p>
+<h4 id="number-of-trainable-parameters">Number of trainable parameters</h4>
+<p>Let's do some quick math. Suppose <code>n</code> is 768, and <code>rank</code> is 4. <code>W0</code> has
+<code>768 x 768 = 589,824</code> parameters, whereas the LoRA layers, <code>A</code> and <code>B</code> together
+have <code>768 x 4 + 4 x 768 = 6,144</code> parameters. So, for the dense layer, we go from
+<code>589,824</code> trainable parameters to <code>6,144</code> trainable parameters!</p>
+<h4 id="why-does-lora-reduce-memory-footprint">Why does LoRA reduce memory footprint?</h4>
+<p>Even though the total number of parameters increase (since we are adding LoRA
+layers), the memory footprint reduces, because the number of trainable
+parameters reduces. Let's dive deeper into this.</p>
+<p>The memory usage of a model can be split into four parts:</p>
+<ul>
+<li>Model memory: This is the memory required to store the model weights. This
+will be slightly higher for LoRA than GPT-2.</li>
+<li>Forward pass memory: This mostly depends on batch size, sequence length, etc.
+We keep this constant for both models for a fair comparison.</li>
+<li>Backward pass memory: This is the memory required to store the gradients.
+Note that the gradients are computed only for the trainable parameters.</li>
+<li>Optimizer memory: This is the memory required to store the optimizer state.
+For example, the Adam optimizer stores the "1st moment vectors" and
+"2nd moment vectors" for the trainable parameters.</li>
+</ul>
+<p>Since, with LoRA, there is a huge reduction in the number of trainable
+parameters, the optimizer memory and the memory required to store the gradients
+for LoRA is much less than GPT-2. This is where most of the memory savings
+happen.</p>
+<h4 id="why-is-lora-so-popular">Why is LoRA so popular?</h4>
+<ul>
+<li>Reduces GPU memory usage;</li>
+<li>Faster training; and</li>
+<li>No additional inference latency.</li>
+</ul>
+<h3 id="create-lora-layer">Create LoRA layer</h3>
+<p>According to the technical description above, let's create a LoRA layer. In
+a transformer model, the LoRA layer is created and injected for the query and
+value projection matrices. In <a href="https://keras.io/api/layers/attention_layers/multi_head_attention#multiheadattention-class"><code>keras.layers.MultiHeadAttention</code></a>, the query/value
+projection layers are <a href="https://keras.io/api/layers/core_layers/einsum_dense#einsumdense-class"><code>keras.layers.EinsumDense</code></a> layers.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LoraLayer</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">original_layer</span><span class="p">,</span>
+        <span class="n">rank</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># We want to keep the name of this layer the same as the original</span>
+        <span class="c1"># dense layer.</span>
+        <span class="n">original_layer_config</span> <span class="o">=</span> <span class="n">original_layer</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">original_layer_config</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">rank</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span> <span class="o">=</span> <span class="n">original_layer_config</span><span class="p">[</span><span class="s2">&quot;output_shape&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hidden_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span> <span class="o">*</span> <span class="n">original_layer_config</span><span class="p">[</span><span class="s2">&quot;output_shape&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Layers.</span>
+
+        <span class="c1"># Original dense layer.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_layer</span> <span class="o">=</span> <span class="n">original_layer</span>
+        <span class="c1"># No matter whether we are training the model or are in inference mode,</span>
+        <span class="c1"># this layer should be frozen.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_layer</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># LoRA dense layers.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span>
+            <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="c1"># Note: the original paper mentions that normal distribution was</span>
+            <span class="c1"># used for initialization. However, the official LoRA implementation</span>
+            <span class="c1"># uses &quot;Kaiming/He Initialization&quot;.</span>
+            <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">VarianceScaling</span><span class="p">(</span>
+                <span class="n">scale</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;fan_in&quot;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s2">&quot;uniform&quot;</span>
+            <span class="p">),</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;lora_A&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># B has the same `equation` and `output_shape` as the original layer.</span>
+        <span class="c1"># `equation = abc,cde-&gt;abde`, where `a`: batch size, `b`: sequence</span>
+        <span class="c1"># length, `c`: `hidden_dim`, `d`: `num_heads`,</span>
+        <span class="c1"># `e`: `hidden_dim//num_heads`. The only difference is that in layer `B`,</span>
+        <span class="c1"># `c` represents `rank`.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">EinsumDense</span><span class="p">(</span>
+            <span class="n">equation</span><span class="o">=</span><span class="n">original_layer_config</span><span class="p">[</span><span class="s2">&quot;equation&quot;</span><span class="p">],</span>
+            <span class="n">output_shape</span><span class="o">=</span><span class="n">original_layer_config</span><span class="p">[</span><span class="s2">&quot;output_shape&quot;</span><span class="p">],</span>
+            <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;lora_B&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">original_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">:</span>
+            <span class="c1"># If we are fine-tuning the model, we will add LoRA layers&#39; output</span>
+            <span class="c1"># to the original layer&#39;s output.</span>
+            <span class="n">lora_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span>
+            <span class="k">return</span> <span class="n">original_output</span> <span class="o">+</span> <span class="n">lora_output</span>
+
+        <span class="c1"># If we are in inference mode, we &quot;merge&quot; the LoRA layers&#39; weights into</span>
+        <span class="c1"># the original layer&#39;s weights - more on this in the text generation</span>
+        <span class="c1"># section!</span>
+        <span class="k">return</span> <span class="n">original_output</span>
+</code></pre></div>
+
+<h3 id="inject-lora-layer-into-the-model">Inject LoRA layer into the model</h3>
+<p>We will now hack the original GPT-2 model and inject LoRA layers into it. Let's
+do a couple of things before doing that:</p>
+<ul>
+<li>Delete previous model;</li>
+<li>Reset "peak" GPU memory usage using <a href="https://www.tensorflow.org/api_docs/python/tf/config/experimental/reset_memory_stats"><code>tf.config.experimental.reset_memory_stats</code></a>;</li>
+<li>Load a new GPT-2 model.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">del</span> <span class="n">gpt2_lm</span>
+<span class="k">del</span> <span class="n">optimizer</span>
+<span class="k">del</span> <span class="n">loss</span>
+
+<span class="c1"># This resets &quot;peak&quot; memory usage to &quot;current&quot; memory usage.</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">reset_memory_stats</span><span class="p">(</span><span class="s2">&quot;GPU:0&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load the original model.</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GPT2CausalLMPreprocessor</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gpt2_base_en&quot;</span><span class="p">,</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">lora_model</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GPT2CausalLM</span><span class="o">.</span><span class="n">from_preset</span><span class="p">(</span>
+    <span class="s2">&quot;gpt2_base_en&quot;</span><span class="p">,</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>We will now override the original query/value projection matrices with our
+new LoRA layers.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">layer_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lora_model</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
+    <span class="c1"># Change query dense layer.</span>
+    <span class="n">decoder_layer</span> <span class="o">=</span> <span class="n">lora_model</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;transformer_layer_</span><span class="si">{</span><span class="n">layer_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">self_attention_layer</span> <span class="o">=</span> <span class="n">decoder_layer</span><span class="o">.</span><span class="n">_self_attention_layer</span>
+    <span class="c1"># Allow mutation to Keras layer state.</span>
+    <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_tracker</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># Change query dense layer.</span>
+    <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_query_dense</span> <span class="o">=</span> <span class="n">LoraLayer</span><span class="p">(</span>
+        <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_query_dense</span><span class="p">,</span>
+        <span class="n">rank</span><span class="o">=</span><span class="n">RANK</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">ALPHA</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Change value dense layer.</span>
+    <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_value_dense</span> <span class="o">=</span> <span class="n">LoraLayer</span><span class="p">(</span>
+        <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_value_dense</span><span class="p">,</span>
+        <span class="n">rank</span><span class="o">=</span><span class="n">RANK</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">ALPHA</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p>Let's now do a forward pass to make sure we still have a valid chain of
+computation.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">lora_model</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">([</span><span class="s2">&quot;LoRA is very useful for quick LLM finetuning&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">pass</span>
+</code></pre></div>
+
+<p>Freeze the entire LLM, only the LoRA layers should be trainable.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">lora_model</span><span class="o">.</span><span class="n">_flatten_layers</span><span class="p">():</span>
+    <span class="n">lst_of_sublayers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">_flatten_layers</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst_of_sublayers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># &quot;leaves of the model&quot;</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lora_A&quot;</span><span class="p">,</span> <span class="s2">&quot;lora_B&quot;</span><span class="p">]:</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
+
+<p>Print the model's summary and see if the number of non-trainable parameters and
+total parameters are correct.</p>
+<p>In a previous section, we had calculated the number of parameters associated with
+the LoRA layers to be 6,144. The total trainable parameters in the model should
+be <code>num_layers * (query, value) * 6,144 = 12 * 2 * 6,144 = 147,456</code>. The
+number of non-trainable parameters should be the same as the total number of
+parameters in the original GPT-2 model, which is <code>124,439,808</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">lora_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Preprocessor: "gpt2_causal_lm_preprocessor_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Tokenizer (type)                                   </span>┃<span style="font-weight: bold">                                             Vocab # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gpt2_tokenizer_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">GPT2Tokenizer</span>)                   │                                              <span style="color: #00af00; text-decoration-color: #00af00">50,257</span> │
+└────────────────────────────────────────────────────┴─────────────────────────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "gpt2_causal_lm_1"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                  </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">     Param # </span>┃<span style="font-weight: bold"> Connected to                   </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ padding_mask (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ token_ids (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>)              │           <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                              │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ gpt2_backbone_1               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">768</span>)         │ <span style="color: #00af00; text-decoration-color: #00af00">124,587,264</span> │ padding_mask[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],            │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">GPT2Backbone</span>)                │                           │             │ token_ids[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]                │
+├───────────────────────────────┼───────────────────────────┼─────────────┼────────────────────────────────┤
+│ token_embedding               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">50257</span>)       │  <span style="color: #00af00; text-decoration-color: #00af00">38,597,376</span> │ gpt2_backbone_1[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]          │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">ReversibleEmbedding</span>)         │                           │             │                                │
+└───────────────────────────────┴───────────────────────────┴─────────────┴────────────────────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">124,587,264</span> (475.26 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">147,456</span> (576.00 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">124,439,808</span> (474.70 MB)
+</pre>
+
+<h3 id="finetune-lora-gpt2">Fine-tune LoRA GPT-2</h3>
+<p>Now that we have hacked and verified the LoRA GPT-2 model, let's train it!</p>
+<div class="codehilite"><pre><span></span><code><span class="n">gpu_memory_callback</span> <span class="o">=</span> <span class="n">GPUMemoryCallback</span><span class="p">(</span>
+    <span class="n">target_batches</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+    <span class="n">print_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="n">get_optimizer_and_loss</span><span class="p">()</span>
+
+<span class="n">lora_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+    <span class="n">weighted_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">lora_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_ds</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">gpu_memory_callback</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">lora_model_memory_usage</span> <span class="o">=</span> <span class="n">gpu_memory_callback</span><span class="o">.</span><span class="n">memory_usage</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>   2/500 [37m━━━━━━━━━━━━━━━━━━━━  41s 84ms/step - accuracy: 0.2828 - loss: 3.7188   
+
+W0000 00:00:1701128576.353742   38699 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+
+ 500/500 ━━━━━━━━━━━━━━━━━━━━ 80s 81ms/step - accuracy: 0.2930 - loss: 3.6158
+</code></pre></div>
+
+
+</div>
+<p>And we are done fine-tuning the model! Before we generate text, let's compare
+the training time and memory usage of the two models. The training time of GPT-2
+on a 16 GB Tesla T4 (Colab) is 7 minutes, and for LoRA, it is 5 minutes, a 30%
+decrease. The memory usage of LoRA GPT-2 is roughly 35% times less than GPT-2.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;GPT-2&quot;</span><span class="p">,</span> <span class="s2">&quot;LoRA GPT-2&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">gpt2_lm_memory_usage</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">lora_model_memory_usage</span><span class="p">)],</span>
+    <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;GPU Memory Usage (in GB)&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;GPU Memory Usage Comparison&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>WARNING:matplotlib.legend:No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/nlp/parameter_efficient_finetuning_of_gpt2_with_lora/parameter_efficient_finetuning_of_gpt2_with_lora_43_1.png" /></p>
+<h3 id="merge-weights-and-generate-text">Merge weights and generate text!</h3>
+<p>One of the biggest advantages of LoRA over other adapter methods is that it
+does not incur any additional inference latency. Let's understand why.</p>
+<p>Recall our LoRA equation: <code>output = W0x + b0 + BAx</code>. We can rewrite this as:
+<code>output = = Wx + b0 = (W0 + BA)x + b0</code>, where <code>W = W0 + BA</code>. This means that if
+we merge the weights of the original model and the adapter, we will be essentially
+doing the same computation as the original model!</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">layer_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lora_model</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
+    <span class="n">self_attention_layer</span> <span class="o">=</span> <span class="n">lora_model</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;transformer_layer_</span><span class="si">{</span><span class="n">layer_idx</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">_self_attention_layer</span>
+
+    <span class="c1"># Merge query dense layer.</span>
+    <span class="n">query_lora_layer</span> <span class="o">=</span> <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_query_dense</span>
+
+    <span class="n">A_weights</span> <span class="o">=</span> <span class="n">query_lora_layer</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">kernel</span>  <span class="c1"># (768, 1) (a, b)</span>
+    <span class="n">B_weights</span> <span class="o">=</span> <span class="n">query_lora_layer</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">kernel</span>  <span class="c1"># (1, 12, 64) (b, c, d)</span>
+    <span class="n">increment_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ab,bcd-&gt;acd&quot;</span><span class="p">,</span> <span class="n">A_weights</span><span class="p">,</span> <span class="n">B_weights</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ALPHA</span> <span class="o">/</span> <span class="n">RANK</span><span class="p">)</span>
+    <span class="n">query_lora_layer</span><span class="o">.</span><span class="n">original_layer</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">increment_weights</span><span class="p">)</span>
+
+    <span class="c1"># Merge value dense layer.</span>
+    <span class="n">value_lora_layer</span> <span class="o">=</span> <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_value_dense</span>
+
+    <span class="n">A_weights</span> <span class="o">=</span> <span class="n">value_lora_layer</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">kernel</span>  <span class="c1"># (768, 1) (a, b)</span>
+    <span class="n">B_weights</span> <span class="o">=</span> <span class="n">value_lora_layer</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">kernel</span>  <span class="c1"># (1, 12, 64) (b, c, d)</span>
+    <span class="n">increment_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ab,bcd-&gt;acd&quot;</span><span class="p">,</span> <span class="n">A_weights</span><span class="p">,</span> <span class="n">B_weights</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ALPHA</span> <span class="o">/</span> <span class="n">RANK</span><span class="p">)</span>
+    <span class="n">value_lora_layer</span><span class="o">.</span><span class="n">original_layer</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">increment_weights</span><span class="p">)</span>
+
+    <span class="c1"># Put back in place the original layers with updated weights</span>
+    <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_query_dense</span> <span class="o">=</span> <span class="n">query_lora_layer</span><span class="o">.</span><span class="n">original_layer</span>
+    <span class="n">self_attention_layer</span><span class="o">.</span><span class="n">_value_dense</span> <span class="o">=</span> <span class="n">value_lora_layer</span><span class="o">.</span><span class="n">original_layer</span>
+</code></pre></div>
+
+<p>We are now all set to generate text with our LoRA model :).</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Freezing weights not necessary during generation since no weights are updated.</span>
+<span class="n">generate_text</span><span class="p">(</span><span class="n">lora_model</span><span class="p">,</span> <span class="s2">&quot;I like basketball&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_GENERATION_LENGTH</span><span class="p">)</span>
+<span class="n">generate_text</span><span class="p">(</span>
+    <span class="n">lora_model</span><span class="p">,</span> <span class="s2">&quot;That Italian restaurant is&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_GENERATION_LENGTH</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Output:
+I like basketball.    i&#39;ve played this game for about a week and i&#39;m pretty tired.     today, i&#39;m playing with my friend, who is a really good player.       i&#39;m a little older than the average player and i&#39;m a bit too young.                                
+Total Time Elapsed: 6.81s
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Output:
+That Italian restaurant is in the city center and is located on a street that was recently renovated for the summer.
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>i was in a group of friends and had a great time. 
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Total Time Elapsed: 0.32s
+</code></pre></div>
+
+
+</div>
+<p>And we're all done!</p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter16_text-generation">Chapter 16: Text generation</a></li>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter18_best-practices-for-the-real-world">Chapter 18: Best practices for the real world</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#parameterefficient-finetuning-of-gpt2-with-lora'>Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#dataset'>Dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#helper-functions'>Helper functions</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#callback-for-tracking-gpu-memory-usage'>Callback for tracking GPU memory usage</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#function-for-text-generation'>Function for text generation</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#define-optimizer-and-loss'>Define optimizer and loss</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#finetune-gpt2'>Fine-tune GPT-2</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#lora-gpt2'>LoRA GPT-2</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#what-exactly-is-lora'>What exactly is LoRA?</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#create-lora-layer'>Create LoRA layer</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#inject-lora-layer-into-the-model'>Inject LoRA layer into the model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#finetune-lora-gpt2'>Fine-tune LoRA GPT-2</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#merge-weights-and-generate-text'>Merge weights and generate text!</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='parameter_efficient_finetuning_of_gpt2_with_lora.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Zero-DCE for low-light image enhancement">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="zero_dce.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Zero-DCE for low-light image enhancement">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Zero-DCE for low-light image enhancement">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Zero-DCE for low-light image enhancement</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2 active" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink active" href="../vision.html">Computer Vision</a>
+                    
+                      
+                        <a class="nav-sublink2" href="image_classification_from_scratch.html">Image classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="mnist_convnet.html">Simple MNIST convnet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_efficientnet_fine_tuning.html">Image classification via fine-tuning with EfficientNet</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_with_vision_transformer.html">Image classification with Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="attention_mil_classification.html">Classification using Attention-based Deep Multiple Instance Learning</a>
+                      
+                        <a class="nav-sublink2" href="mlp_image_classification.html">Image classification with modern MLP models</a>
+                      
+                        <a class="nav-sublink2" href="mobilevit.html">A mobile-friendly Transformer-based model for image classification</a>
+                      
+                        <a class="nav-sublink2" href="xray_classification_with_tpus.html">Pneumonia Classification on TPU</a>
+                      
+                        <a class="nav-sublink2" href="cct.html">Compact Convolutional Transformers</a>
+                      
+                        <a class="nav-sublink2" href="convmixer.html">Image classification with ConvMixer</a>
+                      
+                        <a class="nav-sublink2" href="eanet.html">Image classification with EANet (External Attention Transformer)</a>
+                      
+                        <a class="nav-sublink2" href="involution.html">Involutional neural networks</a>
+                      
+                        <a class="nav-sublink2" href="perceiver_image_classification.html">Image classification with Perceiver</a>
+                      
+                        <a class="nav-sublink2" href="reptile.html">Few-Shot learning with Reptile</a>
+                      
+                        <a class="nav-sublink2" href="semisupervised_simclr.html">Semi-supervised image classification using contrastive pretraining with SimCLR</a>
+                      
+                        <a class="nav-sublink2" href="swin_transformers.html">Image classification with Swin Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vit_small_ds.html">Train a Vision Transformer on small datasets</a>
+                      
+                        <a class="nav-sublink2" href="shiftvit.html">A Vision Transformer without Attention</a>
+                      
+                        <a class="nav-sublink2" href="image_classification_using_global_context_vision_transformer.html">Image Classification using Global Context Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="temporal_latent_bottleneck.html">When Recurrence meets Transformers</a>
+                      
+                        <a class="nav-sublink2" href="forwardforward.html">Using the Forward-Forward Algorithm for Image Classification</a>
+                      
+                        <a class="nav-sublink2" href="oxford_pets_image_segmentation.html">Image segmentation with a U-Net-like architecture</a>
+                      
+                        <a class="nav-sublink2" href="deeplabv3_plus.html">Multiclass semantic segmentation using DeepLabV3+</a>
+                      
+                        <a class="nav-sublink2" href="basnet_segmentation.html">Highly accurate boundaries segmentation using BASNet</a>
+                      
+                        <a class="nav-sublink2" href="fully_convolutional_network.html">Image Segmentation using Composable Fully-Convolutional Networks</a>
+                      
+                        <a class="nav-sublink2" href="retinanet/index.html">Object Detection with RetinaNet</a>
+                      
+                        <a class="nav-sublink2" href="keypoint_detection.html">Keypoint Detection with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="object_detection_using_vision_transformer.html">Object detection with Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="yolov8/index.html">Efficient Object Detection with YOLOV8 and KerasCV</a>
+                      
+                        <a class="nav-sublink2" href="brain_tumor_segmentation.html">3D Multimodal Brain Tumor Segmentation</a>
+                      
+                        <a class="nav-sublink2" href="3D_image_classification.html">3D image classification from CT scans</a>
+                      
+                        <a class="nav-sublink2" href="depth_estimation.html">Monocular depth estimation</a>
+                      
+                        <a class="nav-sublink2" href="nerf.html">3D volumetric rendering with NeRF</a>
+                      
+                        <a class="nav-sublink2" href="pointnet_segmentation.html">Point cloud segmentation with PointNet</a>
+                      
+                        <a class="nav-sublink2" href="pointnet.html">Point cloud classification</a>
+                      
+                        <a class="nav-sublink2" href="captcha_ocr.html">OCR model for reading Captchas</a>
+                      
+                        <a class="nav-sublink2" href="handwriting_recognition.html">Handwriting recognition</a>
+                      
+                        <a class="nav-sublink2" href="autoencoder.html">Convolutional autoencoder for image denoising</a>
+                      
+                        <a class="nav-sublink2" href="mirnet.html">Low-light image enhancement using MIRNet</a>
+                      
+                        <a class="nav-sublink2" href="super_resolution_sub_pixel.html">Image Super-Resolution using an Efficient Sub-Pixel CNN</a>
+                      
+                        <a class="nav-sublink2" href="edsr.html">Enhanced Deep Residual Networks for single-image super-resolution</a>
+                      
+                        <a class="nav-sublink2 active" href="zero_dce.html">Zero-DCE for low-light image enhancement</a>
+                      
+                        <a class="nav-sublink2" href="cutmix.html">CutMix data augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="mixup.html">MixUp augmentation for image classification</a>
+                      
+                        <a class="nav-sublink2" href="randaugment.html">RandAugment for Image Classification for Improved Robustness</a>
+                      
+                        <a class="nav-sublink2" href="image_captioning.html">Image captioning</a>
+                      
+                        <a class="nav-sublink2" href="nl_image_search/index.html">Natural language image search with a Dual Encoder</a>
+                      
+                        <a class="nav-sublink2" href="visualizing_what_convnets_learn.html">Visualizing what convnets learn</a>
+                      
+                        <a class="nav-sublink2" href="integrated_gradients.html">Model interpretability with Integrated Gradients</a>
+                      
+                        <a class="nav-sublink2" href="probing_vits.html">Investigating Vision Transformer representations</a>
+                      
+                        <a class="nav-sublink2" href="grad_cam.html">Grad-CAM class activation visualization</a>
+                      
+                        <a class="nav-sublink2" href="near_dup_search/index.html">Near-duplicate image search</a>
+                      
+                        <a class="nav-sublink2" href="semantic_image_clustering.html">Semantic Image Clustering</a>
+                      
+                        <a class="nav-sublink2" href="siamese_contrastive.html">Image similarity estimation using a Siamese Network with a contrastive loss</a>
+                      
+                        <a class="nav-sublink2" href="siamese_network.html">Image similarity estimation using a Siamese Network with a triplet loss</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning.html">Metric learning for image similarity search</a>
+                      
+                        <a class="nav-sublink2" href="metric_learning_tf_similarity/index.html">Metric learning for image similarity search using TensorFlow Similarity</a>
+                      
+                        <a class="nav-sublink2" href="nnclr.html">Self-supervised contrastive learning with NNCLR</a>
+                      
+                        <a class="nav-sublink2" href="simsiam.html">Self-supervised contrastive learning with SimSiam</a>
+                      
+                        <a class="nav-sublink2" href="video_classification.html">Video Classification with a CNN-RNN Architecture</a>
+                      
+                        <a class="nav-sublink2" href="conv_lstm.html">Next-Frame Video Prediction with Convolutional LSTMs</a>
+                      
+                        <a class="nav-sublink2" href="video_transformers.html">Video Classification with Transformers</a>
+                      
+                        <a class="nav-sublink2" href="vivit.html">Video Vision Transformer</a>
+                      
+                        <a class="nav-sublink2" href="bit.html">Image Classification using BigTransfer (BiT)</a>
+                      
+                        <a class="nav-sublink2" href="gradient_centralization.html">Gradient Centralization for Better Training Performance</a>
+                      
+                        <a class="nav-sublink2" href="token_learner.html">Learning to tokenize in Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="knowledge_distillation.html">Knowledge Distillation</a>
+                      
+                        <a class="nav-sublink2" href="fixres.html">FixRes: Fixing train-test resolution discrepancy</a>
+                      
+                        <a class="nav-sublink2" href="cait.html">Class Attention Image Transformers with LayerScale</a>
+                      
+                        <a class="nav-sublink2" href="patch_convnet.html">Augmenting convnets with aggregated attention</a>
+                      
+                        <a class="nav-sublink2" href="learnable_resizer.html">Learning to Resize</a>
+                      
+                        <a class="nav-sublink2" href="adamatch.html">Semi-supervision and domain adaptation with AdaMatch</a>
+                      
+                        <a class="nav-sublink2" href="barlow_twins/index.html">Barlow Twins for Contrastive SSL</a>
+                      
+                        <a class="nav-sublink2" href="consistency_training.html">Consistency training with supervision</a>
+                      
+                        <a class="nav-sublink2" href="deit.html">Distilling Vision Transformers</a>
+                      
+                        <a class="nav-sublink2" href="focal_modulation_network.html">Focal Modulation: A replacement for Self-Attention</a>
+                      
+                        <a class="nav-sublink2" href="masked_image_modeling.html">Masked image modeling with Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="supervised-contrastive-learning/index.html">Supervised Contrastive Learning</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='../vision.html'>Computer Vision</a> /
+         Zero-DCE for low-light image enhancement
+    </div>
+    <h1 id="zerodce-for-lowlight-image-enhancement">Zero-DCE for low-light image enhancement</h1>
+<p><strong>Author:</strong> <a href="http://github.com/soumik12345">Soumik Rakshit</a><br>
+<strong>Date created:</strong> 2021/09/18<br>
+<strong>Last modified:</strong> 2023/07/15<br>
+<strong>Description:</strong> Implementing Zero-Reference Deep Curve Estimation for low-light image enhancement.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/vision/ipynb/zero_dce.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/vision/zero_dce.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p><strong>Zero-Reference Deep Curve Estimation</strong> or <strong>Zero-DCE</strong> formulates low-light image
+enhancement as the task of estimating an image-specific
+<a href="https://en.wikipedia.org/wiki/Curve_(tonality)"><em>tonal curve</em></a> with a deep neural network.
+In this example, we train a lightweight deep network, <strong>DCE-Net</strong>, to estimate
+pixel-wise and high-order tonal curves for dynamic range adjustment of a given image.</p>
+<p>Zero-DCE takes a low-light image as input and produces high-order tonal curves as its output.
+These curves are then used for pixel-wise adjustment on the dynamic range of the input to
+obtain an enhanced image. The curve estimation process is done in such a way that it maintains
+the range of the enhanced image and preserves the contrast of neighboring pixels. This
+curve estimation is inspired by curves adjustment used in photo editing software such as
+Adobe Photoshop where users can adjust points throughout an image’s tonal range.</p>
+<p>Zero-DCE is appealing because of its relaxed assumptions with regard to reference images:
+it does not require any input/output image pairs during training.
+This is achieved through a set of carefully formulated non-reference loss functions,
+which implicitly measure the enhancement quality and guide the training of the network.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2001.06826">Zero-Reference Deep Curve Estimation for Low-Light Image Enhancement</a></li>
+<li><a href="https://helpx.adobe.com/photoshop/using/curves-adjustment.html">Curves adjustment in Adobe Photoshop</a></li>
+</ul>
+<hr />
+<h2 id="downloading-loldataset">Downloading LOLDataset</h2>
+<p>The <strong>LoL Dataset</strong> has been created for low-light image enhancement. It provides 485
+images for training and 15 for testing. Each image pair in the dataset consists of a
+low-light input image and its corresponding well-exposed reference image.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageOps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">huggingface</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">datasets</span><span class="o">/</span><span class="n">geekyrakshit</span><span class="o">/</span><span class="n">LoL</span><span class="o">-</span><span class="n">Dataset</span><span class="o">/</span><span class="n">resolve</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">lol_dataset</span><span class="o">.</span><span class="n">zip</span>
+<span class="err">!</span><span class="n">unzip</span> <span class="o">-</span><span class="n">q</span> <span class="n">lol_dataset</span><span class="o">.</span><span class="n">zip</span> <span class="o">&amp;&amp;</span> <span class="n">rm</span> <span class="n">lol_dataset</span><span class="o">.</span><span class="n">zip</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>--2023-11-20 20:01:50--  https://huggingface.co/datasets/geekyrakshit/LoL-Dataset/resolve/main/lol_dataset.zip
+Resolving huggingface.co (huggingface.co)... 3.163.189.74, 3.163.189.90, 3.163.189.114, ...
+Connecting to huggingface.co (huggingface.co)|3.163.189.74|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://cdn-lfs.huggingface.co/repos/d9/09/d909ef7668bb417b7065a311bd55a3084cc83a1f918e13cb41c5503328432db2/419fddc48958cd0f5599939ee0248852a37ceb8bb738c9b9525e95b25a89de9a?response-content-disposition=attachment%3B+filename*%3DUTF-8%27%27lol_dataset.zip%3B+filename%3D%22lol_dataset.zip%22%3B&amp;response-content-type=application%2Fzip&amp;Expires=1700769710&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTcwMDc2OTcxMH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5odWdnaW5nZmFjZS5jby9yZXBvcy9kOS8wOS9kOTA5ZWY3NjY4YmI0MTdiNzA2NWEzMTFiZDU1YTMwODRjYzgzYTFmOTE4ZTEzY2I0MWM1NTAzMzI4NDMyZGIyLzQxOWZkZGM0ODk1OGNkMGY1NTk5OTM5ZWUwMjQ4ODUyYTM3Y2ViOGJiNzM4YzliOTUyNWU5NWIyNWE4OWRlOWE%7EcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj0qJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT0qIn1dfQ__&amp;Signature=VPqHlt0h6mUV7D3alDMIO61VSvUX498wZn5rIpo4u5yTYOu2s9CbO82xeGfrZguIuENVO6yiuoUAlZO4XXDsGC0Gc3MR3KIoTGuI9URA815nrdvFE616XBooGAW200KOUmVj2IoySAufi-7ORPuspaVJoKqWr8wytt0hDpNMeaWSg766kVMkJB1Aywq6yu5KHFGkqvOPDWNZZO6yfOtdX2XfbXVuiaiUlS03gRZ58H9pYn535TrE3BYP4W1u%7EehJ4OACpsRsnrsrXDr--PLH5RsxApOR2neFLySta3LiN9mtdjSpOKGn0oUapDfCWG7Ik5OMB5PGGzQBTB5J0b0O9g__&amp;Key-Pair-Id=KVTP0A1DKRTAX [following]
+--2023-11-20 20:01:50--  https://cdn-lfs.huggingface.co/repos/d9/09/d909ef7668bb417b7065a311bd55a3084cc83a1f918e13cb41c5503328432db2/419fddc48958cd0f5599939ee0248852a37ceb8bb738c9b9525e95b25a89de9a?response-content-disposition=attachment%3B+filename*%3DUTF-8%27%27lol_dataset.zip%3B+filename%3D%22lol_dataset.zip%22%3B&amp;response-content-type=application%2Fzip&amp;Expires=1700769710&amp;Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTcwMDc2OTcxMH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5odWdnaW5nZmFjZS5jby9yZXBvcy9kOS8wOS9kOTA5ZWY3NjY4YmI0MTdiNzA2NWEzMTFiZDU1YTMwODRjYzgzYTFmOTE4ZTEzY2I0MWM1NTAzMzI4NDMyZGIyLzQxOWZkZGM0ODk1OGNkMGY1NTk5OTM5ZWUwMjQ4ODUyYTM3Y2ViOGJiNzM4YzliOTUyNWU5NWIyNWE4OWRlOWE%7EcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj0qJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT0qIn1dfQ__&amp;Signature=VPqHlt0h6mUV7D3alDMIO61VSvUX498wZn5rIpo4u5yTYOu2s9CbO82xeGfrZguIuENVO6yiuoUAlZO4XXDsGC0Gc3MR3KIoTGuI9URA815nrdvFE616XBooGAW200KOUmVj2IoySAufi-7ORPuspaVJoKqWr8wytt0hDpNMeaWSg766kVMkJB1Aywq6yu5KHFGkqvOPDWNZZO6yfOtdX2XfbXVuiaiUlS03gRZ58H9pYn535TrE3BYP4W1u%7EehJ4OACpsRsnrsrXDr--PLH5RsxApOR2neFLySta3LiN9mtdjSpOKGn0oUapDfCWG7Ik5OMB5PGGzQBTB5J0b0O9g__&amp;Key-Pair-Id=KVTP0A1DKRTAX
+Resolving cdn-lfs.huggingface.co (cdn-lfs.huggingface.co)... 108.138.94.122, 108.138.94.25, 108.138.94.14, ...
+Connecting to cdn-lfs.huggingface.co (cdn-lfs.huggingface.co)|108.138.94.122|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 347171015 (331M) [application/zip]
+Saving to: ‘lol_dataset.zip’
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>lol_dataset.zip     100%[===================&gt;] 331.09M  37.4MB/s    in 9.5s    
+</code></pre></div>
+
+
+</div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>2023-11-20 20:02:00 (34.9 MB/s) - ‘lol_dataset.zip’ saved [347171015/347171015]
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="creating-a-tensorflow-dataset">Creating a TensorFlow Dataset</h2>
+<p>We use 300 low-light images from the LoL Dataset training set for training, and we use
+the remaining 185 low-light images for validation. We resize the images to size <code>256 x
+256</code> to be used for both training and validation. Note that in order to train the DCE-Net,
+we will not require the corresponding enhanced images.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">IMAGE_SIZE</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">MAX_TRAIN_IMAGES</span> <span class="o">=</span> <span class="mi">400</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_png</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">images</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">IMAGE_SIZE</span><span class="p">,</span> <span class="n">IMAGE_SIZE</span><span class="p">])</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="mf">255.0</span>
+    <span class="k">return</span> <span class="n">image</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">data_generator</span><span class="p">(</span><span class="n">low_light_images</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">low_light_images</span><span class="p">))</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">load_data</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">drop_remainder</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="n">train_low_light_images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;./lol_dataset/our485/low/*&quot;</span><span class="p">))[:</span><span class="n">MAX_TRAIN_IMAGES</span><span class="p">]</span>
+<span class="n">val_low_light_images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;./lol_dataset/our485/low/*&quot;</span><span class="p">))[</span><span class="n">MAX_TRAIN_IMAGES</span><span class="p">:]</span>
+<span class="n">test_low_light_images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;./lol_dataset/eval15/low/*&quot;</span><span class="p">))</span>
+
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">data_generator</span><span class="p">(</span><span class="n">train_low_light_images</span><span class="p">)</span>
+<span class="n">val_dataset</span> <span class="o">=</span> <span class="n">data_generator</span><span class="p">(</span><span class="n">val_low_light_images</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Train Dataset:&quot;</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation Dataset:&quot;</span><span class="p">,</span> <span class="n">val_dataset</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Train Dataset: &lt;_BatchDataset element_spec=TensorSpec(shape=(16, 256, 256, 3), dtype=tf.float32, name=None)&gt;
+Validation Dataset: &lt;_BatchDataset element_spec=TensorSpec(shape=(16, 256, 256, 3), dtype=tf.float32, name=None)&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="the-zerodce-framework">The Zero-DCE Framework</h2>
+<p>The goal of DCE-Net is to estimate a set of best-fitting light-enhancement curves
+(LE-curves) given an input image. The framework then maps all pixels of the input’s RGB
+channels by applying the curves iteratively to obtain the final enhanced image.</p>
+<h3 id="understanding-lightenhancement-curves">Understanding light-enhancement curves</h3>
+<p>A ligh-enhancement curve is a kind of curve that can map a low-light image
+to its enhanced version automatically,
+where the self-adaptive curve parameters are solely dependent on the input image.
+When designing such a curve, three objectives should be taken into account:</p>
+<ul>
+<li>Each pixel value of the enhanced image should be in the normalized range <code>[0,1]</code>, in order to
+avoid information loss induced by overflow truncation.</li>
+<li>It should be monotonous, to preserve the contrast between neighboring pixels.</li>
+<li>The shape of this curve should be as simple as possible,
+and the curve should be differentiable to allow backpropagation.</li>
+</ul>
+<p>The light-enhancement curve is separately applied to three RGB channels instead of solely on the
+illumination channel. The three-channel adjustment can better preserve the inherent color and reduce
+the risk of over-saturation.</p>
+<p><img alt="" src="https://li-chongyi.github.io/Zero-DCE_files/framework.png" /></p>
+<h3 id="dcenet">DCE-Net</h3>
+<p>The DCE-Net is a lightweight deep neural network that learns the mapping between an input
+image and its best-fitting curve parameter maps. The input to the DCE-Net is a low-light
+image while the outputs are a set of pixel-wise curve parameter maps for corresponding
+higher-order curves. It is a plain CNN of seven convolutional layers with symmetrical
+concatenation. Each layer consists of 32 convolutional kernels of size 3×3 and stride 1
+followed by the ReLU activation function. The last convolutional layer is followed by the
+Tanh activation function, which produces 24 parameter maps for 8 iterations, where each
+iteration requires three curve parameter maps for the three channels.</p>
+<p><img alt="" src="https://i.imgur.com/HtIg34W.png" /></p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_dce_net</span><span class="p">():</span>
+    <span class="n">input_img</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">conv1</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span>
+    <span class="p">)(</span><span class="n">input_img</span><span class="p">)</span>
+    <span class="n">conv2</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span>
+    <span class="p">)(</span><span class="n">conv1</span><span class="p">)</span>
+    <span class="n">conv3</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span>
+    <span class="p">)(</span><span class="n">conv2</span><span class="p">)</span>
+    <span class="n">conv4</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span>
+    <span class="p">)(</span><span class="n">conv3</span><span class="p">)</span>
+    <span class="n">int_con1</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)([</span><span class="n">conv4</span><span class="p">,</span> <span class="n">conv3</span><span class="p">])</span>
+    <span class="n">conv5</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span>
+    <span class="p">)(</span><span class="n">int_con1</span><span class="p">)</span>
+    <span class="n">int_con2</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)([</span><span class="n">conv5</span><span class="p">,</span> <span class="n">conv2</span><span class="p">])</span>
+    <span class="n">conv6</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span>
+    <span class="p">)(</span><span class="n">int_con2</span><span class="p">)</span>
+    <span class="n">int_con3</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Concatenate</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)([</span><span class="n">conv6</span><span class="p">,</span> <span class="n">conv1</span><span class="p">])</span>
+    <span class="n">x_r</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)(</span>
+        <span class="n">int_con3</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">input_img</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_r</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="loss-functions">Loss functions</h2>
+<p>To enable zero-reference learning in DCE-Net, we use a set of differentiable
+zero-reference losses that allow us to evaluate the quality of enhanced images.</p>
+<h3 id="color-constancy-loss">Color constancy loss</h3>
+<p>The <em>color constancy loss</em> is used to correct the potential color deviations in the
+enhanced image.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">color_constancy_loss</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">mean_rgb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mr</span><span class="p">,</span> <span class="n">mg</span><span class="p">,</span> <span class="n">mb</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">mean_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="n">mean_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">mean_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">d_rg</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mr</span> <span class="o">-</span> <span class="n">mg</span><span class="p">)</span>
+    <span class="n">d_rb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mr</span> <span class="o">-</span> <span class="n">mb</span><span class="p">)</span>
+    <span class="n">d_gb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mb</span> <span class="o">-</span> <span class="n">mg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_rg</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_rb</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_gb</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="exposure-loss">Exposure loss</h3>
+<p>To restrain under-/over-exposed regions, we use the <em>exposure control loss</em>.
+It measures the distance between the average intensity value of a local region
+and a preset well-exposedness level (set to <code>0.6</code>).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exposure_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean_val</span><span class="o">=</span><span class="mf">0.6</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">avg_pool2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;VALID&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mean</span> <span class="o">-</span> <span class="n">mean_val</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="illumination-smoothness-loss">Illumination smoothness loss</h3>
+<p>To preserve the monotonicity relations between neighboring pixels, the
+<em>illumination smoothness loss</em> is added to each curve parameter map.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">illumination_smoothness_loss</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">h_x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">w_x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">count_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">count_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">h_tv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">((</span><span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:</span> <span class="n">h_x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])))</span>
+    <span class="n">w_tv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">((</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span> <span class="n">w_x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:])))</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">count_h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">count_h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">count_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">count_w</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">h_tv</span> <span class="o">/</span> <span class="n">count_h</span> <span class="o">+</span> <span class="n">w_tv</span> <span class="o">/</span> <span class="n">count_w</span><span class="p">)</span> <span class="o">/</span> <span class="n">batch_size</span>
+</code></pre></div>
+
+<h3 id="spatial-consistency-loss">Spatial consistency loss</h3>
+<p>The <em>spatial consistency loss</em> encourages spatial coherence of the enhanced image by
+preserving the contrast between neighboring regions across the input image and its enhanced version.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpatialConsistencyLoss</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+            <span class="p">[[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+            <span class="p">[[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">up_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+            <span class="p">[[[[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">down_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+            <span class="p">[[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="n">original_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">enhanced_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">original_pool</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">avg_pool2d</span><span class="p">(</span>
+            <span class="n">original_mean</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;VALID&quot;</span>
+        <span class="p">)</span>
+        <span class="n">enhanced_pool</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">avg_pool2d</span><span class="p">(</span>
+            <span class="n">enhanced_mean</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;VALID&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">d_original_left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">original_pool</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">left_kernel</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">d_original_right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">original_pool</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">right_kernel</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">d_original_up</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">original_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">up_kernel</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span>
+        <span class="p">)</span>
+        <span class="n">d_original_down</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">original_pool</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_kernel</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">d_enhanced_left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">enhanced_pool</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">left_kernel</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">d_enhanced_right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">enhanced_pool</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">right_kernel</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">d_enhanced_up</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">enhanced_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">up_kernel</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span>
+        <span class="p">)</span>
+        <span class="n">d_enhanced_down</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span>
+            <span class="n">enhanced_pool</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_kernel</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;SAME&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">d_left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_original_left</span> <span class="o">-</span> <span class="n">d_enhanced_left</span><span class="p">)</span>
+        <span class="n">d_right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_original_right</span> <span class="o">-</span> <span class="n">d_enhanced_right</span><span class="p">)</span>
+        <span class="n">d_up</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_original_up</span> <span class="o">-</span> <span class="n">d_enhanced_up</span><span class="p">)</span>
+        <span class="n">d_down</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d_original_down</span> <span class="o">-</span> <span class="n">d_enhanced_down</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d_left</span> <span class="o">+</span> <span class="n">d_right</span> <span class="o">+</span> <span class="n">d_up</span> <span class="o">+</span> <span class="n">d_down</span>
+</code></pre></div>
+
+<h3 id="deep-curve-estimation-model">Deep curve estimation model</h3>
+<p>We implement the Zero-DCE framework as a Keras subclassed model.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ZeroDCE</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span> <span class="o">=</span> <span class="n">build_dce_net</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_constancy_loss</span> <span class="o">=</span> <span class="n">SpatialConsistencyLoss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;total_loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">illumination_smoothness_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;illumination_smoothness_loss&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_constancy_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spatial_constancy_loss&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color_constancy_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;color_constancy_loss&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;exposure_loss&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_loss_tracker</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">illumination_smoothness_loss_tracker</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spatial_constancy_loss_tracker</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">color_constancy_loss_tracker</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exposure_loss_tracker</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_enhanced_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">r3</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span>
+        <span class="n">r4</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span>
+        <span class="n">r5</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">12</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span>
+        <span class="n">r6</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">15</span><span class="p">:</span><span class="mi">18</span><span class="p">]</span>
+        <span class="n">r7</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">18</span><span class="p">:</span><span class="mi">21</span><span class="p">]</span>
+        <span class="n">r8</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">21</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">data</span> <span class="o">+</span> <span class="n">r1</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">r3</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">enhanced_image</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">r4</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">enhanced_image</span> <span class="o">+</span> <span class="n">r5</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">enhanced_image</span><span class="p">)</span> <span class="o">-</span> <span class="n">enhanced_image</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">r6</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">r7</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">enhanced_image</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">r8</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">enhanced_image</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">dce_net_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enhanced_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dce_net_output</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="n">enhanced_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enhanced_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="n">loss_illumination</span> <span class="o">=</span> <span class="mi">200</span> <span class="o">*</span> <span class="n">illumination_smoothness_loss</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="n">loss_spatial_constancy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spatial_constancy_loss</span><span class="p">(</span><span class="n">enhanced_image</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">loss_color_constancy</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">color_constancy_loss</span><span class="p">(</span><span class="n">enhanced_image</span><span class="p">))</span>
+        <span class="n">loss_exposure</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">exposure_loss</span><span class="p">(</span><span class="n">enhanced_image</span><span class="p">))</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">loss_illumination</span>
+            <span class="o">+</span> <span class="n">loss_spatial_constancy</span>
+            <span class="o">+</span> <span class="n">loss_color_constancy</span>
+            <span class="o">+</span> <span class="n">loss_exposure</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;total_loss&quot;</span><span class="p">:</span> <span class="n">total_loss</span><span class="p">,</span>
+            <span class="s2">&quot;illumination_smoothness_loss&quot;</span><span class="p">:</span> <span class="n">loss_illumination</span><span class="p">,</span>
+            <span class="s2">&quot;spatial_constancy_loss&quot;</span><span class="p">:</span> <span class="n">loss_spatial_constancy</span><span class="p">,</span>
+            <span class="s2">&quot;color_constancy_loss&quot;</span><span class="p">:</span> <span class="n">loss_color_constancy</span><span class="p">,</span>
+            <span class="s2">&quot;exposure_loss&quot;</span><span class="p">:</span> <span class="n">loss_exposure</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_losses</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;total_loss&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="o">.</span><span class="n">trainable_weights</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;total_loss&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">illumination_smoothness_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;illumination_smoothness_loss&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_constancy_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;spatial_constancy_loss&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color_constancy_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;color_constancy_loss&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;exposure_loss&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">metric</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_losses</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;total_loss&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">illumination_smoothness_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;illumination_smoothness_loss&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_constancy_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;spatial_constancy_loss&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color_constancy_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;color_constancy_loss&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;exposure_loss&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">metric</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;While saving the weights, we simply save the weights of the DCE-Net&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span>
+            <span class="n">filepath</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">save_format</span><span class="o">=</span><span class="n">save_format</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">by_name</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_mismatch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;While loading the weights, we simply load the weights of the DCE-Net&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dce_model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span>
+            <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
+            <span class="n">by_name</span><span class="o">=</span><span class="n">by_name</span><span class="p">,</span>
+            <span class="n">skip_mismatch</span><span class="o">=</span><span class="n">skip_mismatch</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="training">Training</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">zero_dce_model</span> <span class="o">=</span> <span class="n">ZeroDCE</span><span class="p">()</span>
+<span class="n">zero_dce_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">zero_dce_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_result</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;val_&quot;</span> <span class="o">+</span> <span class="n">item</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;val_&quot;</span> <span class="o">+</span> <span class="n">item</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epochs&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Train and Validation </span><span class="si">{}</span><span class="s2"> Over Epochs&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">plot_result</span><span class="p">(</span><span class="s2">&quot;total_loss&quot;</span><span class="p">)</span>
+<span class="n">plot_result</span><span class="p">(</span><span class="s2">&quot;illumination_smoothness_loss&quot;</span><span class="p">)</span>
+<span class="n">plot_result</span><span class="p">(</span><span class="s2">&quot;spatial_constancy_loss&quot;</span><span class="p">)</span>
+<span class="n">plot_result</span><span class="p">(</span><span class="s2">&quot;color_constancy_loss&quot;</span><span class="p">)</span>
+<span class="n">plot_result</span><span class="p">(</span><span class="s2">&quot;exposure_loss&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/100
+  2/25 ━[37m━━━━━━━━━━━━━━━━━━━  1s 85ms/step - color_constancy_loss: 0.0013 - exposure_loss: 3.0376 - illumination_smoothness_loss: 2.5211 - spatial_constancy_loss: 4.6834e-07 - total_loss: 5.5601     
+
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1700510538.106578 3409375 device_compiler.h:187] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 16s 123ms/step - color_constancy_loss: 0.0029 - exposure_loss: 2.9968 - illumination_smoothness_loss: 2.1813 - spatial_constancy_loss: 1.8559e-06 - total_loss: 5.1810 - val_color_constancy_loss: 0.0023 - val_exposure_loss: 2.9489 - val_illumination_smoothness_loss: 2.7063 - val_spatial_constancy_loss: 5.0979e-06 - val_total_loss: 5.6575
+Epoch 2/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0030 - exposure_loss: 2.9854 - illumination_smoothness_loss: 1.2876 - spatial_constancy_loss: 6.1811e-06 - total_loss: 4.2759 - val_color_constancy_loss: 0.0023 - val_exposure_loss: 2.9381 - val_illumination_smoothness_loss: 1.8299 - val_spatial_constancy_loss: 1.3742e-05 - val_total_loss: 4.7703
+Epoch 3/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0031 - exposure_loss: 2.9746 - illumination_smoothness_loss: 0.8735 - spatial_constancy_loss: 1.6664e-05 - total_loss: 3.8512 - val_color_constancy_loss: 0.0024 - val_exposure_loss: 2.9255 - val_illumination_smoothness_loss: 1.3135 - val_spatial_constancy_loss: 3.1783e-05 - val_total_loss: 4.2414
+Epoch 4/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0032 - exposure_loss: 2.9623 - illumination_smoothness_loss: 0.6259 - spatial_constancy_loss: 3.7938e-05 - total_loss: 3.5914 - val_color_constancy_loss: 0.0025 - val_exposure_loss: 2.9118 - val_illumination_smoothness_loss: 0.9835 - val_spatial_constancy_loss: 6.1902e-05 - val_total_loss: 3.8979
+Epoch 5/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0033 - exposure_loss: 2.9493 - illumination_smoothness_loss: 0.4700 - spatial_constancy_loss: 7.2080e-05 - total_loss: 3.4226 - val_color_constancy_loss: 0.0026 - val_exposure_loss: 2.8976 - val_illumination_smoothness_loss: 0.7751 - val_spatial_constancy_loss: 1.0500e-04 - val_total_loss: 3.6754
+Epoch 6/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0034 - exposure_loss: 2.9358 - illumination_smoothness_loss: 0.3693 - spatial_constancy_loss: 1.1878e-04 - total_loss: 3.3086 - val_color_constancy_loss: 0.0027 - val_exposure_loss: 2.8829 - val_illumination_smoothness_loss: 0.6316 - val_spatial_constancy_loss: 1.6075e-04 - val_total_loss: 3.5173
+Epoch 7/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0036 - exposure_loss: 2.9219 - illumination_smoothness_loss: 0.2996 - spatial_constancy_loss: 1.7723e-04 - total_loss: 3.2252 - val_color_constancy_loss: 0.0028 - val_exposure_loss: 2.8660 - val_illumination_smoothness_loss: 0.5261 - val_spatial_constancy_loss: 2.3790e-04 - val_total_loss: 3.3951
+Epoch 8/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0037 - exposure_loss: 2.9056 - illumination_smoothness_loss: 0.2486 - spatial_constancy_loss: 2.5932e-04 - total_loss: 3.1582 - val_color_constancy_loss: 0.0029 - val_exposure_loss: 2.8466 - val_illumination_smoothness_loss: 0.4454 - val_spatial_constancy_loss: 3.4372e-04 - val_total_loss: 3.2952
+Epoch 9/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0039 - exposure_loss: 2.8872 - illumination_smoothness_loss: 0.2110 - spatial_constancy_loss: 3.6800e-04 - total_loss: 3.1025 - val_color_constancy_loss: 0.0031 - val_exposure_loss: 2.8244 - val_illumination_smoothness_loss: 0.3853 - val_spatial_constancy_loss: 4.8290e-04 - val_total_loss: 3.2132
+Epoch 10/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0041 - exposure_loss: 2.8665 - illumination_smoothness_loss: 0.1846 - spatial_constancy_loss: 5.0693e-04 - total_loss: 3.0558 - val_color_constancy_loss: 0.0033 - val_exposure_loss: 2.8002 - val_illumination_smoothness_loss: 0.3395 - val_spatial_constancy_loss: 6.5965e-04 - val_total_loss: 3.1436
+Epoch 11/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0044 - exposure_loss: 2.8440 - illumination_smoothness_loss: 0.1654 - spatial_constancy_loss: 6.8036e-04 - total_loss: 3.0145 - val_color_constancy_loss: 0.0035 - val_exposure_loss: 2.7749 - val_illumination_smoothness_loss: 0.3031 - val_spatial_constancy_loss: 8.6824e-04 - val_total_loss: 3.0824
+Epoch 12/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0047 - exposure_loss: 2.8198 - illumination_smoothness_loss: 0.1512 - spatial_constancy_loss: 8.9387e-04 - total_loss: 2.9765 - val_color_constancy_loss: 0.0038 - val_exposure_loss: 2.7463 - val_illumination_smoothness_loss: 0.2753 - val_spatial_constancy_loss: 0.0011 - val_total_loss: 3.0265
+Epoch 13/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0050 - exposure_loss: 2.7928 - illumination_smoothness_loss: 0.1408 - spatial_constancy_loss: 0.0012 - total_loss: 2.9398 - val_color_constancy_loss: 0.0041 - val_exposure_loss: 2.7132 - val_illumination_smoothness_loss: 0.2537 - val_spatial_constancy_loss: 0.0015 - val_total_loss: 2.9724
+Epoch 14/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0054 - exposure_loss: 2.7600 - illumination_smoothness_loss: 0.1340 - spatial_constancy_loss: 0.0016 - total_loss: 2.9009 - val_color_constancy_loss: 0.0045 - val_exposure_loss: 2.6673 - val_illumination_smoothness_loss: 0.2389 - val_spatial_constancy_loss: 0.0021 - val_total_loss: 2.9129
+Epoch 15/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0060 - exposure_loss: 2.7115 - illumination_smoothness_loss: 0.1314 - spatial_constancy_loss: 0.0022 - total_loss: 2.8512 - val_color_constancy_loss: 0.0055 - val_exposure_loss: 2.5820 - val_illumination_smoothness_loss: 0.2374 - val_spatial_constancy_loss: 0.0035 - val_total_loss: 2.8284
+Epoch 16/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0075 - exposure_loss: 2.6129 - illumination_smoothness_loss: 0.1414 - spatial_constancy_loss: 0.0041 - total_loss: 2.7660 - val_color_constancy_loss: 0.0081 - val_exposure_loss: 2.3797 - val_illumination_smoothness_loss: 0.2453 - val_spatial_constancy_loss: 0.0083 - val_total_loss: 2.6414
+Epoch 17/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0128 - exposure_loss: 2.3149 - illumination_smoothness_loss: 0.1766 - spatial_constancy_loss: 0.0148 - total_loss: 2.5190 - val_color_constancy_loss: 0.0286 - val_exposure_loss: 1.5060 - val_illumination_smoothness_loss: 0.3288 - val_spatial_constancy_loss: 0.0648 - val_total_loss: 1.9282
+Epoch 18/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0505 - exposure_loss: 1.3386 - illumination_smoothness_loss: 0.2606 - spatial_constancy_loss: 0.1196 - total_loss: 1.7693 - val_color_constancy_loss: 0.0827 - val_exposure_loss: 0.6645 - val_illumination_smoothness_loss: 0.2964 - val_spatial_constancy_loss: 0.2687 - val_total_loss: 1.3123
+Epoch 19/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0873 - exposure_loss: 0.8174 - illumination_smoothness_loss: 0.2378 - spatial_constancy_loss: 0.2577 - total_loss: 1.4002 - val_color_constancy_loss: 0.0861 - val_exposure_loss: 0.6856 - val_illumination_smoothness_loss: 0.2464 - val_spatial_constancy_loss: 0.2539 - val_total_loss: 1.2719
+Epoch 20/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0753 - exposure_loss: 0.8584 - illumination_smoothness_loss: 0.1858 - spatial_constancy_loss: 0.2394 - total_loss: 1.3589 - val_color_constancy_loss: 0.0882 - val_exposure_loss: 0.6714 - val_illumination_smoothness_loss: 0.2195 - val_spatial_constancy_loss: 0.2620 - val_total_loss: 1.2410
+Epoch 21/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0779 - exposure_loss: 0.8382 - illumination_smoothness_loss: 0.1706 - spatial_constancy_loss: 0.2486 - total_loss: 1.3354 - val_color_constancy_loss: 0.0886 - val_exposure_loss: 0.6648 - val_illumination_smoothness_loss: 0.2072 - val_spatial_constancy_loss: 0.2643 - val_total_loss: 1.2249
+Epoch 22/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0784 - exposure_loss: 0.8337 - illumination_smoothness_loss: 0.1590 - spatial_constancy_loss: 0.2502 - total_loss: 1.3212 - val_color_constancy_loss: 0.0889 - val_exposure_loss: 0.6647 - val_illumination_smoothness_loss: 0.1934 - val_spatial_constancy_loss: 0.2653 - val_total_loss: 1.2122
+Epoch 23/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0783 - exposure_loss: 0.8329 - illumination_smoothness_loss: 0.1498 - spatial_constancy_loss: 0.2508 - total_loss: 1.3118 - val_color_constancy_loss: 0.0897 - val_exposure_loss: 0.6602 - val_illumination_smoothness_loss: 0.1834 - val_spatial_constancy_loss: 0.2671 - val_total_loss: 1.2003
+Epoch 24/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0787 - exposure_loss: 0.8283 - illumination_smoothness_loss: 0.1426 - spatial_constancy_loss: 0.2529 - total_loss: 1.3025 - val_color_constancy_loss: 0.0897 - val_exposure_loss: 0.6601 - val_illumination_smoothness_loss: 0.1754 - val_spatial_constancy_loss: 0.2671 - val_total_loss: 1.1923
+Epoch 25/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0785 - exposure_loss: 0.8294 - illumination_smoothness_loss: 0.1365 - spatial_constancy_loss: 0.2524 - total_loss: 1.2968 - val_color_constancy_loss: 0.0902 - val_exposure_loss: 0.6562 - val_illumination_smoothness_loss: 0.1672 - val_spatial_constancy_loss: 0.2692 - val_total_loss: 1.1828
+Epoch 26/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0793 - exposure_loss: 0.8229 - illumination_smoothness_loss: 0.1316 - spatial_constancy_loss: 0.2554 - total_loss: 1.2892 - val_color_constancy_loss: 0.0896 - val_exposure_loss: 0.6567 - val_illumination_smoothness_loss: 0.1606 - val_spatial_constancy_loss: 0.2699 - val_total_loss: 1.1768
+Epoch 27/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0788 - exposure_loss: 0.8285 - illumination_smoothness_loss: 0.1238 - spatial_constancy_loss: 0.2534 - total_loss: 1.2845 - val_color_constancy_loss: 0.0906 - val_exposure_loss: 0.6519 - val_illumination_smoothness_loss: 0.1574 - val_spatial_constancy_loss: 0.2725 - val_total_loss: 1.1724
+Epoch 28/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0794 - exposure_loss: 0.8247 - illumination_smoothness_loss: 0.1194 - spatial_constancy_loss: 0.2550 - total_loss: 1.2785 - val_color_constancy_loss: 0.0914 - val_exposure_loss: 0.6451 - val_illumination_smoothness_loss: 0.1542 - val_spatial_constancy_loss: 0.2783 - val_total_loss: 1.1689
+Epoch 29/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0797 - exposure_loss: 0.8203 - illumination_smoothness_loss: 0.1139 - spatial_constancy_loss: 0.2577 - total_loss: 1.2715 - val_color_constancy_loss: 0.0914 - val_exposure_loss: 0.6468 - val_illumination_smoothness_loss: 0.1435 - val_spatial_constancy_loss: 0.2775 - val_total_loss: 1.1592
+Epoch 30/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0795 - exposure_loss: 0.8199 - illumination_smoothness_loss: 0.1083 - spatial_constancy_loss: 0.2581 - total_loss: 1.2659 - val_color_constancy_loss: 0.0911 - val_exposure_loss: 0.6483 - val_illumination_smoothness_loss: 0.1336 - val_spatial_constancy_loss: 0.2768 - val_total_loss: 1.1498
+Epoch 31/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0797 - exposure_loss: 0.8194 - illumination_smoothness_loss: 0.1037 - spatial_constancy_loss: 0.2589 - total_loss: 1.2617 - val_color_constancy_loss: 0.0912 - val_exposure_loss: 0.6483 - val_illumination_smoothness_loss: 0.1289 - val_spatial_constancy_loss: 0.2772 - val_total_loss: 1.1456
+Epoch 32/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0794 - exposure_loss: 0.8226 - illumination_smoothness_loss: 0.0982 - spatial_constancy_loss: 0.2578 - total_loss: 1.2580 - val_color_constancy_loss: 0.0923 - val_exposure_loss: 0.6421 - val_illumination_smoothness_loss: 0.1251 - val_spatial_constancy_loss: 0.2814 - val_total_loss: 1.1409
+Epoch 33/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0801 - exposure_loss: 0.8188 - illumination_smoothness_loss: 0.0939 - spatial_constancy_loss: 0.2601 - total_loss: 1.2529 - val_color_constancy_loss: 0.0934 - val_exposure_loss: 0.6367 - val_illumination_smoothness_loss: 0.1261 - val_spatial_constancy_loss: 0.2853 - val_total_loss: 1.1416
+Epoch 34/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0802 - exposure_loss: 0.8173 - illumination_smoothness_loss: 0.0889 - spatial_constancy_loss: 0.2611 - total_loss: 1.2475 - val_color_constancy_loss: 0.0941 - val_exposure_loss: 0.6326 - val_illumination_smoothness_loss: 0.1227 - val_spatial_constancy_loss: 0.2883 - val_total_loss: 1.1378
+Epoch 35/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0807 - exposure_loss: 0.8134 - illumination_smoothness_loss: 0.0844 - spatial_constancy_loss: 0.2632 - total_loss: 1.2418 - val_color_constancy_loss: 0.0946 - val_exposure_loss: 0.6312 - val_illumination_smoothness_loss: 0.1180 - val_spatial_constancy_loss: 0.2893 - val_total_loss: 1.1330
+Epoch 36/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0808 - exposure_loss: 0.8119 - illumination_smoothness_loss: 0.0798 - spatial_constancy_loss: 0.2644 - total_loss: 1.2368 - val_color_constancy_loss: 0.0941 - val_exposure_loss: 0.6351 - val_illumination_smoothness_loss: 0.1096 - val_spatial_constancy_loss: 0.2865 - val_total_loss: 1.1253
+Epoch 37/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0807 - exposure_loss: 0.8127 - illumination_smoothness_loss: 0.0759 - spatial_constancy_loss: 0.2637 - total_loss: 1.2330 - val_color_constancy_loss: 0.0949 - val_exposure_loss: 0.6295 - val_illumination_smoothness_loss: 0.1088 - val_spatial_constancy_loss: 0.2904 - val_total_loss: 1.1237
+Epoch 38/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0812 - exposure_loss: 0.8091 - illumination_smoothness_loss: 0.0732 - spatial_constancy_loss: 0.2658 - total_loss: 1.2293 - val_color_constancy_loss: 0.0946 - val_exposure_loss: 0.6313 - val_illumination_smoothness_loss: 0.1022 - val_spatial_constancy_loss: 0.2893 - val_total_loss: 1.1174
+Epoch 39/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0810 - exposure_loss: 0.8100 - illumination_smoothness_loss: 0.0694 - spatial_constancy_loss: 0.2655 - total_loss: 1.2259 - val_color_constancy_loss: 0.0953 - val_exposure_loss: 0.6278 - val_illumination_smoothness_loss: 0.1015 - val_spatial_constancy_loss: 0.2918 - val_total_loss: 1.1164
+Epoch 40/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0813 - exposure_loss: 0.8077 - illumination_smoothness_loss: 0.0668 - spatial_constancy_loss: 0.2668 - total_loss: 1.2226 - val_color_constancy_loss: 0.0951 - val_exposure_loss: 0.6294 - val_illumination_smoothness_loss: 0.0950 - val_spatial_constancy_loss: 0.2907 - val_total_loss: 1.1103
+Epoch 41/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0814 - exposure_loss: 0.8074 - illumination_smoothness_loss: 0.0639 - spatial_constancy_loss: 0.2669 - total_loss: 1.2195 - val_color_constancy_loss: 0.0955 - val_exposure_loss: 0.6263 - val_illumination_smoothness_loss: 0.0946 - val_spatial_constancy_loss: 0.2930 - val_total_loss: 1.1093
+Epoch 42/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0816 - exposure_loss: 0.8056 - illumination_smoothness_loss: 0.0613 - spatial_constancy_loss: 0.2684 - total_loss: 1.2168 - val_color_constancy_loss: 0.0950 - val_exposure_loss: 0.6304 - val_illumination_smoothness_loss: 0.0876 - val_spatial_constancy_loss: 0.2900 - val_total_loss: 1.1031
+Epoch 43/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0813 - exposure_loss: 0.8074 - illumination_smoothness_loss: 0.0582 - spatial_constancy_loss: 0.2671 - total_loss: 1.2140 - val_color_constancy_loss: 0.0953 - val_exposure_loss: 0.6271 - val_illumination_smoothness_loss: 0.0859 - val_spatial_constancy_loss: 0.2925 - val_total_loss: 1.1008
+Epoch 44/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0816 - exposure_loss: 0.8048 - illumination_smoothness_loss: 0.0564 - spatial_constancy_loss: 0.2687 - total_loss: 1.2115 - val_color_constancy_loss: 0.0956 - val_exposure_loss: 0.6266 - val_illumination_smoothness_loss: 0.0837 - val_spatial_constancy_loss: 0.2930 - val_total_loss: 1.0988
+Epoch 45/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0816 - exposure_loss: 0.8045 - illumination_smoothness_loss: 0.0541 - spatial_constancy_loss: 0.2690 - total_loss: 1.2093 - val_color_constancy_loss: 0.0955 - val_exposure_loss: 0.6275 - val_illumination_smoothness_loss: 0.0796 - val_spatial_constancy_loss: 0.2923 - val_total_loss: 1.0949
+Epoch 46/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0816 - exposure_loss: 0.8043 - illumination_smoothness_loss: 0.0517 - spatial_constancy_loss: 0.2691 - total_loss: 1.2067 - val_color_constancy_loss: 0.0959 - val_exposure_loss: 0.6245 - val_illumination_smoothness_loss: 0.0790 - val_spatial_constancy_loss: 0.2945 - val_total_loss: 1.0939
+Epoch 47/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0819 - exposure_loss: 0.8025 - illumination_smoothness_loss: 0.0505 - spatial_constancy_loss: 0.2701 - total_loss: 1.2050 - val_color_constancy_loss: 0.0960 - val_exposure_loss: 0.6242 - val_illumination_smoothness_loss: 0.0764 - val_spatial_constancy_loss: 0.2949 - val_total_loss: 1.0914
+Epoch 48/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0819 - exposure_loss: 0.8021 - illumination_smoothness_loss: 0.0482 - spatial_constancy_loss: 0.2706 - total_loss: 1.2027 - val_color_constancy_loss: 0.0957 - val_exposure_loss: 0.6262 - val_illumination_smoothness_loss: 0.0721 - val_spatial_constancy_loss: 0.2934 - val_total_loss: 1.0874
+Epoch 49/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0818 - exposure_loss: 0.8027 - illumination_smoothness_loss: 0.0463 - spatial_constancy_loss: 0.2702 - total_loss: 1.2010 - val_color_constancy_loss: 0.0959 - val_exposure_loss: 0.6244 - val_illumination_smoothness_loss: 0.0712 - val_spatial_constancy_loss: 0.2947 - val_total_loss: 1.0863
+Epoch 50/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0820 - exposure_loss: 0.8015 - illumination_smoothness_loss: 0.0446 - spatial_constancy_loss: 0.2711 - total_loss: 1.1992 - val_color_constancy_loss: 0.0959 - val_exposure_loss: 0.6248 - val_illumination_smoothness_loss: 0.0688 - val_spatial_constancy_loss: 0.2945 - val_total_loss: 1.0839
+Epoch 51/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0819 - exposure_loss: 0.8019 - illumination_smoothness_loss: 0.0429 - spatial_constancy_loss: 0.2707 - total_loss: 1.1974 - val_color_constancy_loss: 0.0964 - val_exposure_loss: 0.6224 - val_illumination_smoothness_loss: 0.0677 - val_spatial_constancy_loss: 0.2964 - val_total_loss: 1.0829
+Epoch 52/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0823 - exposure_loss: 0.7996 - illumination_smoothness_loss: 0.0416 - spatial_constancy_loss: 0.2721 - total_loss: 1.1955 - val_color_constancy_loss: 0.0958 - val_exposure_loss: 0.6240 - val_illumination_smoothness_loss: 0.0644 - val_spatial_constancy_loss: 0.2951 - val_total_loss: 1.0793
+Epoch 53/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0822 - exposure_loss: 0.8004 - illumination_smoothness_loss: 0.0399 - spatial_constancy_loss: 0.2717 - total_loss: 1.1941 - val_color_constancy_loss: 0.0960 - val_exposure_loss: 0.6234 - val_illumination_smoothness_loss: 0.0633 - val_spatial_constancy_loss: 0.2957 - val_total_loss: 1.0785
+Epoch 54/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0823 - exposure_loss: 0.7997 - illumination_smoothness_loss: 0.0382 - spatial_constancy_loss: 0.2723 - total_loss: 1.1924 - val_color_constancy_loss: 0.0959 - val_exposure_loss: 0.6242 - val_illumination_smoothness_loss: 0.0591 - val_spatial_constancy_loss: 0.2951 - val_total_loss: 1.0744
+Epoch 55/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0822 - exposure_loss: 0.7999 - illumination_smoothness_loss: 0.0362 - spatial_constancy_loss: 0.2721 - total_loss: 1.1904 - val_color_constancy_loss: 0.0965 - val_exposure_loss: 0.6211 - val_illumination_smoothness_loss: 0.0603 - val_spatial_constancy_loss: 0.2974 - val_total_loss: 1.0754
+Epoch 56/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0825 - exposure_loss: 0.7983 - illumination_smoothness_loss: 0.0351 - spatial_constancy_loss: 0.2732 - total_loss: 1.1890 - val_color_constancy_loss: 0.0960 - val_exposure_loss: 0.6237 - val_illumination_smoothness_loss: 0.0547 - val_spatial_constancy_loss: 0.2955 - val_total_loss: 1.0699
+Epoch 57/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0823 - exposure_loss: 0.7987 - illumination_smoothness_loss: 0.0331 - spatial_constancy_loss: 0.2730 - total_loss: 1.1871 - val_color_constancy_loss: 0.0963 - val_exposure_loss: 0.6236 - val_illumination_smoothness_loss: 0.0540 - val_spatial_constancy_loss: 0.2956 - val_total_loss: 1.0694
+Epoch 58/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0823 - exposure_loss: 0.7990 - illumination_smoothness_loss: 0.0319 - spatial_constancy_loss: 0.2727 - total_loss: 1.1859 - val_color_constancy_loss: 0.0965 - val_exposure_loss: 0.6210 - val_illumination_smoothness_loss: 0.0537 - val_spatial_constancy_loss: 0.2976 - val_total_loss: 1.0688
+Epoch 59/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0826 - exposure_loss: 0.7969 - illumination_smoothness_loss: 0.0315 - spatial_constancy_loss: 0.2740 - total_loss: 1.1850 - val_color_constancy_loss: 0.0966 - val_exposure_loss: 0.6208 - val_illumination_smoothness_loss: 0.0530 - val_spatial_constancy_loss: 0.2978 - val_total_loss: 1.0682
+Epoch 60/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0824 - exposure_loss: 0.7971 - illumination_smoothness_loss: 0.0304 - spatial_constancy_loss: 0.2740 - total_loss: 1.1840 - val_color_constancy_loss: 0.0966 - val_exposure_loss: 0.6206 - val_illumination_smoothness_loss: 0.0516 - val_spatial_constancy_loss: 0.2979 - val_total_loss: 1.0667
+Epoch 61/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0825 - exposure_loss: 0.7969 - illumination_smoothness_loss: 0.0295 - spatial_constancy_loss: 0.2741 - total_loss: 1.1829 - val_color_constancy_loss: 0.0969 - val_exposure_loss: 0.6194 - val_illumination_smoothness_loss: 0.0506 - val_spatial_constancy_loss: 0.2988 - val_total_loss: 1.0657
+Epoch 62/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7954 - illumination_smoothness_loss: 0.0287 - spatial_constancy_loss: 0.2749 - total_loss: 1.1817 - val_color_constancy_loss: 0.0967 - val_exposure_loss: 0.6203 - val_illumination_smoothness_loss: 0.0494 - val_spatial_constancy_loss: 0.2981 - val_total_loss: 1.0644
+Epoch 63/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0825 - exposure_loss: 0.7966 - illumination_smoothness_loss: 0.0278 - spatial_constancy_loss: 0.2742 - total_loss: 1.1810 - val_color_constancy_loss: 0.0971 - val_exposure_loss: 0.6184 - val_illumination_smoothness_loss: 0.0491 - val_spatial_constancy_loss: 0.2996 - val_total_loss: 1.0642
+Epoch 64/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 67ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7949 - illumination_smoothness_loss: 0.0268 - spatial_constancy_loss: 0.2753 - total_loss: 1.1797 - val_color_constancy_loss: 0.0969 - val_exposure_loss: 0.6199 - val_illumination_smoothness_loss: 0.0460 - val_spatial_constancy_loss: 0.2984 - val_total_loss: 1.0611
+Epoch 65/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0826 - exposure_loss: 0.7957 - illumination_smoothness_loss: 0.0254 - spatial_constancy_loss: 0.2748 - total_loss: 1.1785 - val_color_constancy_loss: 0.0976 - val_exposure_loss: 0.6180 - val_illumination_smoothness_loss: 0.0464 - val_spatial_constancy_loss: 0.2998 - val_total_loss: 1.0618
+Epoch 66/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7948 - illumination_smoothness_loss: 0.0249 - spatial_constancy_loss: 0.2753 - total_loss: 1.1777 - val_color_constancy_loss: 0.0975 - val_exposure_loss: 0.6189 - val_illumination_smoothness_loss: 0.0448 - val_spatial_constancy_loss: 0.2991 - val_total_loss: 1.0602
+Epoch 67/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0825 - exposure_loss: 0.7954 - illumination_smoothness_loss: 0.0241 - spatial_constancy_loss: 0.2750 - total_loss: 1.1770 - val_color_constancy_loss: 0.0977 - val_exposure_loss: 0.6179 - val_illumination_smoothness_loss: 0.0441 - val_spatial_constancy_loss: 0.2998 - val_total_loss: 1.0595
+Epoch 68/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7946 - illumination_smoothness_loss: 0.0231 - spatial_constancy_loss: 0.2757 - total_loss: 1.1761 - val_color_constancy_loss: 0.0973 - val_exposure_loss: 0.6198 - val_illumination_smoothness_loss: 0.0410 - val_spatial_constancy_loss: 0.2980 - val_total_loss: 1.0562
+Epoch 69/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0826 - exposure_loss: 0.7947 - illumination_smoothness_loss: 0.0226 - spatial_constancy_loss: 0.2752 - total_loss: 1.1752 - val_color_constancy_loss: 0.0979 - val_exposure_loss: 0.6170 - val_illumination_smoothness_loss: 0.0435 - val_spatial_constancy_loss: 0.3003 - val_total_loss: 1.0587
+Epoch 70/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7940 - illumination_smoothness_loss: 0.0224 - spatial_constancy_loss: 0.2758 - total_loss: 1.1749 - val_color_constancy_loss: 0.0976 - val_exposure_loss: 0.6182 - val_illumination_smoothness_loss: 0.0414 - val_spatial_constancy_loss: 0.2994 - val_total_loss: 1.0566
+Epoch 71/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7941 - illumination_smoothness_loss: 0.0216 - spatial_constancy_loss: 0.2758 - total_loss: 1.1742 - val_color_constancy_loss: 0.0974 - val_exposure_loss: 0.6189 - val_illumination_smoothness_loss: 0.0389 - val_spatial_constancy_loss: 0.2986 - val_total_loss: 1.0538
+Epoch 72/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7941 - illumination_smoothness_loss: 0.0211 - spatial_constancy_loss: 0.2755 - total_loss: 1.1734 - val_color_constancy_loss: 0.0979 - val_exposure_loss: 0.6166 - val_illumination_smoothness_loss: 0.0420 - val_spatial_constancy_loss: 0.3005 - val_total_loss: 1.0571
+Epoch 73/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7935 - illumination_smoothness_loss: 0.0214 - spatial_constancy_loss: 0.2759 - total_loss: 1.1735 - val_color_constancy_loss: 0.0977 - val_exposure_loss: 0.6172 - val_illumination_smoothness_loss: 0.0401 - val_spatial_constancy_loss: 0.3001 - val_total_loss: 1.0551
+Epoch 74/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7935 - illumination_smoothness_loss: 0.0205 - spatial_constancy_loss: 0.2760 - total_loss: 1.1727 - val_color_constancy_loss: 0.0978 - val_exposure_loss: 0.6168 - val_illumination_smoothness_loss: 0.0395 - val_spatial_constancy_loss: 0.3005 - val_total_loss: 1.0546
+Epoch 75/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7924 - illumination_smoothness_loss: 0.0204 - spatial_constancy_loss: 0.2764 - total_loss: 1.1721 - val_color_constancy_loss: 0.0977 - val_exposure_loss: 0.6176 - val_illumination_smoothness_loss: 0.0385 - val_spatial_constancy_loss: 0.2997 - val_total_loss: 1.0536
+Epoch 76/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7933 - illumination_smoothness_loss: 0.0198 - spatial_constancy_loss: 0.2760 - total_loss: 1.1718 - val_color_constancy_loss: 0.0979 - val_exposure_loss: 0.6166 - val_illumination_smoothness_loss: 0.0376 - val_spatial_constancy_loss: 0.3002 - val_total_loss: 1.0524
+Epoch 77/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7925 - illumination_smoothness_loss: 0.0195 - spatial_constancy_loss: 0.2763 - total_loss: 1.1710 - val_color_constancy_loss: 0.0979 - val_exposure_loss: 0.6170 - val_illumination_smoothness_loss: 0.0384 - val_spatial_constancy_loss: 0.2999 - val_total_loss: 1.0532
+Epoch 78/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0827 - exposure_loss: 0.7929 - illumination_smoothness_loss: 0.0196 - spatial_constancy_loss: 0.2761 - total_loss: 1.1713 - val_color_constancy_loss: 0.0979 - val_exposure_loss: 0.6170 - val_illumination_smoothness_loss: 0.0369 - val_spatial_constancy_loss: 0.3000 - val_total_loss: 1.0518
+Epoch 79/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7922 - illumination_smoothness_loss: 0.0192 - spatial_constancy_loss: 0.2763 - total_loss: 1.1704 - val_color_constancy_loss: 0.0981 - val_exposure_loss: 0.6157 - val_illumination_smoothness_loss: 0.0380 - val_spatial_constancy_loss: 0.3009 - val_total_loss: 1.0527
+Epoch 80/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7918 - illumination_smoothness_loss: 0.0191 - spatial_constancy_loss: 0.2766 - total_loss: 1.1703 - val_color_constancy_loss: 0.0980 - val_exposure_loss: 0.6159 - val_illumination_smoothness_loss: 0.0373 - val_spatial_constancy_loss: 0.3004 - val_total_loss: 1.0516
+Epoch 81/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7917 - illumination_smoothness_loss: 0.0190 - spatial_constancy_loss: 0.2764 - total_loss: 1.1699 - val_color_constancy_loss: 0.0981 - val_exposure_loss: 0.6153 - val_illumination_smoothness_loss: 0.0373 - val_spatial_constancy_loss: 0.3009 - val_total_loss: 1.0516
+Epoch 82/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 66ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7915 - illumination_smoothness_loss: 0.0187 - spatial_constancy_loss: 0.2766 - total_loss: 1.1697 - val_color_constancy_loss: 0.0979 - val_exposure_loss: 0.6170 - val_illumination_smoothness_loss: 0.0348 - val_spatial_constancy_loss: 0.2996 - val_total_loss: 1.0493
+Epoch 83/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7918 - illumination_smoothness_loss: 0.0182 - spatial_constancy_loss: 0.2763 - total_loss: 1.1691 - val_color_constancy_loss: 0.0980 - val_exposure_loss: 0.6158 - val_illumination_smoothness_loss: 0.0358 - val_spatial_constancy_loss: 0.3004 - val_total_loss: 1.0500
+Epoch 84/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7911 - illumination_smoothness_loss: 0.0184 - spatial_constancy_loss: 0.2766 - total_loss: 1.1689 - val_color_constancy_loss: 0.0982 - val_exposure_loss: 0.6146 - val_illumination_smoothness_loss: 0.0366 - val_spatial_constancy_loss: 0.3010 - val_total_loss: 1.0505
+Epoch 85/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7907 - illumination_smoothness_loss: 0.0185 - spatial_constancy_loss: 0.2767 - total_loss: 1.1687 - val_color_constancy_loss: 0.0980 - val_exposure_loss: 0.6154 - val_illumination_smoothness_loss: 0.0361 - val_spatial_constancy_loss: 0.3006 - val_total_loss: 1.0501
+Epoch 86/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0828 - exposure_loss: 0.7910 - illumination_smoothness_loss: 0.0182 - spatial_constancy_loss: 0.2765 - total_loss: 1.1685 - val_color_constancy_loss: 0.0982 - val_exposure_loss: 0.6145 - val_illumination_smoothness_loss: 0.0356 - val_spatial_constancy_loss: 0.3009 - val_total_loss: 1.0492
+Epoch 87/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7902 - illumination_smoothness_loss: 0.0181 - spatial_constancy_loss: 0.2767 - total_loss: 1.1680 - val_color_constancy_loss: 0.0981 - val_exposure_loss: 0.6149 - val_illumination_smoothness_loss: 0.0357 - val_spatial_constancy_loss: 0.3007 - val_total_loss: 1.0494
+Epoch 88/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7904 - illumination_smoothness_loss: 0.0180 - spatial_constancy_loss: 0.2766 - total_loss: 1.1679 - val_color_constancy_loss: 0.0983 - val_exposure_loss: 0.6133 - val_illumination_smoothness_loss: 0.0359 - val_spatial_constancy_loss: 0.3015 - val_total_loss: 1.0491
+Epoch 89/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0830 - exposure_loss: 0.7893 - illumination_smoothness_loss: 0.0181 - spatial_constancy_loss: 0.2770 - total_loss: 1.1674 - val_color_constancy_loss: 0.0981 - val_exposure_loss: 0.6148 - val_illumination_smoothness_loss: 0.0350 - val_spatial_constancy_loss: 0.3006 - val_total_loss: 1.0484
+Epoch 90/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7901 - illumination_smoothness_loss: 0.0178 - spatial_constancy_loss: 0.2765 - total_loss: 1.1673 - val_color_constancy_loss: 0.0984 - val_exposure_loss: 0.6128 - val_illumination_smoothness_loss: 0.0358 - val_spatial_constancy_loss: 0.3017 - val_total_loss: 1.0487
+Epoch 91/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0831 - exposure_loss: 0.7886 - illumination_smoothness_loss: 0.0181 - spatial_constancy_loss: 0.2771 - total_loss: 1.1669 - val_color_constancy_loss: 0.0981 - val_exposure_loss: 0.6142 - val_illumination_smoothness_loss: 0.0351 - val_spatial_constancy_loss: 0.3007 - val_total_loss: 1.0481
+Epoch 92/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0829 - exposure_loss: 0.7895 - illumination_smoothness_loss: 0.0177 - spatial_constancy_loss: 0.2766 - total_loss: 1.1668 - val_color_constancy_loss: 0.0983 - val_exposure_loss: 0.6133 - val_illumination_smoothness_loss: 0.0349 - val_spatial_constancy_loss: 0.3011 - val_total_loss: 1.0476
+Epoch 93/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0831 - exposure_loss: 0.7884 - illumination_smoothness_loss: 0.0179 - spatial_constancy_loss: 0.2770 - total_loss: 1.1664 - val_color_constancy_loss: 0.0984 - val_exposure_loss: 0.6125 - val_illumination_smoothness_loss: 0.0355 - val_spatial_constancy_loss: 0.3014 - val_total_loss: 1.0478
+Epoch 94/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 65ms/step - color_constancy_loss: 0.0831 - exposure_loss: 0.7882 - illumination_smoothness_loss: 0.0181 - spatial_constancy_loss: 0.2769 - total_loss: 1.1663 - val_color_constancy_loss: 0.0983 - val_exposure_loss: 0.6128 - val_illumination_smoothness_loss: 0.0349 - val_spatial_constancy_loss: 0.3012 - val_total_loss: 1.0473
+Epoch 95/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0831 - exposure_loss: 0.7881 - illumination_smoothness_loss: 0.0179 - spatial_constancy_loss: 0.2770 - total_loss: 1.1660 - val_color_constancy_loss: 0.0983 - val_exposure_loss: 0.6130 - val_illumination_smoothness_loss: 0.0341 - val_spatial_constancy_loss: 0.3009 - val_total_loss: 1.0462
+Epoch 96/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0832 - exposure_loss: 0.7874 - illumination_smoothness_loss: 0.0179 - spatial_constancy_loss: 0.2771 - total_loss: 1.1656 - val_color_constancy_loss: 0.0983 - val_exposure_loss: 0.6125 - val_illumination_smoothness_loss: 0.0353 - val_spatial_constancy_loss: 0.3010 - val_total_loss: 1.0471
+Epoch 97/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0830 - exposure_loss: 0.7882 - illumination_smoothness_loss: 0.0181 - spatial_constancy_loss: 0.2765 - total_loss: 1.1658 - val_color_constancy_loss: 0.0984 - val_exposure_loss: 0.6120 - val_illumination_smoothness_loss: 0.0346 - val_spatial_constancy_loss: 0.3014 - val_total_loss: 1.0464
+Epoch 98/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 63ms/step - color_constancy_loss: 0.0832 - exposure_loss: 0.7869 - illumination_smoothness_loss: 0.0180 - spatial_constancy_loss: 0.2772 - total_loss: 1.1653 - val_color_constancy_loss: 0.0984 - val_exposure_loss: 0.6118 - val_illumination_smoothness_loss: 0.0344 - val_spatial_constancy_loss: 0.3012 - val_total_loss: 1.0458
+Epoch 99/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0832 - exposure_loss: 0.7863 - illumination_smoothness_loss: 0.0182 - spatial_constancy_loss: 0.2772 - total_loss: 1.1650 - val_color_constancy_loss: 0.0983 - val_exposure_loss: 0.6120 - val_illumination_smoothness_loss: 0.0343 - val_spatial_constancy_loss: 0.3007 - val_total_loss: 1.0453
+Epoch 100/100
+ 25/25 ━━━━━━━━━━━━━━━━━━━━ 2s 64ms/step - color_constancy_loss: 0.0831 - exposure_loss: 0.7873 - illumination_smoothness_loss: 0.0180 - spatial_constancy_loss: 0.2765 - total_loss: 1.1649 - val_color_constancy_loss: 0.0984 - val_exposure_loss: 0.6115 - val_illumination_smoothness_loss: 0.0341 - val_spatial_constancy_loss: 0.3011 - val_total_loss: 1.0451
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_21_3.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_21_4.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_21_5.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_21_6.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_21_7.png" /></p>
+<hr />
+<h2 id="inference">Inference</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_results</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">figure_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">)):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figure_size</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)):</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">infer</span><span class="p">(</span><span class="n">original_image</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">img_to_array</span><span class="p">(</span><span class="n">original_image</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">zero_dce_model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">((</span><span class="n">output_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="mi">255</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">output_image</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">output_image</span>
+</code></pre></div>
+
+<h3 id="inference-on-test-images">Inference on test images</h3>
+<p>We compare the test images from LOLDataset enhanced by MIRNet with images enhanced via
+the <code>PIL.ImageOps.autocontrast()</code> function.</p>
+<p>You can use the trained model hosted on <a href="https://huggingface.co/keras-io/low-light-image-enhancement">Hugging Face Hub</a>
+and try the demo on <a href="https://huggingface.co/spaces/keras-io/low-light-image-enhancement">Hugging Face Spaces</a>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">val_image_file</span> <span class="ow">in</span> <span class="n">test_low_light_images</span><span class="p">:</span>
+    <span class="n">original_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">val_image_file</span><span class="p">)</span>
+    <span class="n">enhanced_image</span> <span class="o">=</span> <span class="n">infer</span><span class="p">(</span><span class="n">original_image</span><span class="p">)</span>
+    <span class="n">plot_results</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">original_image</span><span class="p">,</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">autocontrast</span><span class="p">(</span><span class="n">original_image</span><span class="p">),</span> <span class="n">enhanced_image</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span> <span class="s2">&quot;PIL Autocontrast&quot;</span><span class="p">,</span> <span class="s2">&quot;Enhanced&quot;</span><span class="p">],</span>
+        <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_25_0.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_25_1.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_25_2.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_25_3.png" /></p>
+<p><img alt="png" src="../../img/examples/vision/zero_dce/zero_dce_25_4.png" /></p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='zero_dce.html#zerodce-for-lowlight-image-enhancement'>Zero-DCE for low-light image enhancement</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#references'>References</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#downloading-loldataset'>Downloading LOLDataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#creating-a-tensorflow-dataset'>Creating a TensorFlow Dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#the-zerodce-framework'>The Zero-DCE Framework</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#understanding-lightenhancement-curves'>Understanding light-enhancement curves</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#dcenet'>DCE-Net</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#loss-functions'>Loss functions</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#color-constancy-loss'>Color constancy loss</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#exposure-loss'>Exposure loss</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#illumination-smoothness-loss'>Illumination smoothness loss</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#spatial-consistency-loss'>Spatial consistency loss</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#deep-curve-estimation-model'>Deep curve estimation model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#training'>Training</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='zero_dce.html#inference'>Inference</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='zero_dce.html#inference-on-test-images'>Inference on test images</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

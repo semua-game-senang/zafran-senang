@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: WGAN-GP with R-GCN for the generation of small molecular graphs">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../../img/favicon.ico">
+  
+  <link rel="canonical" href="index.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: WGAN-GP with R-GCN for the generation of small molecular graphs">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: WGAN-GP with R-GCN for the generation of small molecular graphs">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>WGAN-GP with R-GCN for the generation of small molecular graphs</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink active" href="../index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="../ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="../dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="../ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="../fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="../finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="../dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="../cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="../deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="../gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="../pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="../stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="../adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="../gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="../lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="../midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="../molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="../real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2 active" href="index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink active" href="../index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="../ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="../dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="../ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="../fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="../finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="../dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="../conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2" href="../cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="../deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="../gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="../pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="../stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="../vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="../random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="../neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="../adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="../gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="../lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="../text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="../midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="../molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="../real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2 active" href="index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../../index.html'>Code examples</a> /
+        
+          <a href='../index.html'>Generative Deep Learning</a> /
+         WGAN-GP with R-GCN for the generation of small molecular graphs
+    </div>
+    <h1 id="wgangp-with-rgcn-for-the-generation-of-small-molecular-graphs">WGAN-GP with R-GCN for the generation of small molecular graphs</h1>
+<p><strong>Author:</strong> <a href="https://github.com/akensert">akensert</a><br>
+<strong>Date created:</strong> 2021/06/30<br>
+<strong>Last modified:</strong> 2021/06/30<br>
+<strong>Description:</strong> Complete implementation of WGAN-GP with R-GCN to generate novel molecules.</p>
+<div class='example_version_banner keras_2'>ⓘ This example uses Keras 2. This example may not be compatible with the latest version of Keras. Please check out all of our <a href="../../index.html">Keras 3 examples here</a>.</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/generative/ipynb/wgan-graphs.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/generative/wgan-graphs.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>In this tutorial, we implement a generative model for graphs and use it to generate
+novel molecules.</p>
+<p>Motivation: The <a href="https://en.wikipedia.org/wiki/Drug_development">development of new drugs</a>
+(molecules) can be extremely time-consuming and costly. The use of deep learning models
+can alleviate the search for good candidate drugs, by predicting properties of known molecules
+(e.g., solubility, toxicity, affinity to target protein, etc.). As the number of
+possible molecules is astronomical, the space in which we search for/explore molecules is
+just a fraction of the entire space. Therefore, it's arguably desirable to implement
+generative models that can learn to generate novel molecules (which would otherwise have never been explored).</p>
+<h3 id="references-implementation">References (implementation)</h3>
+<p>The implementation in this tutorial is based on/inspired by the
+<a href="https://arxiv.org/abs/1805.11973">MolGAN paper</a> and DeepChem's
+<a href="https://deepchem.readthedocs.io/en/latest/api_reference/models.html#basicmolganmod
+el">Basic MolGAN</a>.</p>
+<h3 id="further-reading-generative-models">Further reading (generative models)</h3>
+<p>Recent implementations of generative models for molecular graphs also include
+<a href="https://jcheminf.biomedcentral.com/articles/10.1186/s13321-019-0404-1">Mol-CycleGAN</a>,
+<a href="https://arxiv.org/abs/1802.03480">GraphVAE</a> and
+<a href="https://arxiv.org/abs/1802.04364">JT-VAE</a>. For more information on generative
+adverserial networks, see <a href="https://arxiv.org/abs/1406.2661">GAN</a>,
+<a href="https://arxiv.org/abs/1701.07875">WGAN</a> and <a href="https://arxiv.org/abs/1704.00028">WGAN-GP</a>.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<h3 id="install-rdkit">Install RDKit</h3>
+<p><a href="https://www.rdkit.org/">RDKit</a> is a collection of cheminformatics and machine-learning
+software written in C++ and Python. In this tutorial, RDKit is used to conveniently and
+efficiently transform
+<a href="https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system">SMILES</a> to
+molecule objects, and then from those obtain sets of atoms and bonds.</p>
+<p>SMILES expresses the structure of a given molecule in the form of an ASCII string.
+The SMILES string is a compact encoding which, for smaller molecules, is relatively
+human-readable. Encoding molecules as a string both alleviates and facilitates database
+and/or web searching of a given molecule. RDKit uses algorithms to
+accurately transform a given SMILES to a molecule object, which can then
+be used to compute a great number of molecular properties/features.</p>
+<p>Notice, RDKit is commonly installed via <a href="https://www.rdkit.org/docs/Install.html">Conda</a>.
+However, thanks to
+<a href="https://github.com/kuelumbus/rdkit_platform_wheels">rdkit_platform_wheels</a>, rdkit
+can now (for the sake of this tutorial) be installed easily via pip, as follows:</p>
+<div class="codehilite"><pre><span></span><code>pip -q install rdkit-pypi
+</code></pre></div>
+
+<p>And to allow easy visualization of a molecule objects, Pillow needs to be installed:</p>
+<div class="codehilite"><pre><span></span><code>pip -q install Pillow
+</code></pre></div>
+
+<h3 id="import-packages">Import packages</h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span><span class="p">,</span> <span class="n">RDLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem.Draw</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPythonConsole</span><span class="p">,</span> <span class="n">MolsToGridImage</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">keras</span>
+
+<span class="n">RDLogger</span><span class="o">.</span><span class="n">DisableLog</span><span class="p">(</span><span class="s2">&quot;rdApp.*&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dataset">Dataset</h2>
+<p>The dataset used in this tutorial is a
+<a href="http://quantum-machine.org/datasets/">quantum mechanics dataset</a> (QM9), obtained from
+<a href="http://moleculenet.ai/datasets-1">MoleculeNet</a>. Although many feature and label columns
+come with the dataset, we'll only focus on the
+<a href="https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system">SMILES</a>
+column. The QM9 dataset is a good first dataset to work with for generating
+graphs, as the maximum number of heavy (non-hydrogen) atoms found in a molecule is only nine.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">csv_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="s2">&quot;qm9.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv&quot;</span>
+<span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Let&#39;s look at a molecule of the dataset</span>
+<span class="n">smiles</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1000</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SMILES:&quot;</span><span class="p">,</span> <span class="n">smiles</span><span class="p">)</span>
+<span class="n">molecule</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Num heavy atoms:&quot;</span><span class="p">,</span> <span class="n">molecule</span><span class="o">.</span><span class="n">GetNumHeavyAtoms</span><span class="p">())</span>
+<span class="n">molecule</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>SMILES: Cn1cncc1O
+Num heavy atoms: 7
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../../img/examples/generative/wgan-graphs/wgan-graphs_6_1.png" /></p>
+<h3 id="define-helper-functions">Define helper functions</h3>
+<p>These helper functions will help convert SMILES to graphs and graphs to molecule objects.</p>
+<p><strong>Representing a molecular graph</strong>. Molecules can naturally be expressed as undirected
+graphs <code>G = (V, E)</code>, where <code>V</code> is a set of vertices (atoms), and <code>E</code> a set of edges
+(bonds). As for this implementation, each graph (molecule) will be represented as an
+adjacency tensor <code>A</code>, which encodes existence/non-existence of atom-pairs with their
+one-hot encoded bond types stretching an extra dimension, and a feature tensor <code>H</code>, which
+for each atom, one-hot encodes its atom type. Notice, as hydrogen atoms can be inferred by
+RDKit, hydrogen atoms are excluded from <code>A</code> and <code>H</code> for easier modeling.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">atom_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">bond_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;SINGLE&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">SINGLE</span><span class="p">,</span>
+    <span class="s2">&quot;DOUBLE&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
+    <span class="s2">&quot;TRIPLE&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">TRIPLE</span><span class="p">,</span>
+    <span class="s2">&quot;AROMATIC&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">AROMATIC</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">NUM_ATOMS</span> <span class="o">=</span> <span class="mi">9</span>  <span class="c1"># Maximum number of atoms</span>
+<span class="n">ATOM_DIM</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># Number of atom types</span>
+<span class="n">BOND_DIM</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># Number of bond types</span>
+<span class="n">LATENT_DIM</span> <span class="o">=</span> <span class="mi">64</span>  <span class="c1"># Size of the latent space</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">smiles_to_graph</span><span class="p">(</span><span class="n">smiles</span><span class="p">):</span>
+    <span class="c1"># Converts SMILES to molecule object</span>
+    <span class="n">molecule</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+
+    <span class="c1"># Initialize adjacency and feature tensor</span>
+    <span class="n">adjacency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">BOND_DIM</span><span class="p">,</span> <span class="n">NUM_ATOMS</span><span class="p">,</span> <span class="n">NUM_ATOMS</span><span class="p">),</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">NUM_ATOMS</span><span class="p">,</span> <span class="n">ATOM_DIM</span><span class="p">),</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="c1"># loop over each atom in molecule</span>
+    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">GetAtoms</span><span class="p">():</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span>
+        <span class="n">atom_type</span> <span class="o">=</span> <span class="n">atom_mapping</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()]</span>
+        <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ATOM_DIM</span><span class="p">)[</span><span class="n">atom_type</span><span class="p">]</span>
+        <span class="c1"># loop over one-hop neighbors</span>
+        <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">():</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span>
+            <span class="n">bond</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+            <span class="n">bond_type_idx</span> <span class="o">=</span> <span class="n">bond_mapping</span><span class="p">[</span><span class="n">bond</span><span class="o">.</span><span class="n">GetBondType</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">adjacency</span><span class="p">[</span><span class="n">bond_type_idx</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Where no bond, add 1 to last channel (indicating &quot;non-bond&quot;)</span>
+    <span class="c1"># Notice: channels-first</span>
+    <span class="n">adjacency</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">adjacency</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Where no atom, add 1 to last column (indicating &quot;non-atom&quot;)</span>
+    <span class="n">features</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">adjacency</span><span class="p">,</span> <span class="n">features</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">graph_to_molecule</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+    <span class="c1"># Unpack graph</span>
+    <span class="n">adjacency</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">graph</span>
+
+    <span class="c1"># RWMol is a molecule object intended to be edited</span>
+    <span class="n">molecule</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">RWMol</span><span class="p">()</span>
+
+    <span class="c1"># Remove &quot;no atoms&quot; &amp; atoms with no bonds</span>
+    <span class="n">keep_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ATOM_DIM</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">adjacency</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span>
+    <span class="n">adjacency</span> <span class="o">=</span> <span class="n">adjacency</span><span class="p">[:,</span> <span class="n">keep_idx</span><span class="p">,</span> <span class="p">:][:,</span> <span class="p">:,</span> <span class="n">keep_idx</span><span class="p">]</span>
+
+    <span class="c1"># Add atoms to molecule</span>
+    <span class="k">for</span> <span class="n">atom_type_idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">(</span><span class="n">atom_mapping</span><span class="p">[</span><span class="n">atom_type_idx</span><span class="p">])</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">AddAtom</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+
+    <span class="c1"># Add bonds between atoms in molecule; based on the upper triangles</span>
+    <span class="c1"># of the [symmetric] adjacency tensor</span>
+    <span class="p">(</span><span class="n">bonds_ij</span><span class="p">,</span> <span class="n">atoms_i</span><span class="p">,</span> <span class="n">atoms_j</span><span class="p">)</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">adjacency</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">bond_ij</span><span class="p">,</span> <span class="n">atom_i</span><span class="p">,</span> <span class="n">atom_j</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bonds_ij</span><span class="p">,</span> <span class="n">atoms_i</span><span class="p">,</span> <span class="n">atoms_j</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">atom_j</span> <span class="ow">or</span> <span class="n">bond_ij</span> <span class="o">==</span> <span class="n">BOND_DIM</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">bond_type</span> <span class="o">=</span> <span class="n">bond_mapping</span><span class="p">[</span><span class="n">bond_ij</span><span class="p">]</span>
+        <span class="n">molecule</span><span class="o">.</span><span class="n">AddBond</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">atom_i</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">atom_j</span><span class="p">),</span> <span class="n">bond_type</span><span class="p">)</span>
+
+    <span class="c1"># Sanitize the molecule; for more information on sanitization, see</span>
+    <span class="c1"># https://www.rdkit.org/docs/RDKit_Book.html#molecular-sanitization</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">SanitizeMol</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">catchErrors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Let&#39;s be strict. If sanitization fails, return None</span>
+    <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">SanitizeFlags</span><span class="o">.</span><span class="n">SANITIZE_NONE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">molecule</span>
+
+
+<span class="c1"># Test helper functions</span>
+<span class="n">graph_to_molecule</span><span class="p">(</span><span class="n">smiles_to_graph</span><span class="p">(</span><span class="n">smiles</span><span class="p">))</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../../img/examples/generative/wgan-graphs/wgan-graphs_8_0.png" /></p>
+<h3 id="generate-training-set">Generate training set</h3>
+<p>To save training time, we'll only use a tenth of the QM9 dataset.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">adjacency_tensor</span><span class="p">,</span> <span class="n">feature_tensor</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[::</span><span class="mi">10</span><span class="p">]:</span>
+    <span class="n">adjacency</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">smiles_to_graph</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+    <span class="n">adjacency_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adjacency</span><span class="p">)</span>
+    <span class="n">feature_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+<span class="n">adjacency_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">adjacency_tensor</span><span class="p">)</span>
+<span class="n">feature_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">feature_tensor</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;adjacency_tensor.shape =&quot;</span><span class="p">,</span> <span class="n">adjacency_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;feature_tensor.shape =&quot;</span><span class="p">,</span> <span class="n">feature_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>adjacency_tensor.shape = (13389, 5, 9, 9)
+feature_tensor.shape = (13389, 9, 5)
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="model">Model</h2>
+<p>The idea is to implement a generator network and a discriminator network via WGAN-GP,
+that will result in a generator network that can generate small novel molecules
+(small graphs).</p>
+<p>The generator network needs to be able to map (for each example in the batch) a vector <code>z</code>
+to a 3-D adjacency tensor (<code>A</code>) and 2-D feature tensor (<code>H</code>). For this, <code>z</code> will first be
+passed through a fully-connected network, for which the output will be further passed
+through two separate fully-connected networks. Each of these two fully-connected
+networks will then output (for each example in the batch) a tanh-activated vector
+followed by a reshape and softmax to match that of a multi-dimensional adjacency/feature
+tensor.</p>
+<p>As the discriminator network will receives as input a graph (<code>A</code>, <code>H</code>) from either the
+generator or from the training set, we'll need to implement graph convolutional layers,
+which allows us to operate on graphs. This means that input to the discriminator network
+will first pass through graph convolutional layers, then an average-pooling layer,
+and finally a few fully-connected layers. The final output should be a scalar (for each
+example in the batch) which indicates the "realness" of the associated input
+(in this case a "fake" or "real" molecule).</p>
+<h3 id="graph-generator">Graph generator</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">GraphGenerator</span><span class="p">(</span>
+    <span class="n">dense_units</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">,</span> <span class="n">adjacency_shape</span><span class="p">,</span> <span class="n">feature_shape</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">LATENT_DIM</span><span class="p">,))</span>
+    <span class="c1"># Propagate through one or more densely connected layers</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">z</span>
+    <span class="k">for</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">dense_units</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Map outputs of previous layer (x) to [continuous] adjacency tensors (x_adjacency)</span>
+    <span class="n">x_adjacency</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">adjacency_shape</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x_adjacency</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">(</span><span class="n">adjacency_shape</span><span class="p">)(</span><span class="n">x_adjacency</span><span class="p">)</span>
+    <span class="c1"># Symmetrify tensors in the last two dimensions</span>
+    <span class="n">x_adjacency</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_adjacency</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x_adjacency</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">x_adjacency</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Softmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)(</span><span class="n">x_adjacency</span><span class="p">)</span>
+
+    <span class="c1"># Map outputs of previous layer (x) to [continuous] feature tensors (x_features)</span>
+    <span class="n">x_features</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">feature_shape</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x_features</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">(</span><span class="n">feature_shape</span><span class="p">)(</span><span class="n">x_features</span><span class="p">)</span>
+    <span class="n">x_features</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Softmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">x_features</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">x_adjacency</span><span class="p">,</span> <span class="n">x_features</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Generator&quot;</span><span class="p">)</span>
+
+
+<span class="n">generator</span> <span class="o">=</span> <span class="n">GraphGenerator</span><span class="p">(</span>
+    <span class="n">dense_units</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+    <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">latent_dim</span><span class="o">=</span><span class="n">LATENT_DIM</span><span class="p">,</span>
+    <span class="n">adjacency_shape</span><span class="o">=</span><span class="p">(</span><span class="n">BOND_DIM</span><span class="p">,</span> <span class="n">NUM_ATOMS</span><span class="p">,</span> <span class="n">NUM_ATOMS</span><span class="p">),</span>
+    <span class="n">feature_shape</span><span class="o">=</span><span class="p">(</span><span class="n">NUM_ATOMS</span><span class="p">,</span> <span class="n">ATOM_DIM</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">generator</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Model: &quot;Generator&quot;
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_1 (InputLayer)            [(None, 64)]         0                                            
+__________________________________________________________________________________________________
+dense (Dense)                   (None, 128)          8320        input_1[0][0]                    
+__________________________________________________________________________________________________
+dropout (Dropout)               (None, 128)          0           dense[0][0]                      
+__________________________________________________________________________________________________
+dense_1 (Dense)                 (None, 256)          33024       dropout[0][0]                    
+__________________________________________________________________________________________________
+dropout_1 (Dropout)             (None, 256)          0           dense_1[0][0]                    
+__________________________________________________________________________________________________
+dense_2 (Dense)                 (None, 512)          131584      dropout_1[0][0]                  
+__________________________________________________________________________________________________
+dropout_2 (Dropout)             (None, 512)          0           dense_2[0][0]                    
+__________________________________________________________________________________________________
+dense_3 (Dense)                 (None, 405)          207765      dropout_2[0][0]                  
+__________________________________________________________________________________________________
+reshape (Reshape)               (None, 5, 9, 9)      0           dense_3[0][0]                    
+__________________________________________________________________________________________________
+tf.compat.v1.transpose (TFOpLam (None, 5, 9, 9)      0           reshape[0][0]                    
+__________________________________________________________________________________________________
+tf.__operators__.add (TFOpLambd (None, 5, 9, 9)      0           reshape[0][0]                    
+                                                                 tf.compat.v1.transpose[0][0]     
+__________________________________________________________________________________________________
+dense_4 (Dense)                 (None, 45)           23085       dropout_2[0][0]                  
+__________________________________________________________________________________________________
+tf.math.truediv (TFOpLambda)    (None, 5, 9, 9)      0           tf.__operators__.add[0][0]       
+__________________________________________________________________________________________________
+reshape_1 (Reshape)             (None, 9, 5)         0           dense_4[0][0]                    
+__________________________________________________________________________________________________
+softmax (Softmax)               (None, 5, 9, 9)      0           tf.math.truediv[0][0]            
+__________________________________________________________________________________________________
+softmax_1 (Softmax)             (None, 9, 5)         0           reshape_1[0][0]                  
+==================================================================================================
+Total params: 403,778
+Trainable params: 403,778
+Non-trainable params: 0
+__________________________________________________________________________________________________
+</code></pre></div>
+
+
+</div>
+<h3 id="graph-discriminator">Graph discriminator</h3>
+<p><strong>Graph convolutional layer</strong>. The
+<a href="https://arxiv.org/abs/1703.06103">relational graph convolutional layers</a> implements non-linearly transformed
+neighborhood aggregations. We can define these layers as follows:</p>
+<p><code>H^{l+1} = σ(D^{-1} @ A @ H^{l+1} @ W^{l})</code></p>
+<p>Where <code>σ</code> denotes the non-linear transformation (commonly a ReLU activation), <code>A</code> the
+adjacency tensor, <code>H^{l}</code> the feature tensor at the <code>l:th</code> layer, <code>D^{-1}</code> the inverse
+diagonal degree tensor of <code>A</code>, and <code>W^{l}</code> the trainable weight tensor at the <code>l:th</code>
+layer. Specifically, for each bond type (relation), the degree tensor expresses, in the
+diagonal, the number of bonds attached to each atom. Notice, in this tutorial <code>D^{-1}</code> is
+omitted, for two reasons: (1) it's not obvious how to apply this normalization on the
+continuous adjacency tensors (generated by the generator), and (2) the performance of the
+WGAN without normalization seems to work just fine. Furthermore, in contrast to the
+<a href="https://arxiv.org/abs/1703.06103">original paper</a>, no self-loop is defined, as we don't
+want to train the generator to predict "self-bonding".</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RelationalGraphConvLayer</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;glorot_uniform&quot;</span><span class="p">,</span>
+        <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span>
+        <span class="n">kernel_regularizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">bias_regularizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">activation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span> <span class="o">=</span> <span class="n">use_bias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_initializer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kernel_initializer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bias_initializer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bias_initializer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_regularizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kernel_regularizer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bias_regularizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bias_regularizer</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="n">bond_dim</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">atom_dim</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">bond_dim</span><span class="p">,</span> <span class="n">atom_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_initializer</span><span class="p">,</span>
+            <span class="n">regularizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_regularizer</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">bond_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
+                <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_initializer</span><span class="p">,</span>
+                <span class="n">regularizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_regularizer</span><span class="p">,</span>
+                <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">adjacency</span><span class="p">,</span> <span class="n">features</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="c1"># Aggregate information from neighbors</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">adjacency</span><span class="p">,</span> <span class="n">features</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+        <span class="c1"># Apply linear transformation</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span>
+        <span class="c1"># Reduce bond types dim</span>
+        <span class="n">x_reduced</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Apply non-linear transformation</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">x_reduced</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">GraphDiscriminator</span><span class="p">(</span>
+    <span class="n">gconv_units</span><span class="p">,</span> <span class="n">dense_units</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">adjacency_shape</span><span class="p">,</span> <span class="n">feature_shape</span>
+<span class="p">):</span>
+
+    <span class="n">adjacency</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">adjacency_shape</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">feature_shape</span><span class="p">)</span>
+
+    <span class="c1"># Propagate through one or more graph convolutional layers</span>
+    <span class="n">features_transformed</span> <span class="o">=</span> <span class="n">features</span>
+    <span class="k">for</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">gconv_units</span><span class="p">:</span>
+        <span class="n">features_transformed</span> <span class="o">=</span> <span class="n">RelationalGraphConvLayer</span><span class="p">(</span><span class="n">units</span><span class="p">)(</span>
+            <span class="p">[</span><span class="n">adjacency</span><span class="p">,</span> <span class="n">features_transformed</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Reduce 2-D representation of molecule to 1-D</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GlobalAveragePooling1D</span><span class="p">()(</span><span class="n">features_transformed</span><span class="p">)</span>
+
+    <span class="c1"># Propagate through one or more densely connected layers</span>
+    <span class="k">for</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">dense_units</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># For each molecule, output a single scalar value expressing the</span>
+    <span class="c1"># &quot;realness&quot; of the inputted molecule</span>
+    <span class="n">x_out</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">adjacency</span><span class="p">,</span> <span class="n">features</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_out</span><span class="p">)</span>
+
+
+<span class="n">discriminator</span> <span class="o">=</span> <span class="n">GraphDiscriminator</span><span class="p">(</span>
+    <span class="n">gconv_units</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
+    <span class="n">dense_units</span><span class="o">=</span><span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+    <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">adjacency_shape</span><span class="o">=</span><span class="p">(</span><span class="n">BOND_DIM</span><span class="p">,</span> <span class="n">NUM_ATOMS</span><span class="p">,</span> <span class="n">NUM_ATOMS</span><span class="p">),</span>
+    <span class="n">feature_shape</span><span class="o">=</span><span class="p">(</span><span class="n">NUM_ATOMS</span><span class="p">,</span> <span class="n">ATOM_DIM</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">discriminator</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Model: &quot;model&quot;
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_2 (InputLayer)            [(None, 5, 9, 9)]    0                                            
+__________________________________________________________________________________________________
+input_3 (InputLayer)            [(None, 9, 5)]       0                                            
+__________________________________________________________________________________________________
+relational_graph_conv_layer (Re (None, 9, 128)       3200        input_2[0][0]                    
+                                                                 input_3[0][0]                    
+__________________________________________________________________________________________________
+relational_graph_conv_layer_1 ( (None, 9, 128)       81920       input_2[0][0]                    
+                                                                 relational_graph_conv_layer[0][0]
+__________________________________________________________________________________________________
+relational_graph_conv_layer_2 ( (None, 9, 128)       81920       input_2[0][0]                    
+                                                                 relational_graph_conv_layer_1[0][
+__________________________________________________________________________________________________
+relational_graph_conv_layer_3 ( (None, 9, 128)       81920       input_2[0][0]                    
+                                                                 relational_graph_conv_layer_2[0][
+__________________________________________________________________________________________________
+global_average_pooling1d (Globa (None, 128)          0           relational_graph_conv_layer_3[0][
+__________________________________________________________________________________________________
+dense_5 (Dense)                 (None, 512)          66048       global_average_pooling1d[0][0]   
+__________________________________________________________________________________________________
+dropout_3 (Dropout)             (None, 512)          0           dense_5[0][0]                    
+__________________________________________________________________________________________________
+dense_6 (Dense)                 (None, 512)          262656      dropout_3[0][0]                  
+__________________________________________________________________________________________________
+dropout_4 (Dropout)             (None, 512)          0           dense_6[0][0]                    
+__________________________________________________________________________________________________
+dense_7 (Dense)                 (None, 1)            513         dropout_4[0][0]                  
+==================================================================================================
+Total params: 578,177
+Trainable params: 578,177
+Non-trainable params: 0
+__________________________________________________________________________________________________
+</code></pre></div>
+
+
+</div>
+<h3 id="wgangp">WGAN-GP</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GraphWGAN</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">generator</span><span class="p">,</span>
+        <span class="n">discriminator</span><span class="p">,</span>
+        <span class="n">discriminator_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">generator_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">gp_weight</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span> <span class="o">=</span> <span class="n">discriminator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discriminator_steps</span> <span class="o">=</span> <span class="n">discriminator_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator_steps</span> <span class="o">=</span> <span class="n">generator_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gp_weight</span> <span class="o">=</span> <span class="n">gp_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer_generator</span><span class="p">,</span> <span class="n">optimizer_discriminator</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_generator</span> <span class="o">=</span> <span class="n">optimizer_generator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_discriminator</span> <span class="o">=</span> <span class="n">optimizer_discriminator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_generator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;loss_gen&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_discriminator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;loss_dis&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">graph_real</span> <span class="o">=</span> <span class="n">inputs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Train the discriminator for one or more steps</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">discriminator_steps</span><span class="p">):</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">))</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+                <span class="n">graph_generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_discriminator</span><span class="p">(</span><span class="n">graph_real</span><span class="p">,</span> <span class="n">graph_generated</span><span class="p">)</span>
+
+            <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_discriminator</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+                <span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric_discriminator</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+        <span class="c1"># Train the generator for one or more steps</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator_steps</span><span class="p">):</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">))</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+                <span class="n">graph_generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_generator</span><span class="p">(</span><span class="n">graph_generated</span><span class="p">)</span>
+
+                <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_generator</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metric_generator</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_real</span><span class="p">,</span> <span class="n">graph_generated</span><span class="p">):</span>
+        <span class="n">logits_real</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">graph_real</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logits_generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">graph_generated</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">logits_generated</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">logits_real</span><span class="p">)</span>
+        <span class="n">loss_gp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradient_penalty</span><span class="p">(</span><span class="n">graph_real</span><span class="p">,</span> <span class="n">graph_generated</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">loss_gp</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gp_weight</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_generated</span><span class="p">):</span>
+        <span class="n">logits_generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span><span class="n">graph_generated</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">logits_generated</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_gradient_penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_real</span><span class="p">,</span> <span class="n">graph_generated</span><span class="p">):</span>
+        <span class="c1"># Unpack graphs</span>
+        <span class="n">adjacency_real</span><span class="p">,</span> <span class="n">features_real</span> <span class="o">=</span> <span class="n">graph_real</span>
+        <span class="n">adjacency_generated</span><span class="p">,</span> <span class="n">features_generated</span> <span class="o">=</span> <span class="n">graph_generated</span>
+
+        <span class="c1"># Generate interpolated graphs (adjacency_interp and features_interp)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">])</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">adjacency_interp</span> <span class="o">=</span> <span class="p">(</span><span class="n">adjacency_real</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">adjacency_generated</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">features_interp</span> <span class="o">=</span> <span class="p">(</span><span class="n">features_real</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">features_generated</span>
+
+        <span class="c1"># Compute the logits of interpolated graphs</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="n">tape</span><span class="o">.</span><span class="n">watch</span><span class="p">(</span><span class="n">adjacency_interp</span><span class="p">)</span>
+            <span class="n">tape</span><span class="o">.</span><span class="n">watch</span><span class="p">(</span><span class="n">features_interp</span><span class="p">)</span>
+            <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">adjacency_interp</span><span class="p">,</span> <span class="n">features_interp</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Compute the gradients with respect to the interpolated graphs</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="p">[</span><span class="n">adjacency_interp</span><span class="p">,</span> <span class="n">features_interp</span><span class="p">])</span>
+        <span class="c1"># Compute the gradient penalty</span>
+        <span class="n">grads_adjacency_penalty</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">grads</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">grads_features_penalty</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">grads</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads_adjacency_penalty</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads_features_penalty</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-the-model">Train the model</h2>
+<p>To save time (if run on a CPU), we'll only train the model for 10 epochs.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">wgan</span> <span class="o">=</span> <span class="n">GraphWGAN</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="n">discriminator</span><span class="p">,</span> <span class="n">discriminator_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">wgan</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer_generator</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">),</span>
+    <span class="n">optimizer_discriminator</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">wgan</span><span class="o">.</span><span class="n">fit</span><span class="p">([</span><span class="n">adjacency_tensor</span><span class="p">,</span> <span class="n">feature_tensor</span><span class="p">],</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/10
+837/837 [==============================] - 197s 226ms/step - loss_gen: 2.4626 - loss_dis: -4.3158
+Epoch 2/10
+837/837 [==============================] - 188s 225ms/step - loss_gen: 1.2832 - loss_dis: -1.3941
+Epoch 3/10
+837/837 [==============================] - 199s 237ms/step - loss_gen: 0.6742 - loss_dis: -1.2663
+Epoch 4/10
+837/837 [==============================] - 187s 224ms/step - loss_gen: 0.5090 - loss_dis: -1.6628
+Epoch 5/10
+837/837 [==============================] - 187s 223ms/step - loss_gen: 0.3686 - loss_dis: -1.4759
+Epoch 6/10
+837/837 [==============================] - 199s 237ms/step - loss_gen: 0.6925 - loss_dis: -1.5122
+Epoch 7/10
+837/837 [==============================] - 194s 232ms/step - loss_gen: 0.3966 - loss_dis: -1.5041
+Epoch 8/10
+837/837 [==============================] - 195s 233ms/step - loss_gen: 0.3595 - loss_dis: -1.6277
+Epoch 9/10
+837/837 [==============================] - 194s 232ms/step - loss_gen: 0.5862 - loss_dis: -1.7277
+Epoch 10/10
+837/837 [==============================] - 185s 221ms/step - loss_gen: -0.1642 - loss_dis: -1.5273
+
+&lt;keras.callbacks.History at 0x7ff8daed3a90&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="sample-novel-molecules-with-the-generator">Sample novel molecules with the generator</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">LATENT_DIM</span><span class="p">))</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="c1"># obtain one-hot encoded adjacency tensor</span>
+    <span class="n">adjacency</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">adjacency</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">adjacency</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">BOND_DIM</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Remove potential self-loops from adjacency</span>
+    <span class="n">adjacency</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">set_diag</span><span class="p">(</span><span class="n">adjacency</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">adjacency</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="c1"># obtain one-hot encoded feature tensor</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">ATOM_DIM</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">graph_to_molecule</span><span class="p">([</span><span class="n">adjacency</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="p">]</span>
+
+
+<span class="n">molecules</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">wgan</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">48</span><span class="p">)</span>
+
+<span class="n">MolsToGridImage</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">molecules</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">][:</span><span class="mi">25</span><span class="p">],</span> <span class="n">molsPerRow</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../../img/examples/generative/wgan-graphs/wgan-graphs_20_0.png" /></p>
+<hr />
+<h2 id="concluding-thoughts">Concluding thoughts</h2>
+<p><strong>Inspecting the results</strong>. Ten epochs of training seemed enough to generate some decent
+looking molecules! Notice, in contrast to the
+<a href="https://arxiv.org/abs/1805.11973">MolGAN paper</a>, the uniqueness of the generated
+molecules in this tutorial seems really high, which is great!</p>
+<p><strong>What we've learned, and prospects</strong>. In this tutorial, a generative model for molecular
+graphs was successfully implemented, which allowed us to generate novel molecules. In the
+future, it would be interesting to implement generative models that can modify existing
+molecules (for instance, to optimize solubility or protein-binding of an existing
+molecule). For that however, a reconstruction loss would likely be needed, which is
+tricky to implement as there's no easy and obvious way to compute similarity between two
+molecular graphs.</p>
+<p>Example available on HuggingFace</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Trained Model</th>
+<th style="text-align: center;">Demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><a href="https://huggingface.co/keras-io/wgan-molecular-graphs"><img alt="Generic badge" src="https://img.shields.io/badge/%F0%9F%A4%97%20Model-wgan%20graphs-black.svg" /></a></td>
+<td style="text-align: center;"><a href="https://huggingface.co/spaces/keras-io/Generating-molecular-graphs-by-WGAN-GP"><img alt="Generic badge" src="https://img.shields.io/badge/%F0%9F%A4%97%20Spaces-wgan%20graphs-black.svg" /></a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter17_image-generation">Chapter 17: Image generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='index.html#wgangp-with-rgcn-for-the-generation-of-small-molecular-graphs'>WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#references-implementation'>References (implementation)</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#further-reading-generative-models'>Further reading (generative models)</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#install-rdkit'>Install RDKit</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#import-packages'>Import packages</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#dataset'>Dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#define-helper-functions'>Define helper functions</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#generate-training-set'>Generate training set</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#model'>Model</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#graph-generator'>Graph generator</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#graph-discriminator'>Graph discriminator</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='index.html#wgangp'>WGAN-GP</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#train-the-model'>Train the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#sample-novel-molecules-with-the-generator'>Sample novel molecules with the generator</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#concluding-thoughts'>Concluding thoughts</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='index.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../../js/index.js"></script>
+</body>
+
+</html>

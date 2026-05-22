@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: CycleGAN">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="cyclegan.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: CycleGAN">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: CycleGAN">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>CycleGAN</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2 active" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Generative Deep Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="ddim.html">Denoising Diffusion Implicit Models</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion_3.html">A walk through latent space with Stable Diffusion 3</a>
+                      
+                        <a class="nav-sublink2" href="dreambooth.html">DreamBooth</a>
+                      
+                        <a class="nav-sublink2" href="ddpm/index.html">Denoising Diffusion Probabilistic Models</a>
+                      
+                        <a class="nav-sublink2" href="fine_tune_via_textual_inversion/index.html">Teach StableDiffusion new concepts via Textual Inversion</a>
+                      
+                        <a class="nav-sublink2" href="finetune_stable_diffusion/index.html">Fine-tuning Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="vae.html">Variational AutoEncoder</a>
+                      
+                        <a class="nav-sublink2" href="dcgan_overriding_train_step.html">GAN overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="wgan_gp.html">WGAN-GP overriding Model.train_step</a>
+                      
+                        <a class="nav-sublink2" href="conditional_gan.html">Conditional GAN</a>
+                      
+                        <a class="nav-sublink2 active" href="cyclegan.html">CycleGAN</a>
+                      
+                        <a class="nav-sublink2" href="gan_ada.html">Data-efficient GANs with Adaptive Discriminator Augmentation</a>
+                      
+                        <a class="nav-sublink2" href="deep_dream.html">Deep Dream</a>
+                      
+                        <a class="nav-sublink2" href="gaugan.html">GauGAN for conditional image generation</a>
+                      
+                        <a class="nav-sublink2" href="pixelcnn.html">PixelCNN</a>
+                      
+                        <a class="nav-sublink2" href="stylegan/index.html">Face image generation with StyleGAN</a>
+                      
+                        <a class="nav-sublink2" href="vq_vae.html">Vector-Quantized Variational Autoencoders</a>
+                      
+                        <a class="nav-sublink2" href="random_walks_with_stable_diffusion.html">A walk through latent space with Stable Diffusion</a>
+                      
+                        <a class="nav-sublink2" href="neural_style_transfer.html">Neural style transfer</a>
+                      
+                        <a class="nav-sublink2" href="adain/index.html">Neural Style Transfer with AdaIN</a>
+                      
+                        <a class="nav-sublink2" href="gpt2_text_generation_with_keras_hub.html">GPT2 Text Generation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_gpt.html">GPT text generation from scratch with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_with_miniature_gpt.html">Text generation with a miniature GPT</a>
+                      
+                        <a class="nav-sublink2" href="lstm_character_level_text_generation.html">Character-level text generation with LSTM</a>
+                      
+                        <a class="nav-sublink2" href="text_generation_fnet.html">Text Generation using FNet</a>
+                      
+                        <a class="nav-sublink2" href="midi_generation_with_transformer.html">Music Generation with Transformer Models</a>
+                      
+                        <a class="nav-sublink2" href="molecule_generation.html">Drug Molecule Generation with VAE</a>
+                      
+                        <a class="nav-sublink2" href="real_nvp/index.html">Density estimation using Real NVP</a>
+                      
+                        <a class="nav-sublink2" href="wgan-graphs/index.html">WGAN-GP with R-GCN for the generation of small molecular graphs</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Generative Deep Learning</a> /
+         CycleGAN
+    </div>
+    <h1 id="cyclegan">CycleGAN</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/A_K_Nain">A_K_Nain</a><br>
+<strong>Date created:</strong> 2020/08/12<br>
+<strong>Last modified:</strong> 2024/09/30<br>
+<strong>Description:</strong> Implementation of CycleGAN.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/generative/ipynb/cyclegan.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/generative/cyclegan.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="cyclegan">CycleGAN</h2>
+<p>CycleGAN is a model that aims to solve the image-to-image translation
+problem. The goal of the image-to-image translation problem is to learn the
+mapping between an input image and an output image using a training set of
+aligned image pairs. However, obtaining paired examples isn't always feasible.
+CycleGAN tries to learn this mapping without requiring paired input-output images,
+using cycle-consistent adversarial networks.</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1703.10593">Paper</a></li>
+<li><a href="https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix">Original implementation</a></li>
+</ul>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span><span class="p">,</span> <span class="n">ops</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+
+<span class="n">tfds</span><span class="o">.</span><span class="n">disable_progress_bar</span><span class="p">()</span>
+<span class="n">autotune</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="prepare-the-dataset">Prepare the dataset</h2>
+<p>In this example, we will be using the
+<a href="https://www.tensorflow.org/datasets/catalog/cycle_gan#cycle_ganhorse2zebra">horse to zebra</a>
+dataset.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Load the horse-zebra dataset using tensorflow-datasets.</span>
+<span class="n">dataset</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;cycle_gan/horse2zebra&quot;</span><span class="p">,</span> <span class="n">with_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">train_horses</span><span class="p">,</span> <span class="n">train_zebras</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;trainA&quot;</span><span class="p">],</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;trainB&quot;</span><span class="p">]</span>
+<span class="n">test_horses</span><span class="p">,</span> <span class="n">test_zebras</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;testA&quot;</span><span class="p">],</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;testB&quot;</span><span class="p">]</span>
+
+<span class="c1"># Define the standard image size.</span>
+<span class="n">orig_img_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">286</span><span class="p">,</span> <span class="mi">286</span><span class="p">)</span>
+<span class="c1"># Size of the random crops to be used during training.</span>
+<span class="n">input_img_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="c1"># Weights initializer for the layers.</span>
+<span class="n">kernel_init</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomNormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="c1"># Gamma initializer for instance normalization.</span>
+<span class="n">gamma_init</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomNormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+
+<span class="n">buffer_size</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_img</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="c1"># Map values in the range [-1, 1]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">img</span> <span class="o">/</span> <span class="mf">127.5</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_train_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="c1"># Random flip</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">random_flip_left_right</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="c1"># Resize to the original size first</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">[</span><span class="o">*</span><span class="n">orig_img_size</span><span class="p">])</span>
+    <span class="c1"># Random crop to 256X256</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">random_crop</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">input_img_size</span><span class="p">])</span>
+    <span class="c1"># Normalize the pixel values in the range [-1, 1]</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">normalize_img</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">img</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_test_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="c1"># Only resizing and normalization for the test images.</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">[</span><span class="n">input_img_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_img_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">normalize_img</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">img</span>
+</code></pre></div>
+
+<hr />
+<h2 id="create-dataset-objects">Create <code>Dataset</code> objects</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Apply the preprocessing operations to the training data</span>
+<span class="n">train_horses</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">train_horses</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_train_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">autotune</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">train_zebras</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">train_zebras</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_train_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">autotune</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Apply the preprocessing operations to the test data</span>
+<span class="n">test_horses</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">test_horses</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_test_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">autotune</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">test_zebras</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">test_zebras</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_test_image</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">autotune</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="visualize-some-samples">Visualize some samples</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">train_horses</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">train_zebras</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">4</span><span class="p">))):</span>
+    <span class="n">horse</span> <span class="o">=</span> <span class="p">(((</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">127.5</span><span class="p">)</span> <span class="o">+</span> <span class="mf">127.5</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">zebra</span> <span class="o">=</span> <span class="p">(((</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">127.5</span><span class="p">)</span> <span class="o">+</span> <span class="mf">127.5</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">horse</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">zebra</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/generative/cyclegan/cyclegan_9_0.png" /></p>
+<hr />
+<h2 id="building-blocks-used-in-the-cyclegan-generators-and-discriminators">Building blocks used in the CycleGAN generators and discriminators</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReflectionPadding2D</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements Reflection Padding as a layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        padding(tuple): Amount of padding for the</span>
+<span class="sd">        spatial dimensions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A padded tensor with the same type as the input tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">padding_width</span><span class="p">,</span> <span class="n">padding_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
+        <span class="n">padding_tensor</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">padding_height</span><span class="p">,</span> <span class="n">padding_height</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">padding_width</span><span class="p">,</span> <span class="n">padding_width</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">padding_tensor</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;REFLECT&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">residual_block</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">activation</span><span class="p">,</span>
+    <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_init</span><span class="p">,</span>
+    <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">,</span>
+    <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_init</span><span class="p">,</span>
+    <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">ReflectionPadding2D</span><span class="p">()(</span><span class="n">input_tensor</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">dim</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="p">,</span>
+        <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_initializer</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="n">use_bias</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GroupNormalization</span><span class="p">(</span><span class="n">groups</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_initializer</span><span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">activation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">ReflectionPadding2D</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">dim</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="p">,</span>
+        <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_initializer</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="n">use_bias</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GroupNormalization</span><span class="p">(</span><span class="n">groups</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_initializer</span><span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">,</span>
+    <span class="n">activation</span><span class="p">,</span>
+    <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_init</span><span class="p">,</span>
+    <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+    <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_init</span><span class="p">,</span>
+    <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">filters</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="p">,</span>
+        <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_initializer</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="n">use_bias</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GroupNormalization</span><span class="p">(</span><span class="n">groups</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_initializer</span><span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">activation</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">activation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">upsample</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">,</span>
+    <span class="n">activation</span><span class="p">,</span>
+    <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+    <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_init</span><span class="p">,</span>
+    <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_init</span><span class="p">,</span>
+    <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2DTranspose</span><span class="p">(</span>
+        <span class="n">filters</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="p">,</span>
+        <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_initializer</span><span class="p">,</span>
+        <span class="n">use_bias</span><span class="o">=</span><span class="n">use_bias</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GroupNormalization</span><span class="p">(</span><span class="n">groups</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_initializer</span><span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">activation</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">activation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+</code></pre></div>
+
+<hr />
+<h2 id="build-the-generators">Build the generators</h2>
+<p>The generator consists of downsampling blocks: nine residual blocks
+and upsampling blocks. The structure of the generator is the following:</p>
+<div class="codehilite"><pre><span></span><code>c7s1-64 ==&gt; Conv block with `relu` activation, filter size of 7
+d128 ====|
+         |-&gt; 2 downsampling blocks
+d256 ====|
+R256 ====|
+R256     |
+R256     |
+R256     |
+R256     |-&gt; 9 residual blocks
+R256     |
+R256     |
+R256     |
+R256 ====|
+u128 ====|
+         |-&gt; 2 upsampling blocks
+u64  ====|
+c7s1-3 =&gt; Last conv block with `tanh` activation, filter size of 7.
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_resnet_generator</span><span class="p">(</span>
+    <span class="n">filters</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">num_downsampling_blocks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">num_residual_blocks</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">num_upsample_blocks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_init</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">img_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_img_size</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_img_input&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">ReflectionPadding2D</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))(</span><span class="n">img_input</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_init</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GroupNormalization</span><span class="p">(</span><span class="n">groups</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gamma_initializer</span><span class="o">=</span><span class="n">gamma_initializer</span><span class="p">)(</span>
+        <span class="n">x</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Downsampling</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_downsampling_blocks</span><span class="p">):</span>
+        <span class="n">filters</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">downsample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&quot;relu&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Residual blocks</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_residual_blocks</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">residual_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&quot;relu&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Upsampling</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_upsample_blocks</span><span class="p">):</span>
+        <span class="n">filters</span> <span class="o">//=</span> <span class="mi">2</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">upsample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&quot;relu&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Final block</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">ReflectionPadding2D</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&quot;tanh&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">img_input</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</code></pre></div>
+
+<hr />
+<h2 id="build-the-discriminators">Build the discriminators</h2>
+<p>The discriminators implement the following architecture:
+<code>C64-&gt;C128-&gt;C256-&gt;C512</code></p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_discriminator</span><span class="p">(</span>
+    <span class="n">filters</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_init</span><span class="p">,</span> <span class="n">num_downsampling</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+    <span class="n">img_input</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_img_size</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_img_input&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="n">filters</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_initializer</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">img_input</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">num_filters</span> <span class="o">=</span> <span class="n">filters</span>
+    <span class="k">for</span> <span class="n">num_downsample_block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">num_filters</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">num_downsample_block</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">downsample</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">downsample</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                <span class="n">activation</span><span class="o">=</span><span class="n">layers</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">kernel_initializer</span>
+    <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">img_input</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="c1"># Get the generators</span>
+<span class="n">gen_G</span> <span class="o">=</span> <span class="n">get_resnet_generator</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;generator_G&quot;</span><span class="p">)</span>
+<span class="n">gen_F</span> <span class="o">=</span> <span class="n">get_resnet_generator</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;generator_F&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get the discriminators</span>
+<span class="n">disc_X</span> <span class="o">=</span> <span class="n">get_discriminator</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;discriminator_X&quot;</span><span class="p">)</span>
+<span class="n">disc_Y</span> <span class="o">=</span> <span class="n">get_discriminator</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;discriminator_Y&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="build-the-cyclegan-model">Build the CycleGAN model</h2>
+<p>We will override the <code>train_step()</code> method of the <code>Model</code> class
+for training via <code>fit()</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CycleGan</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">generator_G</span><span class="p">,</span>
+        <span class="n">generator_F</span><span class="p">,</span>
+        <span class="n">discriminator_X</span><span class="p">,</span>
+        <span class="n">discriminator_Y</span><span class="p">,</span>
+        <span class="n">lambda_cycle</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">lambda_identity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span> <span class="o">=</span> <span class="n">generator_G</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span> <span class="o">=</span> <span class="n">generator_F</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disc_X</span> <span class="o">=</span> <span class="n">discriminator_X</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y</span> <span class="o">=</span> <span class="n">discriminator_Y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lambda_cycle</span> <span class="o">=</span> <span class="n">lambda_cycle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lambda_identity</span> <span class="o">=</span> <span class="n">lambda_identity</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disc_X</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">gen_G_optimizer</span><span class="p">,</span>
+        <span class="n">gen_F_optimizer</span><span class="p">,</span>
+        <span class="n">disc_X_optimizer</span><span class="p">,</span>
+        <span class="n">disc_Y_optimizer</span><span class="p">,</span>
+        <span class="n">gen_loss_fn</span><span class="p">,</span>
+        <span class="n">disc_loss_fn</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_G_optimizer</span> <span class="o">=</span> <span class="n">gen_G_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_F_optimizer</span> <span class="o">=</span> <span class="n">gen_F_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disc_X_optimizer</span> <span class="o">=</span> <span class="n">disc_X_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y_optimizer</span> <span class="o">=</span> <span class="n">disc_Y_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator_loss_fn</span> <span class="o">=</span> <span class="n">gen_loss_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discriminator_loss_fn</span> <span class="o">=</span> <span class="n">disc_loss_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_loss_fn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanAbsoluteError</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identity_loss_fn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanAbsoluteError</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_data</span><span class="p">):</span>
+        <span class="c1"># x is Horse and y is zebra</span>
+        <span class="n">real_x</span><span class="p">,</span> <span class="n">real_y</span> <span class="o">=</span> <span class="n">batch_data</span>
+
+        <span class="c1"># For CycleGAN, we need to calculate different</span>
+        <span class="c1"># kinds of losses for the generators and discriminators.</span>
+        <span class="c1"># We will perform the following steps here:</span>
+        <span class="c1">#</span>
+        <span class="c1"># 1. Pass real images through the generators and get the generated images</span>
+        <span class="c1"># 2. Pass the generated images back to the generators to check if we</span>
+        <span class="c1">#    can predict the original image from the generated image.</span>
+        <span class="c1"># 3. Do an identity mapping of the real images using the generators.</span>
+        <span class="c1"># 4. Pass the generated images in 1) to the corresponding discriminators.</span>
+        <span class="c1"># 5. Calculate the generators total loss (adversarial + cycle + identity)</span>
+        <span class="c1"># 6. Calculate the discriminators loss</span>
+        <span class="c1"># 7. Update the weights of the generators</span>
+        <span class="c1"># 8. Update the weights of the discriminators</span>
+        <span class="c1"># 9. Return the losses in a dictionary</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">(</span><span class="n">persistent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># Horse to fake zebra</span>
+            <span class="n">fake_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span><span class="p">(</span><span class="n">real_x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Zebra to fake horse -&gt; y2x</span>
+            <span class="n">fake_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span><span class="p">(</span><span class="n">real_y</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Cycle (Horse to fake zebra to fake horse): x -&gt; y -&gt; x</span>
+            <span class="n">cycled_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span><span class="p">(</span><span class="n">fake_y</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Cycle (Zebra to fake horse to fake zebra) y -&gt; x -&gt; y</span>
+            <span class="n">cycled_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span><span class="p">(</span><span class="n">fake_x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Identity mapping</span>
+            <span class="n">same_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span><span class="p">(</span><span class="n">real_x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">same_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span><span class="p">(</span><span class="n">real_y</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Discriminator output</span>
+            <span class="n">disc_real_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_X</span><span class="p">(</span><span class="n">real_x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">disc_fake_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_X</span><span class="p">(</span><span class="n">fake_x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">disc_real_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y</span><span class="p">(</span><span class="n">real_y</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">disc_fake_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y</span><span class="p">(</span><span class="n">fake_y</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Generator adversarial loss</span>
+            <span class="n">gen_G_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_loss_fn</span><span class="p">(</span><span class="n">disc_fake_y</span><span class="p">)</span>
+            <span class="n">gen_F_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_loss_fn</span><span class="p">(</span><span class="n">disc_fake_x</span><span class="p">)</span>
+
+            <span class="c1"># Generator cycle loss</span>
+            <span class="n">cycle_loss_G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_loss_fn</span><span class="p">(</span><span class="n">real_y</span><span class="p">,</span> <span class="n">cycled_y</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_cycle</span>
+            <span class="n">cycle_loss_F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_loss_fn</span><span class="p">(</span><span class="n">real_x</span><span class="p">,</span> <span class="n">cycled_x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_cycle</span>
+
+            <span class="c1"># Generator identity loss</span>
+            <span class="n">id_loss_G</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">identity_loss_fn</span><span class="p">(</span><span class="n">real_y</span><span class="p">,</span> <span class="n">same_y</span><span class="p">)</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_cycle</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_identity</span>
+            <span class="p">)</span>
+            <span class="n">id_loss_F</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">identity_loss_fn</span><span class="p">(</span><span class="n">real_x</span><span class="p">,</span> <span class="n">same_x</span><span class="p">)</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_cycle</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_identity</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Total generator loss</span>
+            <span class="n">total_loss_G</span> <span class="o">=</span> <span class="n">gen_G_loss</span> <span class="o">+</span> <span class="n">cycle_loss_G</span> <span class="o">+</span> <span class="n">id_loss_G</span>
+            <span class="n">total_loss_F</span> <span class="o">=</span> <span class="n">gen_F_loss</span> <span class="o">+</span> <span class="n">cycle_loss_F</span> <span class="o">+</span> <span class="n">id_loss_F</span>
+
+            <span class="c1"># Discriminator loss</span>
+            <span class="n">disc_X_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator_loss_fn</span><span class="p">(</span><span class="n">disc_real_x</span><span class="p">,</span> <span class="n">disc_fake_x</span><span class="p">)</span>
+            <span class="n">disc_Y_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator_loss_fn</span><span class="p">(</span><span class="n">disc_real_y</span><span class="p">,</span> <span class="n">disc_fake_y</span><span class="p">)</span>
+
+        <span class="c1"># Get the gradients for the generators</span>
+        <span class="n">grads_G</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">total_loss_G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="n">grads_F</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">total_loss_F</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+
+        <span class="c1"># Get the gradients for the discriminators</span>
+        <span class="n">disc_X_grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">disc_X_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_X</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="n">disc_Y_grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">disc_Y_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+
+        <span class="c1"># Update the weights of the generators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_G_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">grads_G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_G</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_F_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">grads_F</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_F</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update the weights of the discriminators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disc_X_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">disc_X_grads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_X</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">disc_Y_grads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_Y</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;G_loss&quot;</span><span class="p">:</span> <span class="n">total_loss_G</span><span class="p">,</span>
+            <span class="s2">&quot;F_loss&quot;</span><span class="p">:</span> <span class="n">total_loss_F</span><span class="p">,</span>
+            <span class="s2">&quot;D_X_loss&quot;</span><span class="p">:</span> <span class="n">disc_X_loss</span><span class="p">,</span>
+            <span class="s2">&quot;D_Y_loss&quot;</span><span class="p">:</span> <span class="n">disc_Y_loss</span><span class="p">,</span>
+        <span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="create-a-callback-that-periodically-saves-generated-images">Create a callback that periodically saves generated images</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GANMonitor</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A callback to generate and save images after each epoch&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_img</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_img</span> <span class="o">=</span> <span class="n">num_img</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_horses</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_img</span><span class="p">)):</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">gen_G</span><span class="p">(</span><span class="n">img</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="p">(</span><span class="n">prediction</span> <span class="o">*</span> <span class="mf">127.5</span> <span class="o">+</span> <span class="mf">127.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">127.5</span> <span class="o">+</span> <span class="mf">127.5</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Input image&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Translated image&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">array_to_img</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+            <span class="n">prediction</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                <span class="s2">&quot;generated_img_</span><span class="si">{i}</span><span class="s2">_</span><span class="si">{epoch}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train-the-endtoend-model">Train the end-to-end model</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Loss function for evaluating adversarial loss</span>
+<span class="n">adv_loss_fn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">()</span>
+
+<span class="c1"># Define the loss function for the generators</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generator_loss_fn</span><span class="p">(</span><span class="n">fake</span><span class="p">):</span>
+    <span class="n">fake_loss</span> <span class="o">=</span> <span class="n">adv_loss_fn</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">fake</span><span class="p">),</span> <span class="n">fake</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fake_loss</span>
+
+
+<span class="c1"># Define the loss function for the discriminators</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">discriminator_loss_fn</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">fake</span><span class="p">):</span>
+    <span class="n">real_loss</span> <span class="o">=</span> <span class="n">adv_loss_fn</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">real</span><span class="p">),</span> <span class="n">real</span><span class="p">)</span>
+    <span class="n">fake_loss</span> <span class="o">=</span> <span class="n">adv_loss_fn</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">fake</span><span class="p">),</span> <span class="n">fake</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">real_loss</span> <span class="o">+</span> <span class="n">fake_loss</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+
+<span class="c1"># Create cycle gan model</span>
+<span class="n">cycle_gan_model</span> <span class="o">=</span> <span class="n">CycleGan</span><span class="p">(</span>
+    <span class="n">generator_G</span><span class="o">=</span><span class="n">gen_G</span><span class="p">,</span> <span class="n">generator_F</span><span class="o">=</span><span class="n">gen_F</span><span class="p">,</span> <span class="n">discriminator_X</span><span class="o">=</span><span class="n">disc_X</span><span class="p">,</span> <span class="n">discriminator_Y</span><span class="o">=</span><span class="n">disc_Y</span>
+<span class="p">)</span>
+
+<span class="c1"># Compile the model</span>
+<span class="n">cycle_gan_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">gen_G_optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-4</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">gen_F_optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-4</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">disc_X_optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-4</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">disc_Y_optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-4</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">gen_loss_fn</span><span class="o">=</span><span class="n">generator_loss_fn</span><span class="p">,</span>
+    <span class="n">disc_loss_fn</span><span class="o">=</span><span class="n">discriminator_loss_fn</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Callbacks</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">GANMonitor</span><span class="p">()</span>
+<span class="n">checkpoint_filepath</span> <span class="o">=</span> <span class="s2">&quot;./model_checkpoints/cyclegan_checkpoints.weights.h5&quot;</span>
+<span class="n">model_checkpoint_callback</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+    <span class="n">filepath</span><span class="o">=</span><span class="n">checkpoint_filepath</span><span class="p">,</span> <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Here we will train the model for just one epoch as each epoch takes around</span>
+<span class="c1"># 7 minutes on a single P100 backed machine.</span>
+<span class="n">cycle_gan_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">((</span><span class="n">train_horses</span><span class="p">,</span> <span class="n">train_zebras</span><span class="p">)),</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">plotter</span><span class="p">,</span> <span class="n">model_checkpoint_callback</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Test the performance of the model.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Once the weights are loaded, we will take a few samples from the test data and check the model&#39;s performance.</span>
+
+
+<span class="c1"># Load the checkpoints</span>
+<span class="n">cycle_gan_model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">checkpoint_filepath</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Weights loaded successfully&quot;</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_horses</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">4</span><span class="p">)):</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">cycle_gan_model</span><span class="o">.</span><span class="n">gen_G</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="p">(</span><span class="n">prediction</span> <span class="o">*</span> <span class="mf">127.5</span> <span class="o">+</span> <span class="mf">127.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">127.5</span> <span class="o">+</span> <span class="mf">127.5</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Input image&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Input image&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Translated image&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">array_to_img</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+    <span class="n">prediction</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;predicted_img_</span><span class="si">{i}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Weights loaded successfully
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/generative/cyclegan/cyclegan_23_1.png" /></p>
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter17_image-generation">Chapter 17: Image generation</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='cyclegan.html#cyclegan'>CycleGAN</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#cyclegan'>CycleGAN</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#prepare-the-dataset'>Prepare the dataset</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#create-dataset-objects'>Create <code>Dataset</code> objects</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#visualize-some-samples'>Visualize some samples</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#building-blocks-used-in-the-cyclegan-generators-and-discriminators'>Building blocks used in the CycleGAN generators and discriminators</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#build-the-generators'>Build the generators</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#build-the-discriminators'>Build the discriminators</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#build-the-cyclegan-model'>Build the CycleGAN model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#create-a-callback-that-periodically-saves-generated-images'>Create a callback that periodically saves generated images</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#train-the-endtoend-model'>Train the end-to-end model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='cyclegan.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

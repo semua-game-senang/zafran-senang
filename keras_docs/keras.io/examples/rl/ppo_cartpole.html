@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Proximal Policy Optimization">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="ppo_cartpole.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Proximal Policy Optimization">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Proximal Policy Optimization">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Proximal Policy Optimization</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2 active" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Reinforcement Learning</a>
+                    
+                      
+                        <a class="nav-sublink2" href="actor_critic_cartpole.html">Actor Critic Method</a>
+                      
+                        <a class="nav-sublink2 active" href="ppo_cartpole.html">Proximal Policy Optimization</a>
+                      
+                        <a class="nav-sublink2" href="deep_q_network_breakout.html">Deep Q-Learning for Atari Breakout</a>
+                      
+                        <a class="nav-sublink2" href="ddpg_pendulum.html">Deep Deterministic Policy Gradient (DDPG)</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Reinforcement Learning</a> /
+         Proximal Policy Optimization
+    </div>
+    <h1 id="proximal-policy-optimization">Proximal Policy Optimization</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/iliachry">Ilias Chrysovergis</a><br>
+<strong>Date created:</strong> 2021/06/24<br>
+<strong>Last modified:</strong> 2024/03/12<br>
+<strong>Description:</strong> Implementation of a Proximal Policy Optimization agent for the CartPole-v1 environment.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/rl/ipynb/ppo_cartpole.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/rl/ppo_cartpole.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This code example solves the CartPole-v1 environment using a Proximal Policy Optimization (PPO) agent.</p>
+<h3 id="cartpolev1">CartPole-v1</h3>
+<p>A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track.
+The system is controlled by applying a force of +1 or -1 to the cart.
+The pendulum starts upright, and the goal is to prevent it from falling over.
+A reward of +1 is provided for every timestep that the pole remains upright.
+The episode ends when the pole is more than 15 degrees from vertical, or the cart moves more than 2.4 units from the center.
+After 200 steps the episode ends. Thus, the highest return we can get is equal to 200.</p>
+<p><a href="https://gymnasium.farama.org/environments/classic_control/cart_pole/">CartPole-v1</a></p>
+<h3 id="proximal-policy-optimization">Proximal Policy Optimization</h3>
+<p>PPO is a policy gradient method and can be used for environments with either discrete or continuous action spaces.
+It trains a stochastic policy in an on-policy way. Also, it utilizes the actor critic method. The actor maps the
+observation to an action and the critic gives an expectation of the rewards of the agent for the observation given.
+Firstly, it collects a set of trajectories for each epoch by sampling from the latest version of the stochastic policy.
+Then, the rewards-to-go and the advantage estimates are computed in order to update the policy and fit the value function.
+The policy is updated via a stochastic gradient ascent optimizer, while the value function is fitted via some gradient descent algorithm.
+This procedure is applied for many epochs until the environment is solved.</p>
+<p><img alt="Algorithm" src="https://i.imgur.com/rd5tda1.png" /></p>
+<ul>
+<li><a href="https://arxiv.org/abs/1707.06347">Proximal Policy Optimization Algorithms</a></li>
+<li><a href="https://spinningup.openai.com/en/latest/algorithms/ppo.html">OpenAI Spinning Up docs - PPO</a></li>
+</ul>
+<h3 id="note">Note</h3>
+<p>This code example uses Keras and Tensorflow v2. It is based on the PPO Original Paper,
+the OpenAI's Spinning Up docs for PPO, and the OpenAI's Spinning Up implementation of PPO using Tensorflow v1.</p>
+<p><a href="https://github.com/openai/spinningup/blob/master/spinup/algos/tf1/ppo/ppo.py">OpenAI Spinning Up Github - PPO</a></p>
+<hr />
+<h2 id="libraries">Libraries</h2>
+<p>For this example the following libraries are used:</p>
+<ol>
+<li><code>numpy</code> for n-dimensional arrays</li>
+<li><code>tensorflow</code> and <code>keras</code> for building the deep RL PPO agent</li>
+<li><code>gymnasium</code> for getting everything we need about the environment</li>
+<li><code>scipy.signal</code> for calculating the discounted cumulative sums of vectors</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.signal</span>
+</code></pre></div>
+
+<hr />
+<h2 id="functions-and-class">Functions and class</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">discounted_cumulative_sums</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">discount</span><span class="p">):</span>
+    <span class="c1"># Discounted cumulative sums of vectors for computing rewards-to-go and advantage estimates</span>
+    <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">lfilter</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="n">discount</span><span class="p">)],</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+    <span class="c1"># Buffer for storing trajectories</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_dimensions</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+        <span class="c1"># Buffer initialization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">observation_dimensions</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logprobability_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lam</span> <span class="o">=</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">lam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_start_index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">logprobability</span><span class="p">):</span>
+        <span class="c1"># Append one step of agent-environment interaction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_buffer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">]</span> <span class="o">=</span> <span class="n">observation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_buffer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">]</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_buffer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_buffer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logprobability_buffer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">]</span> <span class="o">=</span> <span class="n">logprobability</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointer</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">finish_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># Finish the trajectory by computing advantage estimates and rewards-to-go</span>
+        <span class="n">path_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trajectory_start_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">)</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reward_buffer</span><span class="p">[</span><span class="n">path_slice</span><span class="p">],</span> <span class="n">last_value</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value_buffer</span><span class="p">[</span><span class="n">path_slice</span><span class="p">],</span> <span class="n">last_value</span><span class="p">)</span>
+
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">rewards</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span><span class="p">[</span><span class="n">path_slice</span><span class="p">]</span> <span class="o">=</span> <span class="n">discounted_cumulative_sums</span><span class="p">(</span>
+            <span class="n">deltas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lam</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_buffer</span><span class="p">[</span><span class="n">path_slice</span><span class="p">]</span> <span class="o">=</span> <span class="n">discounted_cumulative_sums</span><span class="p">(</span>
+            <span class="n">rewards</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span>
+        <span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_start_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointer</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Get all data of the buffer and normalize the advantages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_start_index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">advantage_mean</span><span class="p">,</span> <span class="n">advantage_std</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span> <span class="o">-</span> <span class="n">advantage_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">advantage_std</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">observation_buffer</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_buffer</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">advantage_buffer</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_buffer</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logprobability_buffer</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">mlp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">tanh</span><span class="p">,</span> <span class="n">output_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Build a feedforward neural network</span>
+    <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="n">output_activation</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">logprobabilities</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="c1"># Compute the log-probabilities of taking actions a by using the logits (i.e. the output of the actor)</span>
+    <span class="n">logprobabilities_all</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+    <span class="n">logprobability</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">num_actions</span><span class="p">)</span> <span class="o">*</span> <span class="n">logprobabilities_all</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">logprobability</span>
+
+
+<span class="n">seed_generator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">SeedGenerator</span><span class="p">(</span><span class="mi">1337</span><span class="p">)</span>
+
+
+<span class="c1"># Sample action from actor</span>
+<span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_action</span><span class="p">(</span><span class="n">observation</span><span class="p">):</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">actor</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">categorical</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed_generator</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">action</span>
+
+
+<span class="c1"># Train the policy by maxizing the PPO-Clip objective</span>
+<span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_policy</span><span class="p">(</span>
+    <span class="n">observation_buffer</span><span class="p">,</span> <span class="n">action_buffer</span><span class="p">,</span> <span class="n">logprobability_buffer</span><span class="p">,</span> <span class="n">advantage_buffer</span>
+<span class="p">):</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>  <span class="c1"># Record operations for automatic differentiation.</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="n">logprobabilities</span><span class="p">(</span><span class="n">actor</span><span class="p">(</span><span class="n">observation_buffer</span><span class="p">),</span> <span class="n">action_buffer</span><span class="p">)</span>
+            <span class="o">-</span> <span class="n">logprobability_buffer</span>
+        <span class="p">)</span>
+        <span class="n">min_advantage</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">advantage_buffer</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">clip_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="n">advantage_buffer</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">clip_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="n">advantage_buffer</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">policy_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">advantage_buffer</span><span class="p">,</span> <span class="n">min_advantage</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">policy_grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">policy_loss</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+    <span class="n">policy_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">policy_grads</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">))</span>
+
+    <span class="n">kl</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+        <span class="n">logprobability_buffer</span>
+        <span class="o">-</span> <span class="n">logprobabilities</span><span class="p">(</span><span class="n">actor</span><span class="p">(</span><span class="n">observation_buffer</span><span class="p">),</span> <span class="n">action_buffer</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">kl</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kl</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kl</span>
+
+
+<span class="c1"># Train the value function by regression on mean-squared error</span>
+<span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_value_function</span><span class="p">(</span><span class="n">observation_buffer</span><span class="p">,</span> <span class="n">return_buffer</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>  <span class="c1"># Record operations for automatic differentiation.</span>
+        <span class="n">value_loss</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">return_buffer</span> <span class="o">-</span> <span class="n">critic</span><span class="p">(</span><span class="n">observation_buffer</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">value_grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">value_loss</span><span class="p">,</span> <span class="n">critic</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>
+    <span class="n">value_optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">value_grads</span><span class="p">,</span> <span class="n">critic</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">))</span>
+</code></pre></div>
+
+<hr />
+<h2 id="hyperparameters">Hyperparameters</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Hyperparameters of the PPO algorithm</span>
+<span class="n">steps_per_epoch</span> <span class="o">=</span> <span class="mi">4000</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.99</span>
+<span class="n">clip_ratio</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">policy_learning_rate</span> <span class="o">=</span> <span class="mf">3e-4</span>
+<span class="n">value_function_learning_rate</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">train_policy_iterations</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="n">train_value_iterations</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="n">lam</span> <span class="o">=</span> <span class="mf">0.97</span>
+<span class="n">target_kl</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">hidden_sizes</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+
+<span class="c1"># True if you want to render the environment</span>
+<span class="n">render</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
+
+<hr />
+<h2 id="initializations">Initializations</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Initialize the environment and get the dimensionality of the</span>
+<span class="c1"># observation space and the number of possible actions</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;CartPole-v1&quot;</span><span class="p">)</span>
+<span class="n">observation_dimensions</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">num_actions</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span>
+
+<span class="c1"># Initialize the buffer</span>
+<span class="n">buffer</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">observation_dimensions</span><span class="p">,</span> <span class="n">steps_per_epoch</span><span class="p">)</span>
+
+<span class="c1"># Initialize the actor and the critic as keras models</span>
+<span class="n">observation_input</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">observation_dimensions</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+<span class="n">logits</span> <span class="o">=</span> <span class="n">mlp</span><span class="p">(</span><span class="n">observation_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">hidden_sizes</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">num_actions</span><span class="p">])</span>
+<span class="n">actor</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">observation_input</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">logits</span><span class="p">)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">mlp</span><span class="p">(</span><span class="n">observation_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">hidden_sizes</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">critic</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">observation_input</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+<span class="c1"># Initialize the policy and the value function optimizers</span>
+<span class="n">policy_optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">policy_learning_rate</span><span class="p">)</span>
+<span class="n">value_optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">value_function_learning_rate</span><span class="p">)</span>
+
+<span class="c1"># Initialize the observation, episode return and episode length</span>
+<span class="n">observation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">episode_return</span><span class="p">,</span> <span class="n">episode_length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</code></pre></div>
+
+<hr />
+<h2 id="train">Train</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Iterate over the number of epochs</span>
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+    <span class="c1"># Initialize the sum of the returns, lengths and number of episodes for each epoch</span>
+    <span class="n">sum_return</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">sum_length</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">num_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Iterate over the steps of each epoch</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps_per_epoch</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">render</span><span class="p">:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+
+        <span class="c1"># Get the logits, action, and take one step in the environment</span>
+        <span class="n">observation</span> <span class="o">=</span> <span class="n">observation</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">logits</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+        <span class="n">observation_new</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+        <span class="n">episode_return</span> <span class="o">+=</span> <span class="n">reward</span>
+        <span class="n">episode_length</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Get the value and log-probability of the action</span>
+        <span class="n">value_t</span> <span class="o">=</span> <span class="n">critic</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+        <span class="n">logprobability_t</span> <span class="o">=</span> <span class="n">logprobabilities</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+
+        <span class="c1"># Store obs, act, rew, v_t, logp_pi_t</span>
+        <span class="n">buffer</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">value_t</span><span class="p">,</span> <span class="n">logprobability_t</span><span class="p">)</span>
+
+        <span class="c1"># Update the observation</span>
+        <span class="n">observation</span> <span class="o">=</span> <span class="n">observation_new</span>
+
+        <span class="c1"># Finish trajectory if reached to a terminal state</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="n">done</span>
+        <span class="k">if</span> <span class="n">terminal</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="n">steps_per_epoch</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">last_value</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">done</span> <span class="k">else</span> <span class="n">critic</span><span class="p">(</span><span class="n">observation</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">buffer</span><span class="o">.</span><span class="n">finish_trajectory</span><span class="p">(</span><span class="n">last_value</span><span class="p">)</span>
+            <span class="n">sum_return</span> <span class="o">+=</span> <span class="n">episode_return</span>
+            <span class="n">sum_length</span> <span class="o">+=</span> <span class="n">episode_length</span>
+            <span class="n">num_episodes</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">observation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="n">episode_return</span><span class="p">,</span> <span class="n">episode_length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="c1"># Get values from the buffer</span>
+    <span class="p">(</span>
+        <span class="n">observation_buffer</span><span class="p">,</span>
+        <span class="n">action_buffer</span><span class="p">,</span>
+        <span class="n">advantage_buffer</span><span class="p">,</span>
+        <span class="n">return_buffer</span><span class="p">,</span>
+        <span class="n">logprobability_buffer</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="c1"># Update the policy and implement early stopping using KL divergence</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_policy_iterations</span><span class="p">):</span>
+        <span class="n">kl</span> <span class="o">=</span> <span class="n">train_policy</span><span class="p">(</span>
+            <span class="n">observation_buffer</span><span class="p">,</span> <span class="n">action_buffer</span><span class="p">,</span> <span class="n">logprobability_buffer</span><span class="p">,</span> <span class="n">advantage_buffer</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">kl</span> <span class="o">&gt;</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">target_kl</span><span class="p">:</span>
+            <span class="c1"># Early Stopping</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Update the value function</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_value_iterations</span><span class="p">):</span>
+        <span class="n">train_value_function</span><span class="p">(</span><span class="n">observation_buffer</span><span class="p">,</span> <span class="n">return_buffer</span><span class="p">)</span>
+
+    <span class="c1"># Print mean return and length for each epoch</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot; Epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">. Mean Return: </span><span class="si">{</span><span class="n">sum_return</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">num_episodes</span><span class="si">}</span><span class="s2">. Mean Length: </span><span class="si">{</span><span class="n">sum_length</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">num_episodes</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> Epoch: 1. Mean Return: 20.512820512820515. Mean Length: 20.512820512820515
+
+ Epoch: 2. Mean Return: 24.84472049689441. Mean Length: 24.84472049689441
+
+ Epoch: 3. Mean Return: 33.333333333333336. Mean Length: 33.333333333333336
+
+ Epoch: 4. Mean Return: 38.46153846153846. Mean Length: 38.46153846153846
+
+ Epoch: 5. Mean Return: 59.701492537313435. Mean Length: 59.701492537313435
+
+ Epoch: 6. Mean Return: 80.0. Mean Length: 80.0
+
+ Epoch: 7. Mean Return: 111.11111111111111. Mean Length: 111.11111111111111
+
+ Epoch: 8. Mean Return: 200.0. Mean Length: 200.0
+
+ Epoch: 9. Mean Return: 266.6666666666667. Mean Length: 266.6666666666667
+
+ Epoch: 10. Mean Return: 444.44444444444446. Mean Length: 444.44444444444446
+
+ Epoch: 11. Mean Return: 400.0. Mean Length: 400.0
+
+ Epoch: 12. Mean Return: 1000.0. Mean Length: 1000.0
+
+ Epoch: 13. Mean Return: 2000.0. Mean Length: 2000.0
+
+ Epoch: 14. Mean Return: 444.44444444444446. Mean Length: 444.44444444444446
+
+ Epoch: 15. Mean Return: 2000.0. Mean Length: 2000.0
+
+ Epoch: 16. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 17. Mean Return: 2000.0. Mean Length: 2000.0
+
+ Epoch: 18. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 19. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 20. Mean Return: 2000.0. Mean Length: 2000.0
+
+ Epoch: 21. Mean Return: 2000.0. Mean Length: 2000.0
+
+ Epoch: 22. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 23. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 24. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 25. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 26. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 27. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 28. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 29. Mean Return: 4000.0. Mean Length: 4000.0
+
+ Epoch: 30. Mean Return: 4000.0. Mean Length: 4000.0
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="visualizations">Visualizations</h2>
+<p>Before training:</p>
+<p><img alt="Imgur" src="https://i.imgur.com/rKXDoMC.gif" /></p>
+<p>After 8 epochs of training:</p>
+<p><img alt="Imgur" src="https://i.imgur.com/M0FbhF0.gif" /></p>
+<p>After 20 epochs of training:</p>
+<p><img alt="Imgur" src="https://i.imgur.com/tKhTEaF.gif" /></p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='ppo_cartpole.html#proximal-policy-optimization'>Proximal Policy Optimization</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ppo_cartpole.html#cartpolev1'>CartPole-v1</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ppo_cartpole.html#proximal-policy-optimization'>Proximal Policy Optimization</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='ppo_cartpole.html#note'>Note</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#libraries'>Libraries</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#functions-and-class'>Functions and class</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#hyperparameters'>Hyperparameters</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#initializations'>Initializations</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#train'>Train</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='ppo_cartpole.html#visualizations'>Visualizations</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

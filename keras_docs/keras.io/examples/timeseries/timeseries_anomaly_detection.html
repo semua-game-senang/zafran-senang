@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: Timeseries anomaly detection using an Autoencoder">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="timeseries_anomaly_detection.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: Timeseries anomaly detection using an Autoencoder">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: Timeseries anomaly detection using an Autoencoder">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>Timeseries anomaly detection using an Autoencoder</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Timeseries</a>
+                    
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_from_scratch.html">Timeseries classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_transformer.html">Timeseries classification with a Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="eeg_signal_classification.html">Electroencephalogram Signal Classification for action identification</a>
+                      
+                        <a class="nav-sublink2" href="event_classification_for_payment_card_fraud_detection.html">Event classification for payment card fraud detection</a>
+                      
+                        <a class="nav-sublink2" href="eeg_bci_ssvepformer.html">Electroencephalogram Signal Classification for Brain-Computer Interface</a>
+                      
+                        <a class="nav-sublink2 active" href="timeseries_anomaly_detection.html">Timeseries anomaly detection using an Autoencoder</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_traffic_forecasting.html">Traffic forecasting using graph neural networks and LSTM</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_weather_forecasting.html">Timeseries forecasting for weather prediction</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink" href="../nlp/index.html">Natural Language Processing</a>
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Timeseries</a>
+                    
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_from_scratch.html">Timeseries classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_classification_transformer.html">Timeseries classification with a Transformer model</a>
+                      
+                        <a class="nav-sublink2" href="eeg_signal_classification.html">Electroencephalogram Signal Classification for action identification</a>
+                      
+                        <a class="nav-sublink2" href="event_classification_for_payment_card_fraud_detection.html">Event classification for payment card fraud detection</a>
+                      
+                        <a class="nav-sublink2" href="eeg_bci_ssvepformer.html">Electroencephalogram Signal Classification for Brain-Computer Interface</a>
+                      
+                        <a class="nav-sublink2 active" href="timeseries_anomaly_detection.html">Timeseries anomaly detection using an Autoencoder</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_traffic_forecasting.html">Traffic forecasting using graph neural networks and LSTM</a>
+                      
+                        <a class="nav-sublink2" href="timeseries_weather_forecasting.html">Timeseries forecasting for weather prediction</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Timeseries</a> /
+         Timeseries anomaly detection using an Autoencoder
+    </div>
+    <h1 id="timeseries-anomaly-detection-using-an-autoencoder">Timeseries anomaly detection using an Autoencoder</h1>
+<p><strong>Author:</strong> <a href="https://github.com/pavithrasv">pavithrasv</a><br>
+<strong>Date created:</strong> 2020/05/31<br>
+<strong>Last modified:</strong> 2020/05/31<br>
+<strong>Description:</strong> Detect anomalies in a timeseries using an Autoencoder.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/timeseries/ipynb/timeseries_anomaly_detection.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/timeseries/timeseries_anomaly_detection.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This script demonstrates how you can use a reconstruction convolutional
+autoencoder model to detect anomalies in timeseries data.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-the-data">Load the data</h2>
+<p>We will use the <a href="https://www.kaggle.com/boltzmannbrain/nab">Numenta Anomaly Benchmark(NAB)</a> dataset. It provides artificial
+timeseries data containing labeled anomalous periods of behavior. Data are
+ordered, timestamped, single-valued metrics.</p>
+<p>We will use the <code>art_daily_small_noise.csv</code> file for training and the
+<code>art_daily_jumpsup.csv</code> file for testing. The simplicity of this dataset
+allows us to demonstrate anomaly detection effectively.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">master_url_root</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/numenta/NAB/master/data/&quot;</span>
+
+<span class="n">df_small_noise_url_suffix</span> <span class="o">=</span> <span class="s2">&quot;artificialNoAnomaly/art_daily_small_noise.csv&quot;</span>
+<span class="n">df_small_noise_url</span> <span class="o">=</span> <span class="n">master_url_root</span> <span class="o">+</span> <span class="n">df_small_noise_url_suffix</span>
+<span class="n">df_small_noise</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">df_small_noise_url</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;timestamp&quot;</span>
+<span class="p">)</span>
+
+<span class="n">df_daily_jumpsup_url_suffix</span> <span class="o">=</span> <span class="s2">&quot;artificialWithAnomaly/art_daily_jumpsup.csv&quot;</span>
+<span class="n">df_daily_jumpsup_url</span> <span class="o">=</span> <span class="n">master_url_root</span> <span class="o">+</span> <span class="n">df_daily_jumpsup_url_suffix</span>
+<span class="n">df_daily_jumpsup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">df_daily_jumpsup_url</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;timestamp&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="quick-look-at-the-data">Quick look at the data</h2>
+<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">df_small_noise</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">df_daily_jumpsup</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>                         value
+timestamp                     
+2014-04-01 00:00:00  18.324919
+2014-04-01 00:05:00  21.970327
+2014-04-01 00:10:00  18.624806
+2014-04-01 00:15:00  21.953684
+2014-04-01 00:20:00  21.909120
+                         value
+timestamp                     
+2014-04-01 00:00:00  19.761252
+2014-04-01 00:05:00  20.500833
+2014-04-01 00:10:00  19.961641
+2014-04-01 00:15:00  21.490266
+2014-04-01 00:20:00  20.187739
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="visualize-the-data">Visualize the data</h2>
+<h3 id="timeseries-data-without-anomalies">Timeseries data without anomalies</h3>
+<p>We will use the following data for training.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">df_small_noise</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_9_0.png" /></p>
+<h3 id="timeseries-data-with-anomalies">Timeseries data with anomalies</h3>
+<p>We will use the following data for testing and see if the sudden jump up in the
+data is detected as an anomaly.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">df_daily_jumpsup</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_11_0.png" /></p>
+<hr />
+<h2 id="prepare-training-data">Prepare training data</h2>
+<p>Get data values from the training timeseries data file and normalize the
+<code>value</code> data. We have a <code>value</code> for every 5 mins for 14 days.</p>
+<ul>
+<li>24 * 60 / 5 = <strong>288 timesteps per day</strong></li>
+<li>288 * 14 = <strong>4032 data points</strong> in total</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Normalize and save the mean and std we get,</span>
+<span class="c1"># for normalizing test data.</span>
+<span class="n">training_mean</span> <span class="o">=</span> <span class="n">df_small_noise</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">training_std</span> <span class="o">=</span> <span class="n">df_small_noise</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<span class="n">df_training_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_small_noise</span> <span class="o">-</span> <span class="n">training_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">training_std</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of training samples:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_training_value</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Number of training samples: 4032
+</code></pre></div>
+
+
+</div>
+<h3 id="create-sequences">Create sequences</h3>
+<p>Create sequences combining <code>TIME_STEPS</code> contiguous data values from the
+training data.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">TIME_STEPS</span> <span class="o">=</span> <span class="mi">288</span>
+
+
+<span class="c1"># Generated training sequences for use in the model.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_sequences</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">time_steps</span><span class="o">=</span><span class="n">TIME_STEPS</span><span class="p">):</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="n">time_steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">time_steps</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">create_sequences</span><span class="p">(</span><span class="n">df_training_value</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training input shape: &quot;</span><span class="p">,</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Training input shape:  (3745, 288, 1)
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="build-a-model">Build a model</h2>
+<p>We will build a convolutional reconstruction autoencoder model. The model will
+take input of shape <code>(batch_size, sequence_length, num_features)</code> and return
+output of the same shape. In this case, <code>sequence_length</code> is 288 and
+<code>num_features</code> is 1.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+            <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+            <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Conv1DTranspose</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+            <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Conv1DTranspose</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+            <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">Conv1DTranspose</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "sequential"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape              </span>┃<span style="font-weight: bold">    Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ conv1d (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv1D</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">144</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)           │        <span style="color: #00af00; text-decoration-color: #00af00">256</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ dropout (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">144</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)           │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv1d_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv1D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">72</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>)            │      <span style="color: #00af00; text-decoration-color: #00af00">3,600</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv1d_transpose                │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">144</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>)           │      <span style="color: #00af00; text-decoration-color: #00af00">1,808</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv1DTranspose</span>)               │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ dropout_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">144</span>, <span style="color: #00af00; text-decoration-color: #00af00">16</span>)           │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv1d_transpose_1              │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">288</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)           │      <span style="color: #00af00; text-decoration-color: #00af00">3,616</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv1DTranspose</span>)               │                           │            │
+├─────────────────────────────────┼───────────────────────────┼────────────┤
+│ conv1d_transpose_2              │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">288</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)            │        <span style="color: #00af00; text-decoration-color: #00af00">225</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv1DTranspose</span>)               │                           │            │
+└─────────────────────────────────┴───────────────────────────┴────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">9,505</span> (37.13 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">9,505</span> (37.13 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<hr />
+<h2 id="train-the-model">Train the model</h2>
+<p>Please note that we are using <code>x_train</code> as both the input and the target
+since this is a reconstruction model.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_loss&quot;</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Epoch 1/50
+ 26/27 ━━━━━━━━━━━━━━━━━━━[37m━  0s 4ms/step - loss: 0.8419
+
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1700346169.474466 1961179 device_compiler.h:187] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 10s 187ms/step - loss: 0.8262 - val_loss: 0.2280
+Epoch 2/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.1485 - val_loss: 0.0513
+Epoch 3/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0659 - val_loss: 0.0389
+Epoch 4/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0563 - val_loss: 0.0341
+Epoch 5/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0489 - val_loss: 0.0298
+Epoch 6/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0434 - val_loss: 0.0272
+Epoch 7/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0386 - val_loss: 0.0258
+Epoch 8/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0349 - val_loss: 0.0241
+Epoch 9/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0319 - val_loss: 0.0230
+Epoch 10/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0297 - val_loss: 0.0236
+Epoch 11/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0279 - val_loss: 0.0233
+Epoch 12/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0264 - val_loss: 0.0225
+Epoch 13/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0255 - val_loss: 0.0228
+Epoch 14/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0245 - val_loss: 0.0223
+Epoch 15/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0236 - val_loss: 0.0234
+Epoch 16/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0227 - val_loss: 0.0256
+Epoch 17/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0219 - val_loss: 0.0240
+Epoch 18/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0214 - val_loss: 0.0245
+Epoch 19/50
+ 27/27 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - loss: 0.0207 - val_loss: 0.0250
+</code></pre></div>
+
+
+</div>
+<p>Let's plot training and validation loss to see how the training went.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Training Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;val_loss&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Validation Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_21_0.png" /></p>
+<hr />
+<h2 id="detecting-anomalies">Detecting anomalies</h2>
+<p>We will detect anomalies by determining how well our model can reconstruct
+the input data.</p>
+<ol>
+<li>Find MAE loss on training samples.</li>
+<li>Find max MAE loss value. This is the worst our model has performed trying
+to reconstruct a sample. We will make this the <code>threshold</code> for anomaly
+detection.</li>
+<li>If the reconstruction loss for a sample is greater than this <code>threshold</code>
+value then we can infer that the model is seeing a pattern that it isn't
+familiar with. We will label this sample as an <code>anomaly</code>.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Get train MAE loss.</span>
+<span class="n">x_train_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+<span class="n">train_mae_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_train_pred</span> <span class="o">-</span> <span class="n">x_train</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">train_mae_loss</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Train MAE loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;No of samples&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Get reconstruction loss threshold.</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">train_mae_loss</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reconstruction error threshold: &quot;</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code> 118/118 ━━━━━━━━━━━━━━━━━━━━ 1s 6ms/step
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_23_1.png" /></p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Reconstruction error threshold:  0.1232659916089631
+</code></pre></div>
+
+
+</div>
+<h3 id="compare-recontruction">Compare recontruction</h3>
+<p>Just for fun, let's see how our model has recontructed the first sample.
+This is the 288 timesteps from day 1 of our training dataset.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Checking how the first sequence is learnt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_train</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_train_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_25_0.png" /></p>
+<h3 id="prepare-test-data">Prepare test data</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">df_test_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_daily_jumpsup</span> <span class="o">-</span> <span class="n">training_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">training_std</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">df_test_value</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Create sequences from test values.</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">create_sequences</span><span class="p">(</span><span class="n">df_test_value</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test input shape: &quot;</span><span class="p">,</span> <span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># Get test MAE loss.</span>
+<span class="n">x_test_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">test_mae_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_test_pred</span> <span class="o">-</span> <span class="n">x_test</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">test_mae_loss</span> <span class="o">=</span> <span class="n">test_mae_loss</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">test_mae_loss</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;test MAE loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;No of samples&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Detect all the samples which are anomalies.</span>
+<span class="n">anomalies</span> <span class="o">=</span> <span class="n">test_mae_loss</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of anomaly samples: &quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">anomalies</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Indices of anomaly samples: &quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">anomalies</span><span class="p">))</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_27_0.png" /></p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Test input shape:  (3745, 288, 1)
+ 118/118 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step
+</code></pre></div>
+
+
+</div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_27_2.png" /></p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>Number of anomaly samples:  394
+Indices of anomaly samples:  (array([1654, 2702, 2703, 2704, 2705, 2706, 2707, 2708, 2709, 2710, 2711,
+       2712, 2713, 2714, 2715, 2716, 2717, 2718, 2719, 2720, 2721, 2722,
+       2723, 2724, 2725, 2726, 2727, 2728, 2729, 2730, 2731, 2732, 2733,
+       2734, 2735, 2736, 2737, 2738, 2739, 2740, 2741, 2742, 2743, 2744,
+       2745, 2746, 2747, 2748, 2749, 2750, 2751, 2752, 2753, 2754, 2755,
+       2756, 2757, 2758, 2759, 2760, 2761, 2762, 2763, 2764, 2765, 2766,
+       2767, 2768, 2769, 2770, 2771, 2772, 2773, 2774, 2775, 2776, 2777,
+       2778, 2779, 2780, 2781, 2782, 2783, 2784, 2785, 2786, 2787, 2788,
+       2789, 2790, 2791, 2792, 2793, 2794, 2795, 2796, 2797, 2798, 2799,
+       2800, 2801, 2802, 2803, 2804, 2805, 2806, 2807, 2808, 2809, 2810,
+       2811, 2812, 2813, 2814, 2815, 2816, 2817, 2818, 2819, 2820, 2821,
+       2822, 2823, 2824, 2825, 2826, 2827, 2828, 2829, 2830, 2831, 2832,
+       2833, 2834, 2835, 2836, 2837, 2838, 2839, 2840, 2841, 2842, 2843,
+       2844, 2845, 2846, 2847, 2848, 2849, 2850, 2851, 2852, 2853, 2854,
+       2855, 2856, 2857, 2858, 2859, 2860, 2861, 2862, 2863, 2864, 2865,
+       2866, 2867, 2868, 2869, 2870, 2871, 2872, 2873, 2874, 2875, 2876,
+       2877, 2878, 2879, 2880, 2881, 2882, 2883, 2884, 2885, 2886, 2887,
+       2888, 2889, 2890, 2891, 2892, 2893, 2894, 2895, 2896, 2897, 2898,
+       2899, 2900, 2901, 2902, 2903, 2904, 2905, 2906, 2907, 2908, 2909,
+       2910, 2911, 2912, 2913, 2914, 2915, 2916, 2917, 2918, 2919, 2920,
+       2921, 2922, 2923, 2924, 2925, 2926, 2927, 2928, 2929, 2930, 2931,
+       2932, 2933, 2934, 2935, 2936, 2937, 2938, 2939, 2940, 2941, 2942,
+       2943, 2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953,
+       2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964,
+       2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975,
+       2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985, 2986,
+       2987, 2988, 2989, 2990, 2991, 2992, 2993, 2994, 2995, 2996, 2997,
+       2998, 2999, 3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008,
+       3009, 3010, 3011, 3012, 3013, 3014, 3015, 3016, 3017, 3018, 3019,
+       3020, 3021, 3022, 3023, 3024, 3025, 3026, 3027, 3028, 3029, 3030,
+       3031, 3032, 3033, 3034, 3035, 3036, 3037, 3038, 3039, 3040, 3041,
+       3042, 3043, 3044, 3045, 3046, 3047, 3048, 3049, 3050, 3051, 3052,
+       3053, 3054, 3055, 3056, 3057, 3058, 3059, 3060, 3061, 3062, 3063,
+       3064, 3065, 3066, 3067, 3068, 3069, 3070, 3071, 3072, 3073, 3074,
+       3075, 3076, 3077, 3078, 3079, 3080, 3081, 3082, 3083, 3084, 3085,
+       3086, 3087, 3088, 3089, 3090, 3091, 3092, 3093, 3094]),)
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="plot-anomalies">Plot anomalies</h2>
+<p>We now know the samples of the data which are anomalies. With this, we will
+find the corresponding <code>timestamps</code> from the original test data. We will be
+using the following method to do that:</p>
+<p>Let's say time_steps = 3 and we have 10 training values. Our <code>x_train</code> will
+look like this:</p>
+<ul>
+<li>0, 1, 2</li>
+<li>1, 2, 3</li>
+<li>2, 3, 4</li>
+<li>3, 4, 5</li>
+<li>4, 5, 6</li>
+<li>5, 6, 7</li>
+<li>6, 7, 8</li>
+<li>7, 8, 9</li>
+</ul>
+<p>All except the initial and the final time_steps-1 data values, will appear in
+<code>time_steps</code> number of samples. So, if we know that the samples
+[(3, 4, 5), (4, 5, 6), (5, 6, 7)] are anomalies, we can say that the data point
+5 is an anomaly.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># data i is an anomaly if samples [(i - timesteps + 1) to (i)] are anomalies</span>
+<span class="n">anomalous_data_indices</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">data_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">TIME_STEPS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_test_value</span><span class="p">)</span> <span class="o">-</span> <span class="n">TIME_STEPS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">anomalies</span><span class="p">[</span><span class="n">data_idx</span> <span class="o">-</span> <span class="n">TIME_STEPS</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">data_idx</span><span class="p">]):</span>
+        <span class="n">anomalous_data_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_idx</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Let's overlay the anomalies on the original test data plot.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">df_subset</span> <span class="o">=</span> <span class="n">df_daily_jumpsup</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">anomalous_data_indices</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">df_daily_jumpsup</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">df_subset</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="../../img/examples/timeseries/timeseries_anomaly_detection/timeseries_anomaly_detection_31_0.png" /></p>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='timeseries_anomaly_detection.html#timeseries-anomaly-detection-using-an-autoencoder'>Timeseries anomaly detection using an Autoencoder</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#load-the-data'>Load the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#quick-look-at-the-data'>Quick look at the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#visualize-the-data'>Visualize the data</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_anomaly_detection.html#timeseries-data-without-anomalies'>Timeseries data without anomalies</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_anomaly_detection.html#timeseries-data-with-anomalies'>Timeseries data with anomalies</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#prepare-training-data'>Prepare training data</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_anomaly_detection.html#create-sequences'>Create sequences</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#build-a-model'>Build a model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#train-the-model'>Train the model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#detecting-anomalies'>Detecting anomalies</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_anomaly_detection.html#compare-recontruction'>Compare recontruction</a>
+    </div>
+    
+    <div class='k-outline-depth-3'>
+      <a href='timeseries_anomaly_detection.html#prepare-test-data'>Prepare test data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='timeseries_anomaly_detection.html#plot-anomalies'>Plot anomalies</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>

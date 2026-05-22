@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keras documentation: End-to-end Masked Language Modeling with BERT">
+  <meta name="author" content="Keras Team">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  
+  <link rel="canonical" href="masked_language_modeling.html" />
+  
+
+  <!-- Social -->
+  <meta property="og:title" content="Keras documentation: End-to-end Masked Language Modeling with BERT">
+  <meta property="og:image" content="https://keras.io/img/logo-k-keras-wb.png">
+  <meta name="twitter:title" content="Keras documentation: End-to-end Masked Language Modeling with BERT">
+  <meta name="twitter:image" content="https://keras.io/img/k-keras-social.png">
+  <meta name="twitter:card" content="summary">
+
+  <title>End-to-end Masked Language Modeling with BERT</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../../css/docs.css@v=3.css" rel="stylesheet">
+  <link href="../../css/monokai.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+    integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous">
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" 
+    onload='renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ],
+      throwOnError: false
+    });'>
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DNGF4N');
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-175165319-128', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DNGF4N"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="k-page">
+    <div class="hidden">
+      
+      
+      
+        
+      
+        
+      
+        
+          None
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <nav class="nav__container">
+      <div class="nav__wrapper">
+        <div class="nav__controls--mobile">
+          <button class="nav__menu--button"><i class="icon--menu"></i></button>
+          <button class="nav__menu--close"><i class="icon--close"></i></button>
+          <a href="https://keras.io/">
+            <img class="nav__logo nav__logo--mobile" src="../../img/k-logo.png" />
+          </a>
+          <button class="nav__search--mobile">
+            <i class="icon__search--mobile"></i>
+          </button>
+        </div>
+        <form class="nav__search nav__search-form--mobile">
+          <input
+            class="nav__search--input"
+            type="search"
+            placeholder="SEARCH"
+            aria-label="Search"
+          />
+          <button class="nav__search--button" type="submit">
+            <i class="icon--search"></i>
+          </button>
+        </form>
+        <div class="k-nav nav__mobile-menu" id="nav-menu">
+          <!-- version with just the active item visible -->
+          <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+            
+              <a class="nav-link" href="https://keras.io/getting_started/" role="tab" aria-selected="">Getting started</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/guides/" role="tab" aria-selected="">Developer guides</a>
+              
+            
+              <a class="nav-link active" href="../index.html" role="tab" aria-selected="">Code examples</a>
+              
+                
+                  <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                
+                  <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2 active" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                
+                  <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                
+                  <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                
+                  <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                
+                  <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                
+              
+            
+              <a class="nav-link" href="https://keras.io/api/" role="tab" aria-selected="">Keras 3 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/2/api/" role="tab" aria-selected="">Keras 2 API documentation</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_tuner/" role="tab" aria-selected="">KerasTuner: Hyperparam Tuning</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_hub/" role="tab" aria-selected="">KerasHub: Pretrained Models</a>
+              
+            
+              <a class="nav-link" href="https://keras.io/keras_rs/" role="tab" aria-selected="">KerasRS</a>
+              
+            
+          </div>
+        </div>
+
+        <a href="https://keras.io/">
+          <img class="nav__logo nav__logo--desktop" src="../../img/logo.png" alt="keras.io logo" />
+        </a>
+        <div class="nav__menu">
+          
+          <ul class="nav__item--container">
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/getting_started/">Get started</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/guides/">Guides</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/api/">API</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link nav__link--active" href="../index.html">Examples</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_hub/">Keras Hub</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_rs/">Keras RS</a>
+            </li>
+            
+            <li class="nav__item">
+              <a class="nav__link" href="https://keras.io/keras_tuner/">Keras Tuner</a>
+            </li>
+            
+          </ul>
+
+          <form class="nav__search">
+            <input
+              class="nav__search--input"
+              type="search"
+              placeholder="SEARCH"
+              aria-label="Search"
+            />
+            <button class="nav__search--button" type="submit">
+              <i class="icon--search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page__container flex__container">
+      <div class="nav__side-nav" id="nav-menu">
+        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+          
+            
+          
+            
+          
+            
+            <a class="nav-link active" href="../index.html" role="tab" aria-selected="">
+              Code examples
+            </a>
+              
+                <div class="nav-expanded-panel">
+                  
+                    <a class="nav-sublink" href="../vision.html">Computer Vision</a>
+                    
+                  
+                    <a class="nav-sublink active" href="index.html">Natural Language Processing</a>
+                    
+                      
+                        <a class="nav-sublink2" href="text_classification_from_scratch.html">Text classification from scratch</a>
+                      
+                        <a class="nav-sublink2" href="active_learning_review_classification.html">Review Classification using Active Learning</a>
+                      
+                        <a class="nav-sublink2" href="fnet_classification_with_keras_hub.html">Text Classification using FNet</a>
+                      
+                        <a class="nav-sublink2" href="multi_label_classification.html">Large-scale multi-label text classification</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_transformer.html">Text classification with Transformer</a>
+                      
+                        <a class="nav-sublink2" href="text_classification_with_switch_transformer.html">Text classification with Switch Transformer</a>
+                      
+                        <a class="nav-sublink2" href="tweet-classification-using-tfdf/index.html">Text classification using Decision Forests and pretrained embeddings</a>
+                      
+                        <a class="nav-sublink2" href="pretrained_word_embeddings.html">Using pre-trained word embeddings</a>
+                      
+                        <a class="nav-sublink2" href="bidirectional_lstm_imdb.html">Bidirectional LSTM on IMDB</a>
+                      
+                        <a class="nav-sublink2" href="data_parallel_training_with_keras_hub.html">Data Parallel Training with KerasHub and tf.distribute</a>
+                      
+                        <a class="nav-sublink2" href="multiple_choice_task_with_transfer_learning.html">MultipleChoice Task with Transfer Learning</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_keras_hub.html">English-to-Spanish translation with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="neural_machine_translation_with_transformer.html">English-to-Spanish translation with a sequence-to-sequence Transformer</a>
+                      
+                        <a class="nav-sublink2" href="lstm_seq2seq.html">Character-level recurrent sequence-to-sequence model</a>
+                      
+                        <a class="nav-sublink2" href="multimodal_entailment.html">Multimodal entailment</a>
+                      
+                        <a class="nav-sublink2" href="ner_transformers.html">Named Entity Recognition using Transformers</a>
+                      
+                        <a class="nav-sublink2" href="text_extraction_with_bert/index.html">Text Extraction with BERT</a>
+                      
+                        <a class="nav-sublink2" href="addition_rnn.html">Sequence to sequence learning for performing number addition</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_keras_hub.html">Semantic Similarity with KerasHub</a>
+                      
+                        <a class="nav-sublink2" href="semantic_similarity_with_bert.html">Semantic Similarity with BERT</a>
+                      
+                        <a class="nav-sublink2" href="sentence_embeddings_with_sbert.html">Sentence embeddings using Siamese RoBERTa-networks</a>
+                      
+                        <a class="nav-sublink2 active" href="masked_language_modeling.html">End-to-end Masked Language Modeling with BERT</a>
+                      
+                        <a class="nav-sublink2" href="abstractive_summarization_with_bart.html">Abstractive Text Summarization with BART</a>
+                      
+                        <a class="nav-sublink2" href="parameter_efficient_finetuning_of_gpt2_with_lora.html">Parameter-efficient fine-tuning of GPT-2 with LoRA</a>
+                      
+                    
+                  
+                    <a class="nav-sublink" href="../structured_data/index.html">Structured Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../timeseries/index.html">Timeseries</a>
+                    
+                  
+                    <a class="nav-sublink" href="../generative/index.html">Generative Deep Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../audio/index.html">Audio Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../rl/index.html">Reinforcement Learning</a>
+                    
+                  
+                    <a class="nav-sublink" href="../graph/index.html">Graph Data</a>
+                    
+                  
+                    <a class="nav-sublink" href="../keras_recipes/index.html">Quick Keras Recipes</a>
+                    
+                  
+                </div>
+              
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      </div>
+      <div class="k-main">
+        <div class='k-main-inner' id='k-main-id'>
+  <div class='k-content'>
+    <div class='k-location-slug'>
+      <span class="k-location-slug-pointer">►</span> 
+          <a href='../index.html'>Code examples</a> /
+        
+          <a href='index.html'>Natural Language Processing</a> /
+         End-to-end Masked Language Modeling with BERT
+    </div>
+    <h1 id="endtoend-masked-language-modeling-with-bert">End-to-end Masked Language Modeling with BERT</h1>
+<p><strong>Author:</strong> <a href="https://twitter.com/ankur310794">Ankur Singh</a><br>
+<strong>Date created:</strong> 2020/09/18<br>
+<strong>Last modified:</strong> 2024/03/15<br>
+<strong>Description:</strong> Implement a Masked Language Model (MLM) with BERT and fine-tune it on the IMDB Reviews dataset.</p>
+<div class='example_version_banner keras_3'>ⓘ This example uses Keras 3</div>
+<p><img class="k-inline-icon" src="https://colab.research.google.com/img/colab_favicon.ico"/> <a href="https://colab.research.google.com/github/keras-team/keras-io/blob/master/examples/nlp/ipynb/masked_language_modeling.ipynb"><strong>View in Colab</strong></a>  <span class="k-dot">•</span><img class="k-inline-icon" src="https://github.com/favicon.ico"/> <a href="https://github.com/keras-team/keras-io/blob/master/examples/nlp/masked_language_modeling.py"><strong>GitHub source</strong></a></p>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>Masked Language Modeling is a fill-in-the-blank task,
+where a model uses the context words surrounding a mask token to try to predict what the
+masked word should be.</p>
+<p>For an input that contains one or more mask tokens,
+the model will generate the most likely substitution for each.</p>
+<p>Example:</p>
+<ul>
+<li>Input: "I have watched this [MASK] and it was awesome."</li>
+<li>Output: "I have watched this movie and it was awesome."</li>
+</ul>
+<p>Masked language modeling is a great way to train a language
+model in a self-supervised setting (without human-annotated labels).
+Such a model can then be fine-tuned to accomplish various supervised
+NLP tasks.</p>
+<p>This example teaches you how to build a BERT model from scratch,
+train it with the masked language modeling task,
+and then fine-tune this model on a sentiment classification task.</p>
+<p>We will use the Keras <code>TextVectorization</code> and <code>MultiHeadAttention</code> layers
+to create a BERT Transformer-Encoder network architecture.</p>
+<p>Note: This example should be run with <code>tf-nightly</code>.</p>
+<hr />
+<h2 id="setup">Setup</h2>
+<p>Install <code>tf-nightly</code> via <code>pip install tf-nightly</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;torch&quot;</span>  <span class="c1"># or jax, or tensorflow</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_hub</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextVectorization</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+</code></pre></div>
+
+<hr />
+<h2 id="setup-configuration">Set-up Configuration</h2>
+<div class="codehilite"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Config</span><span class="p">:</span>
+    <span class="n">MAX_LEN</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">LR</span> <span class="o">=</span> <span class="mf">0.001</span>
+    <span class="n">VOCAB_SIZE</span> <span class="o">=</span> <span class="mi">30000</span>
+    <span class="n">EMBED_DIM</span> <span class="o">=</span> <span class="mi">128</span>
+    <span class="n">NUM_HEAD</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># used in bert model</span>
+    <span class="n">FF_DIM</span> <span class="o">=</span> <span class="mi">128</span>  <span class="c1"># used in bert model</span>
+    <span class="n">NUM_LAYERS</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="load-the-data">Load the data</h2>
+<p>We will first download the IMDB data and load into a Pandas dataframe.</p>
+<div class="codehilite"><pre><span></span><code><span class="err">!</span><span class="n">curl</span> <span class="o">-</span><span class="n">O</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">ai</span><span class="o">.</span><span class="n">stanford</span><span class="o">.</span><span class="n">edu</span><span class="o">/~</span><span class="n">amaas</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">sentiment</span><span class="o">/</span><span class="n">aclImdb_v1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="err">!</span><span class="n">tar</span> <span class="o">-</span><span class="n">xf</span> <span class="n">aclImdb_v1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</code></pre></div>
+
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+</code></pre></div>
+
+
+</div>
+
+<p>0     0    0     0    0     0      0      0 &ndash;:&ndash;:&ndash; &ndash;:&ndash;:&ndash; &ndash;:&ndash;:&ndash;     0</p>
+<p>0     0    0     0    0     0      0      0 &ndash;:&ndash;:&ndash;  0:00:01 &ndash;:&ndash;:&ndash;     0</p>
+<p>0 80.2M    0 16384    0     0   8170      0  2:51:36  0:00:02  2:51:34  8171</p>
+<p>0 80.2M    0 32768    0     0  11611      0  2:00:45  0:00:02  2:00:43 11611</p>
+<p>0 80.2M    0  144k    0     0  36325      0  0:38:35  0:00:04  0:38:31 36328</p>
+<p>0 80.2M    0  240k    0     0  50462      0  0:27:47  0:00:04  0:27:43 50464</p>
+<p>0 80.2M    0  464k    0     0  81947      0  0:17:06  0:00:05  0:17:01  100k</p>
+<p>0 80.2M    0  672k    </p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>0     0  97992      0  0:14:18  0:00:07  0:14:11  130k
+</code></pre></div>
+
+
+</div>
+
+<p>1 80.2M    1  912k    0     0   116k      0  0:11:42  0:00:07  0:11:35  176k</p>
+<p>1 80.2M    1 1104k    0     0   123k      0  0:11:07  0:00:08  0:10:59  195k</p>
+<p>1 80.2M    1 1424k    0     0   145k      0  0:09:25  0:00:09  0:09:16  240k</p>
+<p>2 80.2M    2 1696k    0     0   153k      0  0:08:53  0:00:11  0:08:42  236k</p>
+<p>2 80.2M    2 2016k    0     0   170k      0  0:08:02  0:00:11  0:07:51  279k</p>
+<p>3 80.2M    3 2544k    0     0   194k      0  0:07:01  0:00:13  0:06:48  310k</p>
+<p>3 80.2M    3 2816k    0     0   202k      0  0:06:45  0:00:13  0:06:32  348k</p>
+<p>3 80.2M    3 3264k    0     0   215k      0  0:06:20  0:00:15  0:06:05  346k</p>
+<p>4 80.2M    4 3632k    0     0   227k      0  0:06:00  0:00:15  0:05:45  393k</p>
+<p>5 80.2M    5 4128k    0     0   240k      0  0:05:40  0:00:17  0:05:23  398k</p>
+<p>5 80.2M    5 4384k    0     0   243k      0  0:05:36  0:00:17  0:05:19  374k</p>
+<p>5 80.2M    5 4832k    0     0   252k      0  0:05:24  0:00:19  0:05:05  386k</p>
+<p>6 80.2M    6 5152k    0     0   258k      0  0:05:17  0:00:19  0:04:58  392k</p>
+<p>6 80.2M    6 5632k    0     0   267k      0  0:05:07  0:00:21  0:04:46  389k</p>
+<p>7 80.2M    7 5952k    0     0   272k      0  0:05:01  0:00:21  0:04:40  385k</p>
+<p>7 80.2M    7 6432k    0     0   278k      0  0:04:55  0:00:23  0:04:32  400k</p>
+<p>8 80.2M    8 6768k    0     0   284k      0  0:04:49  0:00:23  0:04:26  411k</p>
+<p>9 80.2M    9 7408k    0     0   298k      0  0:04:34  0:00:24  0:04:10  462k</p>
+<p>9 80.2M    9 7952k    0     0   308k      0  0:04:26  0:00:25  0:04:01  489k</p>
+<p>10 80.2M   10 8896k    0     0   331k      0  0:04:07  0:00:26  0:03:41  597k</p>
+<p>11 80.2M   11 9392k    0     0   337k      0  0:04:03  0:00:27  0:03:36  625k</p>
+<p>12 80.2M   12 10.0M    0     0   355k      0  0:03:51  0:00:28  0:03:23  696k</p>
+<p>13 80.2M   13 10.7M    0     0   368k      0  0:03:42  0:00:29  0:03:13  705k</p>
+<p>14 80.2M   14 11.4M    0     0   377k      0  0:03:37  0:00:31  0:03:06  717k</p>
+<p>14 80.2M   14 11.6M    0     0   373k      0  0:03:40  0:00:31  0:03:09  589k</p>
+<p>15 80.2M   15 12.3M    0     0   380k      0  0:03:35  0:00:33  0:03:02  606k</p>
+<p>15 80.2M   15 12.6M    0     0   383k      0  0:03:34  0:00:33  0:03:01  542k</p>
+<p>16 80.2M   16 13.0M    0     0   381k      0  0:03:35  0:00:34  0:03:01  455k</p>
+<p>16 80.2M   16 13.2M    0     0   378k      0  0:03:37  0:00:35  0:03:02  383k</p>
+<p>17 80.2M   17 13.9M    0     0   387k      0  0:03:31  0:00:36  0:02:55  480k</p>
+<p>18 80.2M   18 14.4M    0     0   388k      0  0:03:31  0:00:38  0:02:53  440k</p>
+<p>18 80.2M   18 14.8M    0     0   389k      0  0:03:30  0:00:38  0:02:52  431k</p>
+<p>19 80.2M   19 15.3M    0     0   394k      0  0:03:28  0:00:39  0:02:49  491k</p>
+<p>19 80.2M   19 15.6M    0     0   390k      0  0:03:30  0:00:41  0:02:49  468k</p>
+<p>19 80.2M   19 15.8M    0     0   388k      0  0:03:31  0:00:41  0:02:50  397k</p>
+<p>20 80.2M   20 16.4M    0     0   390k      0  0:03:30  0:00:42  0:02:48  411k</p>
+<p>20 80.2M   20 16.8M    0     0   393k      0  0:03:28  0:00:43  0:02:45  427k</p>
+<p>21 80.2M   21 17.2M    0     0   394k      0  0:03:28  0:00:44  0:02:44  393k</p>
+<p>22 80.2M   22 17.6M    0     0   393k      0  0:03:29  0:00:46  0:02:43  417k</p>
+<p>22 80.2M   22 17.9M    0     0   393k      0  0:03:29  0:00:46  0:02:43  427k</p>
+<p>23 80.2M   23 18.4M    0     0   393k      0  0:03:28  0:00:48  0:02:40  416k</p>
+<p>23 80.2M   23 18.8M    0     0   390k      0  0:03:30  0:00:49  0:02:41  364k</p>
+<p>24 80.2M   24 19.2M    0     0   394k      0  0:03:28  0:00:50  0:02:38  398k</p>
+<p>24 80.2M   24 19.5M    0     0   393k      0  0:03:28  0:00:50  0:02:38  402k</p>
+<p>24 80.2M   24 20.0M    0     0   393k      0  0:03:28  0:00:52  0:02:36  401k</p>
+<p>25 80.2M   25 20.3M    0     0   394k      0  0:03:28  0:00:52  0:02:36  405k</p>
+<p>26 80.2M   26 21.2M    0     0   398k      0  0:03:25  0:00:54  0:02:31  478k</p>
+<p>26 80.2M   26 21.2M    0     0   396k      0  0:03:27  0:00:54  0:02:33  407k</p>
+<p>26 80.2M   26 21.6M    0     0   394k      0  0:03:28  0:00:56  0:02:32  399k</p>
+<p>27 80.2M   27 21.9M    0     0   394k      0  0:03:28  0:00:56  0:02:32  400k</p>
+<p>27 80.2M   27 22.2M    0     0   394k      0  0:03:28  0:00:57  0:02:31  396k</p>
+<p>28 80.2M   28 23.1M    0     0   398k      0  0:03:26  0:00:59  0:02:27  396k</p>
+<p>28 80.2M   28 23.1M    0     0   396k      0  0:03:27  0:00:59  0:02:28  397k</p>
+<p>29 80.2M   29 23.5M    0     0   395k      0  0:03:27  0:01:00  0:02:27  405k</p>
+<p>29 80.2M   29 23.8M    0     0   395k      0  0:03:27  0:01:01  0:02:26  405k</p>
+<p>30 80.2M   30 24.3M    0     0   395k      0  0:03:27  0:01:03  0:02:24  407k</p>
+<p>31 80.2M   31 24.8M    0     0   397k      0  0:03:26  0:01:04  0:02:22  387k</p>
+<p>31 80.2M   31 25.5M    0     0   401k      0  0:03:24  0:01:05  0:02:19  465k</p>
+<p>32 80.2M   32 25.7M    0     0   400k      0  0:03:25  0:01:05  0:02:20  465k</p>
+<p>32 80.2M   32 26.1M    0     0   399k      0  0:03:25  0:01:06  0:02:19  456k</p>
+<p>33 80.2M   33 26.6M    0     0   400k      0  0:03:25  0:01:08  0:02:17  450k</p>
+<p>33 80.2M   33 26.9M    0     0   400k      0  0:03:25  0:01:08  0:02:17  432k</p>
+<p>34 80.2M   34 27.6M    0     0   403k      0  0:03:23  0:01:10  0:02:13  422k</p>
+<p>34 80.2M   34 27.7M    0     0   401k      0  0:03:24  0:01:10  0:02:14  412k</p>
+<p>35 80.2M   35 28.2M    0     0   401k      0  0:03:24  0:01:12  0:02:12  418k</p>
+<p>35 80.2M   35 28.5M    0     0   400k      0  0:03:24  0:01:12  0:02:12  414k</p>
+<p>36 80.2M   36 29.0M    0     0   401k      0  0:03:24  0:01:13  0:02:11  424k</p>
+<p>36 80.2M   36 29.3M    0     0   400k      0  0:03:25  0:01:15  0:02:10  360k</p>
+<p>37 80.2M   37 29.8M    0     0   403k      0  0:03:23  0:01:15  0:02:08  432k</p>
+<p>37 80.2M   37 30.2M    0     0   402k      0  0:03:24  0:01:17  0:02:07  417k</p>
+<p>38 80.2M   38 30.6M    0     0   402k      0  0:03:24  0:01:17  0:02:07  424k</p>
+<p>38 80.2M   38 31.1M    0     0   403k      0  0:03:23  0:01:18  0:02:05  432k</p>
+<p>39 80.2M   39 31.6M    0     0   404k      0  0:03:23  0:01:20  0:02:03  465k</p>
+<p>39 80.2M   39 31.9M    0     0   404k      0  0:03:23  0:01:20  0:02:03  415k</p>
+<p>40 80.2M   40 32.5M    0     0   404k      0  0:03:22  0:01:22  0:02:00  443k</p>
+<p>40 80.2M   40 32.8M    0     0   405k      0  0:03:22  0:01:23  0:01:59  446k</p>
+<p>41 80.2M   41 33.1M    0     0   405k      0  0:03:22  0:01:23  0:01:59  429k</p>
+<p>42 80.2M   42 33.8M    0     0   408k      0  0:03:21  0:01:24  0:01:57  476k</p>
+<p>42 80.2M   42 34.1M    0     0   406k      0  0:03:22  0:01:25  0:01:57  446k</p>
+<p>42 80.2M   42 34.4M    0     0   406k      0  0:03:21  0:01:26  0:01:55  440k</p>
+<p>43 80.2M   43 34.9M    0     0   407k      0  0:03:21  0:01:27  0:01:54  439k</p>
+<p>44 80.2M   44 35.4M    0     0   408k      0  0:03:21  0:01:28  0:01:53  459k</p>
+<p>44 80.2M   44 36.0M    0     0   408k      0  0:03:20  0:01:30  0:01:50  414k</p>
+<p>45 80.2M   45 36.2M    0     0   408k      0  0:03:21  0:01:30  0:01:51  436k</p>
+<p>45 80.2M   45 36.5M    0     0   407k      0  0:03:21  0:01:31  0:01:50  424k</p>
+<p>46 80.2M   46 37.0M    0     0   408k      0  0:03:21  0:01:33  0:01:48  425k</p>
+<p>46 80.2M   46 37.6M    0     0   408k      0  0:03:20  0:01:34  0:01:46  416k</p>
+<p>47 80.2M   47 38.1M    0     0   410k      0  0:03:20  0:01:35  0:01:45  446k</p>
+<p>47 80.2M   47 38.2M    0     0   409k      0  0:03:20  0:01:35  0:01:45  422k</p>
+<p>48 80.2M   48 38.6M    0     0   408k      0  0:03:21  0:01:37  0:01:44  416k</p>
+<p>48 80.2M   48 38.9M    0     0   408k      0  0:03:21  0:01:37  0:01:44  409k</p>
+<p>49 80.2M   49 39.5M    0     0   408k      0  0:03:21  0:01:38  0:01:43  402k</p>
+<p>50 80.2M   50 40.2M    0     0   410k      0  0:03:20  0:01:40  0:01:40  410k</p>
+<p>50 80.2M   50 40.3M    0     0   408k      0  0:03:20  0:01:41  0:01:39  407k</p>
+<p>50 80.2M   50 40.6M    0     0   408k      0  0:03:21  0:01:41  0:01:40  412k</p>
+<p>51 80.2M   51 41.0M    0     0   408k      0  0:03:21  0:01:42  0:01:39  418k</p>
+<p>51 80.2M   51 41.5M    0     0   409k      0  0:03:20  0:01:43  0:01:37  431k</p>
+<p>52 80.2M   52 42.1M    0     0   411k      0  0:03:19  0:01:44  0:01:35  426k</p>
+<p>52 80.2M   52 42.3M    0     0   409k      0  0:03:20  0:01:45  0:01:35  426k</p>
+<p>53 80.2M   53 42.8M    0     0   409k      0  0:03:20  0:01:47  0:01:33  432k</p>
+<p>53 80.2M   53 43.1M    0     0   409k      0  0:03:20  0:01:47  0:01:33  432k</p>
+<p>54 80.2M   54 44.0M    0     0   412k      0  0:03:19  0:01:49  0:01:30  453k</p>
+<p>54 80.2M   54 44.0M    0     0   410k      0  0:03:20  0:01:49  0:01:31  395k</p>
+<p>55 80.2M   55 44.4M    0     0   409k      0  0:03:20  0:01:51  0:01:29  410k</p>
+<p>55 80.2M   55 44.7M    0     0   409k      0  0:03:20  0:01:51  0:01:29  405k</p>
+<p>56 80.2M   56 45.2M    0     0   410k      0  0:03:20  0:01:53  0:01:27  421k</p>
+<p>57 80.2M   57 45.9M    0     0   412k      0  0:03:19  0:01:54  0:01:25  432k</p>
+<p>57 80.2M   57 46.1M    0     0   411k      0  0:03:19  0:01:54  0:01:25  423k</p>
+<p>57 80.2M   57 46.5M    0     0   410k      0  0:03:20  0:01:56  0:01:24  426k</p>
+<p>58 80.2M   58 46.8M    0     0   410k      0  0:03:19  0:01:56  0:01:23  445k</p>
+<p>59 80.2M   59 47.3M    0     0   411k      0  0:03:19  0:01:57  0:01:22  440k</p>
+<p>59 80.2M   59 47.4M    0     0   409k      0  0:03:20  0:01:58  0:01:22  321k</p>
+<p>59 80.2M   59 48.1M    0     0   410k      0  0:03:20  0:02:00  0:01:20  389k</p>
+<p>60 80.2M   60 48.4M    0     0   410k      0  0:03:20  0:02:00  0:01:20  413k</p>
+<p>60 80.2M   60 48.9M    0     0   410k      0  0:03:20  0:02:02  0:01:18  398k</p>
+<p>61 80.2M   61 49.2M    0     0   410k      0  0:03:20  0:02:02  0:01:18  390k</p>
+<p>62 80.2M   62 49.7M    0     0   410k      0  0:03:19  0:02:04  0:01:15  449k</p>
+<p>62 80.2M   62 50.0M    0     0   410k      0  0:03:20  0:02:04  0:01:16  411k</p>
+<p>62 80.2M   62 50.4M    0     0   410k      0  0:03:20  0:02:05  0:01:15  406k</p>
+<p>63 80.2M   63 50.7M    0     0   410k      0  0:03:20  0:02:06  0:01:14  401k</p>
+<p>63 80.2M   63 51.1M    0     0   409k      0  0:03:20  0:02:08  0:01:12  380k</p>
+<p>64 80.2M   64 51.5M    0     0   409k      0  0:03:20  0:02:08  0:01:12  365k</p>
+<p>64 80.2M   64 51.8M    0     0   409k      0  0:03:20  0:02:09  0:01:11  384k</p>
+<p>65 80.2M   65 52.4M    0     0   409k      0  0:03:20  0:02:11  0:01:09  388k</p>
+<p>65 80.2M   65 52.6M    0     0   409k      0  0:03:20  0:02:11  0:01:09  383k</p>
+<p>66 80.2M   66 53.1M    0     0   408k      0  0:03:20  0:02:13  0:01:07  394k</p>
+<p>66 80.2M   66 53.4M    0     0   408k      0  0:03:20  0:02:13  0:01:07  400k</p>
+<p>67 80.2M   67 54.0M    0     0   409k      0  0:03:20  0:02:15  0:01:05  412k</p>
+<p>68 80.2M   68 54.6M    0     0   410k      0  0:03:19  0:02:16  0:01:03  443k</p>
+<p>68 80.2M   68 54.8M    0     0   409k      0  0:03:20  0:02:17  0:01:03  422k</p>
+<p>68 80.2M   68 55.0M    0     0   409k      0  0:03:20  0:02:17  0:01:03  421k</p>
+<p>69 80.2M   69 55.3M    0     0   408k      0  0:03:21  0:02:18  0:01:03  403k</p>
+<p>69 80.2M   69 55.9M    0     0   408k      0  0:03:20  0:02:20  0:01:00  389k</p>
+<p>70 80.2M   70 56.4M    0     0   410k      0  0:03:20  0:02:20  0:01:00  386k</p>
+<p>70 80.2M   70 56.7M    0     0   408k      0  0:03:21  0:02:22  0:00:59  383k</p>
+<p>71 80.2M   71 57.0M    0     0   408k      0  0:03:21  0:02:22  0:00:59  384k</p>
+<p>71 80.2M   71 57.4M    0     0   408k      0  0:03:21  0:02:24  0:00:57  402k</p>
+<p>72 80.2M   72 57.8M    0     0   408k      0  0:03:21  0:02:24  0:00:57  403k</p>
+<p>72 80.2M   72 58.3M    0     0   409k      0  0:03:20  0:02:26  0:00:54  383k</p>
+<p>73 80.2M   73 58.6M    0     0   408k      0  0:03:21  0:02:26  0:00:55  408k</p>
+<p>73 80.2M   73 59.0M    0     0   408k      0  0:03:21  0:02:28  0:00:53  407k</p>
+<p>74 80.2M   74 59.4M    0     0   408k      0  0:03:21  0:02:28  0:00:53  408k</p>
+<p>74 80.2M   74 59.8M    0     0   409k      0  0:03:20  0:02:29  0:00:51  429k</p>
+<p>75 80.2M   75 60.2M    0     0   408k      0  0:03:20  0:02:30  0:00:50  400k</p>
+<p>75 80.2M   75 60.5M    0     0   408k      0  0:03:21  0:02:31  0:00:50  397k</p>
+<p>76 80.2M   76 60.9M    0     0   408k      0  0:03:21  0:02:33  0:00:48  397k</p>
+<p>76 80.2M   76 61.3M    0     0   408k      0  0:03:21  0:02:33  0:00:48  412k</p>
+<p>77 80.2M   77 61.8M    0     0   407k      0  0:03:21  0:02:35  0:00:46  357k</p>
+<p>77 80.2M   77 62.1M    0     0   408k      0  0:03:21  0:02:35  0:00:46  405k</p>
+<p>78 80.2M   78 62.5M    0     0   408k      0  0:03:21  0:02:37  0:00:44  404k</p>
+<p>78 80.2M   78 62.8M    0     0   407k      0  0:03:21  0:02:37  0:00:44  401k</p>
+<p>78 80.2M   78 63.2M    0     0   407k      0  0:03:21  0:02:38  0:00:43  377k</p>
+<p>79 80.2M   79 63.9M    0     0   408k      0  0:03:20  0:02:40  0:00:40  454k</p>
+<p>79 80.2M   79 64.0M    0     0   407k      0  0:03:21  0:02:40  0:00:41  375k</p>
+<p>80 80.2M   80 64.4M    0     0   407k      0  0:03:21  0:02:42  0:00:39  378k</p>
+<p>80 80.2M   80 64.7M    0     0   407k      0  0:03:21  0:02:42  0:00:39  384k</p>
+<p>81 80.2M   81 65.1M    0     0   407k      0  0:03:21  0:02:43  0:00:38  400k</p>
+<p>81 80.2M   81 65.5M    0     0   406k      0  0:03:22  0:02:44  0:00:38  333k</p>
+<p>82 80.2M   82 66.1M    0     0   407k      0  0:03:21  0:02:46  0:00:35  409k</p>
+<p>82 80.2M   82 66.4M    0     0   407k      0  0:03:21  0:02:46  0:00:35  417k</p>
+<p>83 80.2M   83 66.7M    0     0   407k      0  0:03:21  0:02:47  0:00:34  406k</p>
+<p>83 80.2M   83 66.8M    0     0   405k      0  0:03:22  0:02:48  0:00:34  348k</p>
+<p>83 80.2M   83 66.8M    0     0   402k      0  0:03:24  0:02:50  0:00:34  267k</p>
+<p>83 80.2M   83 66.9M    0     0   400k      0  0:03:24  0:02:51  0:00:33  178k</p>
+<p>83 80.2M   83 67.0M    0     0   399k      0  0:03:25  0:02:51  0:00:34  121k</p>
+<p>83 80.2M   83 67.0M    0     0   396k      0  0:03:27  0:02:53  0:00:34 68552</p>
+<p>83 80.2M   83 67</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>.1M    0     0   395k      0  0:03:27  0:02:53  0:00:34 55340
+</code></pre></div>
+
+
+</div>
+
+<p>83 80.2M   83 67.3M    0     0   393k      0  0:03:28  0:02:55  0:00:33   97k</p>
+<p>84 80.2M   84 67.5M    0     0   393k      0  0:03:28  0:02:55  0:00:33  123k</p>
+<p>84 80.2M   84 67.8M    0     0   392k      0  0:03:29  0:02:56  0:00:33  169k</p>
+<p>85 80.2M   85 68.2M    0     0   392k      0  0:03:29  0:02:57  0:00:32  244k</p>
+<p>85 80.2M   85 68.7M    0     0   393k      0  0:03:28  0:02:58  0:00:30  318k</p>
+<p>86 80.2M   86 69.0M    0     0   393k      0  0:03:28  0:02:59  0:00:29  379k</p>
+<p>86 80.2M   86 69.1M    0     0   391k      0  0:03:29  0:03:00  0:00:29  331k</p>
+<p>86 80.2M   86 69.1M    0     0   388k      0  0:03:31  0:03:02  0:00:29  260k</p>
+<p>86 80.2M   86 69.1M    0     0   387k      0  0:03:32  0:03:03  0:00:29  191k</p>
+<p>86 80.2M   86 69.2M    0     0   385k      0  0:03:33  0:03:03  0:00:30  104k</p>
+<p>86 80.2M   86 69.4M    0     0   383k      0  0:03:33  0:03:05  0:00:28 64954</p>
+<p>86 80.2M   86 69.4M    0     0   382k      0  0:03:34  0:03:05  0:00:29 65431</p>
+<p>86 80.2M   86 69.5M    0     0   381k      0  0:03:35  0:03:07  0:00:28 94686</p>
+<p>86 80.2M   86 69.7M    0     0   380k      0  0:03:36  0:03:07  0:00:29  115k</p>
+<p>87 80.2M   87 69.9M    0     0   379k      0  0:03:36  0:03:08  0:00:28  149k</p>
+<p>87 80.2M   87 70.1M    0     0   378k      0  0:03:37  0:03:10  0:00:27  159k</p>
+<p>87 80.2M   87 70.3M    0     0   377k      0  0:03:37  0:03:10  0:00:27  188k</p>
+<p>88 80.2M   88 70.7M    0     0   377k      0  0:03:37  0:03:12  0:00:25  229k</p>
+<p>88 80.2M   88 70.9M    0     0   376k      0  0:03:37  0:03:12  0:00:25  257k</p>
+<p>89 80.2M   89 71.5M    0     0   376k      0  0:03:38  0:03:14  0:00:24  279k</p>
+<p>89 80.2M   89 71.7M    0     0   376k      0  0:03:38  0:03:14  0:00:24  318k</p>
+<p>90 80.2M   90 72.2M    0     0   377k      0  0:03:37  0:03:16  0:00:21  366k</p>
+<p>90 80.2M   90 72.4M    0     0   376k      0  0:03:38  0:03:16  0:00:22  361k</p>
+<p>90 80.2M   90 72.8M    0     0   377k      0  0:03:37  0:03:17  0:00:20  386k</p>
+<p>91 80.2M   91 73.1M    0     0   376k      0  0:03:38  0:03:18  0:00:20  388k</p>
+<p>91 80.2M   91 73.6M    0     0   376k      0  0:03:37  0:03:20  0:00:17  384k</p>
+<p>92 80.2M   92 73.9M    0     0   376k      0  0:03:37  0:03:20  0:00:17  359k</p>
+<p>92 80.2M   92 74.4M    0     0   377k      0  0:03:37  0:03:21  0:00:16  401k</p>
+<p>93 80.2M   93 74.7M    0     0   377k      0  0:03:37  0:03:22  0:00:15  386k</p>
+<p>93 80.2M   93 75.2M    0     0   377k      0  0:03:37  0:03:24  0:00:13  409k</p>
+<p>94 80.2M   94 75.5M    0     0   377k      0  0:03:37  0:03:24  0:00:13  411k</p>
+<p>94 80.2M   94 75.9M    0     0   378k      0  0:03:37  0:03:25  0:00:12  425k</p>
+<p>95 80.2M   95 76.3M    0     0   377k      0  0:03:37  0:03:27  0:00:10  395k</p>
+<p>95 80.2M   95 76.7M    0     0   377k      0  0:03:37  0:03:27  0:00:10  400k</p>
+<p>96 80.2M   96 77.0M    0     0   377k      0  0:03:37  0:03:28  0:00:09  383k</p>
+<p>96 80.2M   96 77.2M    0     0   376k      0  0:03:38  0:03:30  0:00:08  325k</p>
+<p>96 80.2M   96 77.4M    0     0   375k      0  0:03:38  0:03:30  0:00:08  290k</p>
+<p>97 80.2M   97 77.8M    0     0   376k      0  0:03:38  0:03:32  0:00:06  306k</p>
+<p>97 80.2M   97 78.1M    0     0   376k      0  0:03:38  0:03:32  0:00:06  297k</p>
+<p>98 80.2M   98 78.6M    0     0   376k      0  0:03:38  0:03:33  0:00:05  318k</p>
+<p>98 80.2M   98 78.9M    0     0   376k      0  0:03:38  0:03:34  0:00:04  374k</p>
+<p>98 80.2M   98 79.4M    0     0   376k      0  0:03:38  0:03:35  0:00:03  410k</p>
+<p>99 80.2M   99 79.9M    0     0   377k      0  0:03:37  0:03:36  0:00:01  444k</p>
+<p>100 80.2M  100 80.2M    0     0   378k      0  0:03:37  0:03:37 &ndash;:&ndash;:&ndash;  473k</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_text_list_from_files</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+    <span class="n">text_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text_list</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_from_text_files</span><span class="p">(</span><span class="n">folder_name</span><span class="p">):</span>
+    <span class="n">pos_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;aclImdb/&quot;</span> <span class="o">+</span> <span class="n">folder_name</span> <span class="o">+</span> <span class="s2">&quot;/pos/*.txt&quot;</span><span class="p">)</span>
+    <span class="n">pos_texts</span> <span class="o">=</span> <span class="n">get_text_list_from_files</span><span class="p">(</span><span class="n">pos_files</span><span class="p">)</span>
+    <span class="n">neg_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;aclImdb/&quot;</span> <span class="o">+</span> <span class="n">folder_name</span> <span class="o">+</span> <span class="s2">&quot;/neg/*.txt&quot;</span><span class="p">)</span>
+    <span class="n">neg_texts</span> <span class="o">=</span> <span class="n">get_text_list_from_files</span><span class="p">(</span><span class="n">neg_files</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;review&quot;</span><span class="p">:</span> <span class="n">pos_texts</span> <span class="o">+</span> <span class="n">neg_texts</span><span class="p">,</span>
+            <span class="s2">&quot;sentiment&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos_texts</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">neg_texts</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">get_data_from_text_files</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">get_data_from_text_files</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+
+<span class="n">all_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dataset-preparation">Dataset preparation</h2>
+<p>We will use the <code>TextVectorization</code> layer to vectorize the text into integer token ids.
+It transforms a batch of strings into either
+a sequence of token indices (one sample = 1D array of integer token indices, in order)
+or a dense representation (one sample = 1D array of float values encoding an unordered set of tokens).</p>
+<p>Below, we define 3 preprocessing functions.</p>
+<ol>
+<li>The <code>get_vectorize_layer</code> function builds the <code>TextVectorization</code> layer.</li>
+<li>The <code>encode</code> function encodes raw text into integer token ids.</li>
+<li>The <code>get_masked_input_and_labels</code> function will mask input token ids.
+It masks 15% of all input tokens in each sequence at random.</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># For data pre-processing and tf.data.Dataset</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_standardization</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
+    <span class="n">lowercase</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+    <span class="n">stripped_html</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">lowercase</span><span class="p">,</span> <span class="s2">&quot;&lt;br /&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span>
+        <span class="n">stripped_html</span><span class="p">,</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s2">&quot;!#$%&amp;&#39;()*+,-./:;&lt;=&gt;?@\^_`{|}~&quot;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_vectorize_layer</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">max_seq</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;[MASK]&quot;</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build Text vectorization layer</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      texts (list): List of string i.e input texts</span>
+<span class="sd">      vocab_size (int): vocab size</span>
+<span class="sd">      max_seq (int): Maximum sequence length.</span>
+<span class="sd">      special_tokens (list, optional): List of special tokens. Defaults to [&#39;[MASK]&#39;].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        layers.Layer: Return TextVectorization Keras Layer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vectorize_layer</span> <span class="o">=</span> <span class="n">TextVectorization</span><span class="p">(</span>
+        <span class="n">max_tokens</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span>
+        <span class="n">output_mode</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span>
+        <span class="n">standardize</span><span class="o">=</span><span class="n">custom_standardization</span><span class="p">,</span>
+        <span class="n">output_sequence_length</span><span class="o">=</span><span class="n">max_seq</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">vectorize_layer</span><span class="o">.</span><span class="n">adapt</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span>
+
+    <span class="c1"># Insert mask token in vocabulary</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">vectorize_layer</span><span class="o">.</span><span class="n">get_vocabulary</span><span class="p">()</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span><span class="p">[</span><span class="mi">2</span> <span class="p">:</span> <span class="n">vocab_size</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">special_tokens</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;[mask]&quot;</span><span class="p">]</span>
+    <span class="n">vectorize_layer</span><span class="o">.</span><span class="n">set_vocabulary</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vectorize_layer</span>
+
+
+<span class="n">vectorize_layer</span> <span class="o">=</span> <span class="n">get_vectorize_layer</span><span class="p">(</span>
+    <span class="n">all_data</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">VOCAB_SIZE</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">MAX_LEN</span><span class="p">,</span>
+    <span class="n">special_tokens</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;[mask]&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Get mask token id for masked language model</span>
+<span class="n">mask_token_id</span> <span class="o">=</span> <span class="n">vectorize_layer</span><span class="p">([</span><span class="s2">&quot;[mask]&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="n">texts</span><span class="p">):</span>
+    <span class="n">encoded_texts</span> <span class="o">=</span> <span class="n">vectorize_layer</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">encoded_texts</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_masked_input_and_labels</span><span class="p">(</span><span class="n">encoded_texts</span><span class="p">):</span>
+    <span class="c1"># 15% BERT masking</span>
+    <span class="n">inp_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">encoded_texts</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.15</span>
+    <span class="c1"># Do not mask special tokens</span>
+    <span class="n">inp_mask</span><span class="p">[</span><span class="n">encoded_texts</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># Set targets to -1 by default, it means ignore</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">encoded_texts</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="c1"># Set labels for masked tokens</span>
+    <span class="n">labels</span><span class="p">[</span><span class="n">inp_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoded_texts</span><span class="p">[</span><span class="n">inp_mask</span><span class="p">]</span>
+
+    <span class="c1"># Prepare input</span>
+    <span class="n">encoded_texts_masked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">encoded_texts</span><span class="p">)</span>
+    <span class="c1"># Set input to [MASK] which is the last token for the 90% of tokens</span>
+    <span class="c1"># This means leaving 10% unchanged</span>
+    <span class="n">inp_mask_2mask</span> <span class="o">=</span> <span class="n">inp_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">encoded_texts</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.90</span><span class="p">)</span>
+    <span class="n">encoded_texts_masked</span><span class="p">[</span><span class="n">inp_mask_2mask</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">mask_token_id</span>  <span class="c1"># mask token is the last in the dict</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Set 10% to a random token</span>
+    <span class="n">inp_mask_2random</span> <span class="o">=</span> <span class="n">inp_mask_2mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">encoded_texts</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">9</span><span class="p">)</span>
+    <span class="n">encoded_texts_masked</span><span class="p">[</span><span class="n">inp_mask_2random</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+        <span class="mi">3</span><span class="p">,</span> <span class="n">mask_token_id</span><span class="p">,</span> <span class="n">inp_mask_2random</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Prepare sample_weights to pass to .fit() method</span>
+    <span class="n">sample_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">sample_weights</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># y_labels would be same as encoded_texts i.e input tokens</span>
+    <span class="n">y_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">encoded_texts</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">encoded_texts_masked</span><span class="p">,</span> <span class="n">y_labels</span><span class="p">,</span> <span class="n">sample_weights</span>
+
+
+<span class="c1"># We have 25000 examples for training</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># encode reviews with vectorizer</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">sentiment</span><span class="o">.</span><span class="n">values</span>
+<span class="n">train_classifier_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># We have 25000 examples for testing</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">sentiment</span><span class="o">.</span><span class="n">values</span>
+<span class="n">test_classifier_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span>
+<span class="p">)</span>
+
+<span class="c1"># Dataset for end to end model input (will be used at the end)</span>
+<span class="n">test_raw_classifier_ds</span> <span class="o">=</span> <span class="n">test_df</span>
+
+<span class="c1"># Prepare data for masked language model</span>
+<span class="n">x_all_review</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">all_data</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">x_masked_train</span><span class="p">,</span> <span class="n">y_masked_labels</span><span class="p">,</span> <span class="n">sample_weights</span> <span class="o">=</span> <span class="n">get_masked_input_and_labels</span><span class="p">(</span>
+    <span class="n">x_all_review</span>
+<span class="p">)</span>
+
+<span class="n">mlm_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">x_masked_train</span><span class="p">,</span> <span class="n">y_masked_labels</span><span class="p">,</span> <span class="n">sample_weights</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">mlm_ds</span> <span class="o">=</span> <span class="n">mlm_ds</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="create-bert-model-pretraining-model-for-masked-language-modeling">Create BERT model (Pretraining Model) for masked language modeling</h2>
+<p>We will create a BERT-like pretraining model architecture
+using the <code>MultiHeadAttention</code> layer.
+It will take token ids as inputs (including masked tokens)
+and it will predict the correct ids for the masked input tokens.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bert_module</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="c1"># Multi headed self-attention</span>
+    <span class="n">attention_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">NUM_HEAD</span><span class="p">,</span>
+        <span class="n">key_dim</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">EMBED_DIM</span> <span class="o">//</span> <span class="n">config</span><span class="o">.</span><span class="n">NUM_HEAD</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_</span><span class="si">{}</span><span class="s2">_multiheadattention&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
+    <span class="p">)(</span><span class="n">query</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">attention_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_</span><span class="si">{}</span><span class="s2">_att_dropout&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))(</span>
+        <span class="n">attention_output</span>
+    <span class="p">)</span>
+    <span class="n">attention_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span>
+        <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_</span><span class="si">{}</span><span class="s2">_att_layernormalization&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">)(</span><span class="n">query</span> <span class="o">+</span> <span class="n">attention_output</span><span class="p">)</span>
+
+    <span class="c1"># Feed-forward layer</span>
+    <span class="n">ffn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">FF_DIM</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">EMBED_DIM</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_</span><span class="si">{}</span><span class="s2">_ffn&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ffn_output</span> <span class="o">=</span> <span class="n">ffn</span><span class="p">(</span><span class="n">attention_output</span><span class="p">)</span>
+    <span class="n">ffn_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_</span><span class="si">{}</span><span class="s2">_ffn_dropout&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))(</span>
+        <span class="n">ffn_output</span>
+    <span class="p">)</span>
+    <span class="n">sequence_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">LayerNormalization</span><span class="p">(</span>
+        <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_</span><span class="si">{}</span><span class="s2">_ffn_layernormalization&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">)(</span><span class="n">attention_output</span> <span class="o">+</span> <span class="n">ffn_output</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sequence_output</span>
+
+
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">loss_tracker</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MaskedLanguageModel</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="n">loss_tracker</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">):</span>
+
+        <span class="c1"># Return a dict mapping metric names to current value</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss_tracker</span><span class="o">.</span><span class="n">result</span><span class="p">()}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># We list our `Metric` objects here so that `reset_states()` can be</span>
+        <span class="c1"># called automatically at the start of each epoch</span>
+        <span class="c1"># or at the start of `evaluate()`.</span>
+        <span class="c1"># If you don&#39;t implement this property, you have to call</span>
+        <span class="c1"># `reset_states()` yourself at the time of your choosing.</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">loss_tracker</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_masked_language_bert_model</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_LEN</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+
+    <span class="n">word_embeddings</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">VOCAB_SIZE</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">EMBED_DIM</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;word_embedding&quot;</span>
+    <span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">position_embeddings</span> <span class="o">=</span> <span class="n">keras_hub</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">PositionEmbedding</span><span class="p">(</span>
+        <span class="n">sequence_length</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_LEN</span>
+    <span class="p">)(</span><span class="n">word_embeddings</span><span class="p">)</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">word_embeddings</span> <span class="o">+</span> <span class="n">position_embeddings</span>
+
+    <span class="n">encoder_output</span> <span class="o">=</span> <span class="n">embeddings</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">NUM_LAYERS</span><span class="p">):</span>
+        <span class="n">encoder_output</span> <span class="o">=</span> <span class="n">bert_module</span><span class="p">(</span><span class="n">encoder_output</span><span class="p">,</span> <span class="n">encoder_output</span><span class="p">,</span> <span class="n">encoder_output</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="n">mlm_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">VOCAB_SIZE</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mlm_cls&quot;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;softmax&quot;</span><span class="p">)(</span>
+        <span class="n">encoder_output</span>
+    <span class="p">)</span>
+    <span class="n">mlm_model</span> <span class="o">=</span> <span class="n">MaskedLanguageModel</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">mlm_output</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;masked_bert_model&quot;</span><span class="p">)</span>
+
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">LR</span><span class="p">)</span>
+    <span class="n">mlm_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mlm_model</span>
+
+
+<span class="n">id2token</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">vectorize_layer</span><span class="o">.</span><span class="n">get_vocabulary</span><span class="p">()))</span>
+<span class="n">token2id</span> <span class="o">=</span> <span class="p">{</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">id2token</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MaskedTextGenerator</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_tokens</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_tokens</span> <span class="o">=</span> <span class="n">sample_tokens</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">top_k</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">id2token</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokens</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_ids_to_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">id2token</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_tokens</span><span class="p">)</span>
+
+        <span class="n">masked_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_tokens</span> <span class="o">==</span> <span class="n">mask_token_id</span><span class="p">)</span>
+        <span class="n">masked_index</span> <span class="o">=</span> <span class="n">masked_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">mask_prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">masked_index</span><span class="p">]</span>
+
+        <span class="n">top_indices</span> <span class="o">=</span> <span class="n">mask_prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">mask_prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">top_indices</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">top_indices</span><span class="p">)):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">top_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">sample_tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">tokens</span><span class="p">[</span><span class="n">masked_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">p</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;input_text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">sample_tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()),</span>
+                <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">tokens</span><span class="p">),</span>
+                <span class="s2">&quot;probability&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">,</span>
+                <span class="s2">&quot;predicted mask token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_ids_to_tokens</span><span class="p">(</span><span class="n">p</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+
+<span class="n">sample_tokens</span> <span class="o">=</span> <span class="n">vectorize_layer</span><span class="p">([</span><span class="s2">&quot;I have watched this [mask] and it was awesome&quot;</span><span class="p">])</span>
+<span class="n">generator_callback</span> <span class="o">=</span> <span class="n">MaskedTextGenerator</span><span class="p">(</span><span class="n">sample_tokens</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
+<span class="n">bert_masked_model</span> <span class="o">=</span> <span class="n">create_masked_language_bert_model</span><span class="p">()</span>
+<span class="n">bert_masked_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "masked_bert_model"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)        </span>┃<span style="font-weight: bold"> Output Shape      </span>┃<span style="font-weight: bold">    Param # </span>┃<span style="font-weight: bold"> Connected to      </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+│ input_layer         │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)       │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ -                 │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ word_embedding      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │  <span style="color: #00af00; text-decoration-color: #00af00">3,840,000</span> │ input_layer[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>] │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Embedding</span>)         │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ position_embedding  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │     <span style="color: #00af00; text-decoration-color: #00af00">32,768</span> │ word_embedding[<span style="color: #00af00; text-decoration-color: #00af00">0</span>… │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">PositionEmbedding</span>) │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ add (<span style="color: #0087ff; text-decoration-color: #0087ff">Add</span>)           │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ word_embedding[<span style="color: #00af00; text-decoration-color: #00af00">0</span>… │
+│                     │                   │            │ position_embeddi… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ encoder_0_multihea… │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │     <span style="color: #00af00; text-decoration-color: #00af00">66,048</span> │ add[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],        │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">MultiHeadAttentio…</span> │                   │            │ add[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],        │
+│                     │                   │            │ add[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]         │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ encoder_0_att_drop… │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ encoder_0_multih… │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)           │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ add_1 (<span style="color: #0087ff; text-decoration-color: #0087ff">Add</span>)         │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ add[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>],        │
+│                     │                   │            │ encoder_0_att_dr… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ encoder_0_att_laye… │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │        <span style="color: #00af00; text-decoration-color: #00af00">256</span> │ add_1[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">LayerNormalizatio…</span> │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ encoder_0_ffn       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │     <span style="color: #00af00; text-decoration-color: #00af00">33,024</span> │ encoder_0_att_la… │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Sequential</span>)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ encoder_0_ffn_drop… │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ encoder_0_ffn[<span style="color: #00af00; text-decoration-color: #00af00">0</span>]… │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)           │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ add_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Add</span>)         │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │          <span style="color: #00af00; text-decoration-color: #00af00">0</span> │ encoder_0_att_la… │
+│                     │                   │            │ encoder_0_ffn_dr… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ encoder_0_ffn_laye… │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)  │        <span style="color: #00af00; text-decoration-color: #00af00">256</span> │ add_2[<span style="color: #00af00; text-decoration-color: #00af00">0</span>][<span style="color: #00af00; text-decoration-color: #00af00">0</span>]       │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">LayerNormalizatio…</span> │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ mlm_cls (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)     │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>,       │  <span style="color: #00af00; text-decoration-color: #00af00">3,870,000</span> │ encoder_0_ffn_la… │
+│                     │ <span style="color: #00af00; text-decoration-color: #00af00">30000</span>)            │            │                   │
+└─────────────────────┴───────────────────┴────────────┴───────────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">7,842,352</span> (29.92 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">7,842,352</span> (29.92 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+
+<hr />
+<h2 id="train-and-save">Train and Save</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">bert_masked_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">mlm_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">generator_callback</span><span class="p">])</span>
+<span class="n">bert_masked_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;bert_mlm_imdb.keras&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>1/16 ━[37m━━━━━━━━━━━━━━━━━━━  3:02 12s/step - loss: 10.3103</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>2/16 ━━[37m━━━━━━━━━━━━━━━━━━  3:31 15s/step - loss: 10.2979</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>3/16 ━━━[37m━━━━━━━━━━━━━━━━━  3:25 16s/step - loss: 10.2859</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>4/16 ━━━━━[37m━━━━━━━━━━━━━━━  3:14 16s/step - loss: 10.2727</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>5/16 ━━━━━━[37m━━━━━━━━━━━━━━  2:57 16s/step - loss: 10.2564</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>6/16 ━━━━━━━[37m━━━━━━━━━━━━━  2:42 16s/step - loss: 10.2378</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>7/16 ━━━━━━━━[37m━━━━━━━━━━━━  2:26 16s/step - loss: 10.2182</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/16 ━━━━━━━━━━[37m━━━━━━━━━━  2:10 16s/step - loss: 10.1975</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>9/16 ━━━━━━━━━━━[37m━━━━━━━━━  1:55 16s/step - loss: 10.1745</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>10/16 ━━━━━━━━━━━━[37m━━━━━━━━  1:39 17s/step - loss: 10.1503</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>11/16 ━━━━━━━━━━━━━[37m━━━━━━━  1:23 17s/step - loss: 10.1254</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>12/16 ━━━━━━━━━━━━━━━[37m━━━━━  1:07 17s/step - loss: 10.0993</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>13/16 ━━━━━━━━━━━━━━━━[37m━━━━  50s 17s/step - loss: 10.0726 </p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>14/16 ━━━━━━━━━━━━━━━━━[37m━━━  33s 17s/step - loss: 10.0452</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>15/16 ━━━━━━━━━━━━━━━━━━[37m━━  16s 17s/step - loss: 10.0174</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>16/16 ━━━━━━━━━━━━━━━━━━━━ 0s 17s/step - loss: 9.9899  </p>
+<p>1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 81ms/step</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 82ms/step</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>{&#39;input_text&#39;: &#39;i have watched this [mask] and it was awesome&#39;,
+ &#39;predicted mask token&#39;: &#39;a&#39;,
+ &#39;prediction&#39;: &#39;i have watched this a and it was awesome&#39;,
+ &#39;probability&#39;: 0.0013674975}
+{&#39;input_text&#39;: &#39;i have watched this [mask] and it was awesome&#39;,
+ &#39;predicted mask token&#39;: &#39;i&#39;,
+ &#39;prediction&#39;: &#39;i have watched this i and it was awesome&#39;,
+ &#39;probability&#39;: 0.0012694978}
+{&#39;input_text&#39;: &#39;i have watched this [mask] and it was awesome&#39;,
+ &#39;predicted mask token&#39;: &#39;is&#39;,
+ &#39;prediction&#39;: &#39;i have watched this is and it was awesome&#39;,
+ &#39;probability&#39;: 0.0012668626}
+{&#39;input_text&#39;: &#39;i have watched this [mask] and it was awesome&#39;,
+ &#39;predicted mask token&#39;: &#39;to&#39;,
+ &#39;prediction&#39;: &#39;i have watched this to and it was awesome&#39;,
+ &#39;probability&#39;: 0.0012651902}
+{&#39;input_text&#39;: &#39;i have watched this [mask] and it was awesome&#39;,
+ &#39;predicted mask token&#39;: &#39;of&#39;,
+ &#39;prediction&#39;: &#39;i have watched this of and it was awesome&#39;,
+ &#39;probability&#39;: 0.0011966776}
+
+</code></pre></div>
+
+
+</div>
+<p>16/16 ━━━━━━━━━━━━━━━━━━━━ 261s 17s/step - loss: 9.9656</p>
+<hr />
+<h2 id="finetune-a-sentiment-classification-model">Fine-tune a sentiment classification model</h2>
+<p>We will fine-tune our self-supervised model on a downstream task of sentiment classification.
+To do this, let's create a classifier by adding a pooling layer and a <code>Dense</code> layer on top of the
+pretrained BERT features.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Load pretrained bert model</span>
+<span class="n">mlm_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+    <span class="s2">&quot;bert_mlm_imdb.keras&quot;</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;MaskedLanguageModel&quot;</span><span class="p">:</span> <span class="n">MaskedLanguageModel</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">pretrained_bert_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">mlm_model</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">mlm_model</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="s2">&quot;encoder_0_ffn_layernormalization&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">output</span>
+<span class="p">)</span>
+
+<span class="c1"># Freeze it</span>
+<span class="n">pretrained_bert_model</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_classifier_bert_model</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_LEN</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+    <span class="n">sequence_output</span> <span class="o">=</span> <span class="n">pretrained_bert_model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">pooled_output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">GlobalMaxPooling1D</span><span class="p">()(</span><span class="n">sequence_output</span><span class="p">)</span>
+    <span class="n">hidden_layer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">pooled_output</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">)(</span><span class="n">hidden_layer</span><span class="p">)</span>
+    <span class="n">classifer_model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;classification&quot;</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+    <span class="n">classifer_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">classifer_model</span>
+
+
+<span class="n">classifer_model</span> <span class="o">=</span> <span class="n">create_classifier_bert_model</span><span class="p">()</span>
+<span class="n">classifer_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+
+<span class="c1"># Train the classifier with frozen BERT stage</span>
+<span class="n">classifer_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_classifier_ds</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">test_classifier_ds</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Unfreeze the BERT model for fine-tuning</span>
+<span class="n">pretrained_bert_model</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+<span class="n">classifer_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">classifer_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_classifier_ds</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="n">test_classifier_ds</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "classification"</span>
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape           </span>┃<span style="font-weight: bold">       Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ input_layer_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)      │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>)            │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ functional_3 (<span style="color: #0087ff; text-decoration-color: #0087ff">Functional</span>)       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">256</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)       │     <span style="color: #00af00; text-decoration-color: #00af00">3,972,352</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ global_max_pooling1d            │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">128</span>)            │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+│ (<span style="color: #0087ff; text-decoration-color: #0087ff">GlobalMaxPooling1D</span>)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)             │         <span style="color: #00af00; text-decoration-color: #00af00">8,256</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_3 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)              │            <span style="color: #00af00; text-decoration-color: #00af00">65</span> │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">3,980,673</span> (15.19 MB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">8,321</span> (32.50 KB)
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">3,972,352</span> (15.15 MB)
+</pre>
+
+<p>1/8 ━━[37m━━━━━━━━━━━━━━━━━━  0s 140ms/step - accuracy: 0.5312 - loss: 0.7599</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>2/8 ━━━━━[37m━━━━━━━━━━━━━━━  1s 184ms/step - accuracy: 0.5703 - loss: 0.7296</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>3/8 ━━━━━━━[37m━━━━━━━━━━━━━  0s 164ms/step - accuracy: 0.5851 - loss: 0.7164</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>4/8 ━━━━━━━━━━[37m━━━━━━━━━━  0s 161ms/step - accuracy: 0.5794 - loss: 0.7125</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>5/8 ━━━━━━━━━━━━[37m━━━━━━━━  0s 158ms/step - accuracy: 0.5685 - loss: 0.7105</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>6/8 ━━━━━━━━━━━━━━━[37m━━━━━  0s 158ms/step - accuracy: 0.5589 - loss: 0.7090</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>7/8 ━━━━━━━━━━━━━━━━━[37m━━━  0s 156ms/step - accuracy: 0.5504 - loss: 0.7080</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/8 ━━━━━━━━━━━━━━━━━━━━ 0s 151ms/step - accuracy: 0.5426 - loss: 0.7076</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/8 ━━━━━━━━━━━━━━━━━━━━ 2s 288ms/step - accuracy: 0.5366 - loss: 0.7073 - val_accuracy: 0.4920 - val_loss: 0.6975</p>
+<p>1/8 ━━[37m━━━━━━━━━━━━━━━━━━  3s 436ms/step - accuracy: 0.5000 - loss: 0.7119</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>2/8 ━━━━━[37m━━━━━━━━━━━━━━━  3s 534ms/step - accuracy: 0.5469 - loss: 0.6903</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>3/8 ━━━━━━━[37m━━━━━━━━━━━━━  2s 472ms/step - accuracy: 0.5660 - loss: 0.6913</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>4/8 ━━━━━━━━━━[37m━━━━━━━━━━  1s 461ms/step - accuracy: 0.5671 - loss: 0.7032</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>5/8 ━━━━━━━━━━━━[37m━━━━━━━━  1s 459ms/step - accuracy: 0.5636 - loss: 0.7116</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>6/8 ━━━━━━━━━━━━━━━[37m━━━━━  0s 468ms/step - accuracy: 0.5626 - loss: 0.7156</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>7/8 ━━━━━━━━━━━━━━━━━[37m━━━  0s 476ms/step - accuracy: 0.5600 - loss: 0.7183</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/8 ━━━━━━━━━━━━━━━━━━━━ 0s 476ms/step - accuracy: 0.5580 - loss: 0.7198</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/8 ━━━━━━━━━━━━━━━━━━━━ 5s 650ms/step - accuracy: 0.5565 - loss: 0.7210 - val_accuracy: 0.5160 - val_loss: 0.6895</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>&lt;keras.src.callbacks.history.History at 0x7a0e5fd9bf50&gt;
+</code></pre></div>
+
+
+</div>
+<hr />
+<h2 id="create-an-endtoend-model-and-evaluate-it">Create an end-to-end model and evaluate it</h2>
+<p>When you want to deploy a model, it's best if it already includes its preprocessing
+pipeline, so that you don't have to reimplement the preprocessing logic in your
+production environment. Let's create an end-to-end model that incorporates
+the <code>TextVectorization</code> layer inside evalaute method, and let's evaluate. We will pass raw strings as input.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># We create a custom Model to override the evaluate method so</span>
+<span class="c1"># that it first pre-process text data</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelEndtoEnd</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">sentiment</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">test_classifier_ds</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_classifier_ds</span><span class="p">)</span>
+
+    <span class="c1"># Build the model</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_end_to_end</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">classifer_model</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">classifer_model</span><span class="o">.</span><span class="n">outputs</span>
+    <span class="n">end_to_end_model</span> <span class="o">=</span> <span class="n">ModelEndtoEnd</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;end_to_end_model&quot;</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">LR</span><span class="p">)</span>
+    <span class="n">end_to_end_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">end_to_end_model</span>
+
+
+<span class="n">end_to_end_classification_model</span> <span class="o">=</span> <span class="n">get_end_to_end</span><span class="p">(</span><span class="n">classifer_model</span><span class="p">)</span>
+<span class="c1"># Pass raw text dataframe to the model</span>
+<span class="n">end_to_end_classification_model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_raw_classifier_ds</span><span class="p">)</span>
+</code></pre></div>
+
+<p>1/8 ━━[37m━━━━━━━━━━━━━━━━━━  0s 138ms/step - accuracy: 0.6875 - loss: 0.6684</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>2/8 ━━━━━[37m━━━━━━━━━━━━━━━  1s 225ms/step - accuracy: 0.6250 - loss: 0.6761</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>3/8 ━━━━━━━[37m━━━━━━━━━━━━━  0s 190ms/step - accuracy: 0.5833 - loss: 0.6820</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>4/8 ━━━━━━━━━━[37m━━━━━━━━━━  0s 184ms/step - accuracy: 0.5605 - loss: 0.6848</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>5/8 ━━━━━━━━━━━━[37m━━━━━━━━  0s 178ms/step - accuracy: 0.5422 - loss: 0.6871</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>6/8 ━━━━━━━━━━━━━━━[37m━━━━━  0s 174ms/step - accuracy: 0.5352 - loss: 0.6880</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>7/8 ━━━━━━━━━━━━━━━━━[37m━━━  0s 169ms/step - accuracy: 0.5320 - loss: 0.6883</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/8 ━━━━━━━━━━━━━━━━━━━━ 0s 165ms/step - accuracy: 0.5300 - loss: 0.6885</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div>
+
+
+</div>
+<p>8/8 ━━━━━━━━━━━━━━━━━━━━ 1s 166ms/step - accuracy: 0.5285 - loss: 0.6886</p>
+<div class="k-default-codeblock">
+
+<div class="codehilite"><pre><span></span><code>[0.6894814372062683, 0.515999972820282]
+</code></pre></div>
+
+
+</div>
+
+<hr />
+<h2 id="relevant-chapters-from-deep-learning-with-python">Relevant Chapters from Deep Learning with Python</h2>
+<ul>
+<li><a href="https://deeplearningwithpython.io/chapters/chapter15_language-models-and-the-transformer">Chapter 15: Language models and the Transformer</a></li>
+</ul>
+  </div>
+  
+  <div class='k-outline'>
+    
+    <div class='k-outline-depth-1'>
+      <a href='masked_language_modeling.html#endtoend-masked-language-modeling-with-bert'>End-to-end Masked Language Modeling with BERT</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#introduction'>Introduction</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#setup'>Setup</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#setup-configuration'>Set-up Configuration</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#load-the-data'>Load the data</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#dataset-preparation'>Dataset preparation</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#create-bert-model-pretraining-model-for-masked-language-modeling'>Create BERT model (Pretraining Model) for masked language modeling</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#train-and-save'>Train and Save</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#finetune-a-sentiment-classification-model'>Fine-tune a sentiment classification model</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#create-an-endtoend-model-and-evaluate-it'>Create an end-to-end model and evaluate it</a>
+    </div>
+    
+    <div class='k-outline-depth-2'>
+      <a href='masked_language_modeling.html#relevant-chapters-from-deep-learning-with-python'>Relevant Chapters from Deep Learning with Python</a>
+    </div>
+    
+  </div>
+  
+</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer__container">
+      <a href="https://policies.google.com/terms">Terms</a>
+      <div>|</div>
+      <a href="https://policies.google.com/privacy">Privacy</a>
+    </div>
+  </footer>
+  <script src="../../js/index.js"></script>
+</body>
+
+</html>
